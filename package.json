@@ -1,0 +1,19 @@
+{
+  "name": "screeps",
+  "devDependencies": {
+    "grunt": "1.3.0",
+    "grunt-cli": "1.3.2",
+    "grunt-screeps": "1.5.0",
+    "grunt-file-append": "0.0.7",
+    "grunt-contrib-copy": "1.0.0",
+    "grunt-contrib-clean": "2.0.0",
+    "grunt-rsync": "3.0.0",
+    "grunt-jsbeautifier": "0.2.13",
+    "time-grunt": "2.0.0",
+    "lodash": "^3.10.1"
+  },
+  "dependencies": {
+    "@types/lodash": "4.14.165",
+    "@types/screeps": "3.2.1"
+  }
+}
