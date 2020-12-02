@@ -1,8 +1,11 @@
 const roleHarvester = require('role.harvester');
+const roleUpgrader = require('role.upgrader');
+const roleBuilder = require('role.builder');
+const roleRepairer = require('role.repairer');
 
 const creepManager = {
-  spawnCreeps: function (room) {
-    const roles = [roleHarvester];
+  run: function (room) {
+    const roles = [roleHarvester, roleUpgrader, roleBuilder, roleRepairer];
     const spawn = room.find(FIND_MY_SPAWNS)[0];
 
     _.forEach(roles, function(roleManager) {
@@ -10,13 +13,17 @@ const creepManager = {
 
       const creeps = _.filter(Game.creeps, (creep) => creep.memory.role == role);
       const count = creeps.length;
-      console.log(role + 's: ' + count);
+      console.log(role + 's: ' + count + '/' + number);
 
       if (count < number) {
         const name = role + Game.time;
         console.log('Spawning new ' + role + ': ' + name);
         spawn.spawnCreep(bodyparts, name, { memory: memory });
       }
+
+      _.forEach(creeps, function(creep) {
+        roleManager.run(creep);
+      })
     });
 
     if (spawn.spawning) {
@@ -28,25 +35,6 @@ const creepManager = {
         spawn.pos.y,
         { align: 'left', opacity: 0.8 });
     }
-  },
-
-  run: function() {
-    _.forEach(Game.creeps, function (creep, _) {
-      switch (creep.memory.role) {
-        case 'harvester':
-          roleHarvester.run(creep);
-          break;
-        case 'upgrader':
-          roleUpgrader.run(creep);
-          break;
-        case 'builder':
-          roleBuilder.run(creep);
-          break;
-        case 'repairer':
-          roleBuilder.run(creep);
-          break;
-      }
-    });
   }
 };
 
