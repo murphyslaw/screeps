@@ -9,8 +9,8 @@
     "grunt-contrib-clean": "2.0.0",
     "grunt-rsync": "3.0.0",
     "grunt-jsbeautifier": "0.2.13",
-    "time-grunt": "2.0.0",
-    "lodash": "^3.10.1"
+    "grunt-contrib-watch": "1.1.0",
+    "time-grunt": "2.0.0"
   },
   "dependencies": {
     "@types/lodash": "4.14.165",

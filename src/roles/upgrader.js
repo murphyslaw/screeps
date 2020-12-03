@@ -1,14 +1,17 @@
 var roleUpgrader = {
-  configuration: function (room) {
+  configuration: function(room) {
     return {
       role: 'upgrader',
       number: 2,
       bodyparts: [WORK, CARRY, MOVE],
-      memory: { role: 'upgrader', working: false }
+      memory: {
+        role: 'upgrader',
+        working: false
+      }
     }
   },
 
-  run: function (creep) {
+  run: function(creep) {
     if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
       creep.memory.working = false;
     }

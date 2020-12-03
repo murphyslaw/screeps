@@ -5,4 +5,6 @@ function clamp(number, lower, upper) {
   return number;
 };
 
-_.mixin({ 'clamp': clamp });
+_.mixin({
+  'clamp': clamp
+});

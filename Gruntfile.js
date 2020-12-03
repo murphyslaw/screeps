@@ -1,13 +1,14 @@
 module.exports = function (grunt) {
   require('time-grunt')(grunt);
 
-  const config = require('./.screeps.json')
+  const config = require('./.screeps.json');
 
-  const local_directory = grunt.option('local_directory') || config.local_directory;
   const email = grunt.option('email') || config.email;
   const password = grunt.option('password') || config.password;
   const branch = grunt.option('branch') || config.branch;
   const ptr = grunt.option('ptr') ? true : config.ptr
+  const season = grunt.option('season') ? true : config.season;
+  const local_directory = grunt.option('local_directory') || config.local_directory;
 
   grunt.loadNpmTasks('grunt-screeps');
   grunt.loadNpmTasks('grunt-contrib-clean');
@@ -15,6 +16,8 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-file-append');
   grunt.loadNpmTasks('grunt-rsync');
   grunt.loadNpmTasks('grunt-jsbeautifier');
+  grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('lodash');
 
   var currentdate = new Date();
 
@@ -80,10 +83,11 @@ module.exports = function (grunt) {
         exclude: ['.git*'],
         recursive: true
       },
+
       local: {
         options: {
           src: './dist/',
-          dest: local_directory
+          dest: local_directory + (season ? 'screeps.com___season/default' : 'screeps.com/default')
         }
       }
     },
@@ -104,6 +108,17 @@ module.exports = function (grunt) {
           config: '.jsbeautifyrc'
         }
       }
+    },
+
+    watch: {
+      scripts: {
+        files: ['src/**/*.js'],
+        tasks: ['local'],
+        options: {
+          spawn: false,
+          reload: true
+        },
+      },
     }
   });
 
@@ -124,9 +139,3 @@ module.exports = function (grunt) {
   grunt.registerTask('test', ['jsbeautifier:verify']);
   grunt.registerTask('pretty', ['jsbeautifier:modify']);
 };
-
-  // grunt.registerTask('main', ['test', 'merge', 'write']);
-  // grunt.registerTask('sandbox', ['merge', 'write-private']);
-  // grunt.registerTask('merge', 'mergeFiles');
-  // grunt.registerTask('write', 'screeps');
-  // grunt.registerTask('write-private', 'copy');

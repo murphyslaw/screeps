@@ -2,7 +2,11 @@ Room.prototype.constructionSites = function() {
   return this.find(FIND_CONSTRUCTION_SITES);
 };
 
-Room.prototype.damagedStructures = function () {
+Room.prototype.spawns = function () {
+  return this.find(FIND_MY_SPAWNS);
+};
+
+Room.prototype.damagedStructures = function() {
   const targets = this.find(FIND_STRUCTURES, {
     filter: structure => structure.hits < structure.hitsMax
   });

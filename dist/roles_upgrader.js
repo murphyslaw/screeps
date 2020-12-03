@@ -1,17 +1,19 @@
-var roleBuilder = {
-  configuration: function (room) {
+var roleUpgrader = {
+  configuration: function(room) {
     return {
-      role: 'repairer',
-      number: this.number(room),
+      role: 'upgrader',
+      number: 2,
       bodyparts: [WORK, CARRY, MOVE],
-      memory: { role: 'repairer', working: true }
+      memory: {
+        role: 'upgrader',
+        working: false
+      }
     }
   },
 
-  run: function (creep) {
+  run: function(creep) {
     if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
       creep.memory.working = false;
-      creep.memory.target = null;
     }
 
     if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
@@ -19,18 +21,8 @@ var roleBuilder = {
     }
 
     if (creep.memory.working) {
-      let target = Game.getObjectById(creep.memory.target)
-
-      if (!target || target.hits == target.hitsMax) {
-        target = creep.room.damagedStructures()[0];
-      }
-
-      if (target) {
-        creep.memory.target = target.id;
-
-        if (creep.repair(target) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(target);
-        }
+      if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(creep.room.controller);
       }
     } else {
       const source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
@@ -44,11 +36,7 @@ var roleBuilder = {
         creep.moveTo(source);
       }
     }
-  },
-
-  number: function (room) {
-    return room.damagedStructures().length > 0 ? 1 : 0;
   }
 };
 
-module.exports = roleBuilder;
+module.exports = roleUpgrader;

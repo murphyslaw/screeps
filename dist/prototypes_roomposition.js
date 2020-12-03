@@ -1,4 +1,4 @@
-RoomPosition.prototype.adjacentPositions = function () {
+RoomPosition.prototype.adjacentPositions = function() {
   const positions = [];
   let x;
   let y;
