@@ -1,42 +1,51 @@
-var roleUpgrader = {
-  configuration: function(room) {
-    return {
-      role: 'upgrader',
-      number: 2,
-      bodyparts: [WORK, CARRY, MOVE],
-      memory: {
-        role: 'upgrader',
-        working: false
+'use strict';
+
+const EnergyRole = require('roles_energyrole');
+
+class Upgrader extends EnergyRole {
+  get bodyPattern() {
+    return [WORK, CARRY, MOVE];
+  }
+
+  get maxCreepSize() {
+    return 15;
+  }
+
+  number(room) {
+    return room.controller.container ? 1 : 0;
+  }
+
+  findTarget(creep) {
+    return creep.room.controller;
+  }
+
+  findSource(creep) {
+    let source;
+
+    // controller container
+    if (!source) {
+      const container = _.get(creep.room, 'controller.container');
+
+      if (container && container.store[this.resource] > 0) {
+        source = container;
       }
     }
-  },
 
-  run: function(creep) {
-    if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
-      creep.memory.working = false;
+    // energy source
+    if (!source && !creep.room.controller.container) {
+      source = creep.pos.findClosestByPath(creep.room.sources);
     }
 
-    if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
-      creep.memory.working = true;
+    return source;
+  }
+
+  targetAction(creep, target) {
+    if (creep.upgradeController(target) == ERR_NOT_IN_RANGE) {
+      creep.moveTo(target);
     }
 
-    if (creep.memory.working) {
-      if (creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(creep.room.controller);
-      }
-    } else {
-      const source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-        filter: (structure) => {
-          return structure.structureType == STRUCTURE_CONTAINER &&
-            structure.store[RESOURCE_ENERGY] > 0;
-        }
-      });
-
-      if (creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(source);
-      }
-    }
+    return;
   }
 };
 
-module.exports = roleUpgrader;
+module.exports = new Upgrader();

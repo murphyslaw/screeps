@@ -1,58 +1,36 @@
-var roleBuilder = {
-  configuration: function(room) {
-    return {
-      role: 'builder',
-      number: this.number(room),
-      bodyparts: [WORK, CARRY, MOVE],
-      memory: {
-        role: 'builder',
-        working: true
-      }
+'use strict';
+
+const EnergyRole = require('roles_energyrole');
+
+class Builder extends EnergyRole {
+  get maxCreepSize() {
+    return 6;
+  }
+
+  get bodyPattern() {
+    return [WORK, CARRY, MOVE];
+  }
+
+  number(room) {
+    return room.constructionSites.length > 0 ? 1 : 0;
+  }
+
+  findTarget(creep) {
+    return creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
+  }
+
+  targetNotFound(creep) {
+    // TODO violates single responsibility principle, but useful because when
+    // walls or ramparts are build then the creep automatically repairs them
+    // afterwards.
+    creep.role = 'repairer';
+  }
+
+  targetAction(creep, target) {
+    if (creep.build(target) == ERR_NOT_IN_RANGE) {
+      creep.moveTo(target);
     }
-  },
-
-  run: function(creep) {
-    if (creep.memory.working && creep.store[RESOURCE_ENERGY] == 0) {
-      creep.memory.working = false;
-    }
-
-    if (!creep.memory.working && creep.store.getFreeCapacity() == 0) {
-      creep.memory.working = true;
-    }
-
-    if (creep.memory.working) {
-      const construction_site = creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
-
-      if (construction_site) {
-        if (creep.build(construction_site) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(construction_site);
-        }
-      }
-    } else {
-      let source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-        filter: (structure) => {
-          return structure.structureType == STRUCTURE_CONTAINER &&
-            structure.store[RESOURCE_ENERGY] > 0;
-        }
-      });
-
-      if (!source) {
-        source = creep.pos.findClosestByPath(FIND_SOURCES_ACTIVE);
-      }
-
-      if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(source);
-      }
-
-      if (creep.withdraw(source, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(source);
-      }
-    }
-  },
-
-  number: function(room) {
-    return room.constructionSites().length > 0 ? 3 : 0;
   }
 };
 
-module.exports = roleBuilder;
+module.exports = new Builder();

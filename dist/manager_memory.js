@@ -1,5 +1,7 @@
-const memoryManager = {
-  clean: function() {
+'use strict';
+
+class MemoryManager {
+  clean() {
     for (const name in Memory.creeps) {
       if (!Game.creeps[name]) {
         delete Memory.creeps[name];
@@ -7,6 +9,6 @@ const memoryManager = {
       }
     }
   }
-};
+}
 
-module.exports = memoryManager;
+module.exports = new MemoryManager();
