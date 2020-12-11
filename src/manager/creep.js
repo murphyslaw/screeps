@@ -3,17 +3,25 @@
 global.ROLES = {
   harvester: require('roles_harvester'),
   remoteharvester: require('roles_remoteharvester'),
-  hauler: require('roles_hauler'),
+  energyhauler: require('roles_energyhauler'),
+  mineralhauler: require('roles_mineralhauler'),
   builder: require('roles_builder'),
   upgrader: require('roles_upgrader'),
   repairer: require('roles_repairer'),
+  defenserepairer: require('roles_defenserepairer'),
   scoreharvester: require('roles_scoreharvester'),
-  supplier: require('roles_supplier')
+  supplier: require('roles_supplier'),
+  containerharvester: require('roles_containerharvester'),
+  containerextractor: require('roles_containerextractor')
 };
 
 class CreepManager {
   spawn(room) {
     _.forEach(ROLES, function (role) {
+      if (global.config.stats) {
+        console.log(role.name, role.creeps.length);
+      }
+
       if (role.wantsToSpawn(room)) {
         role.spawn(room);
       }

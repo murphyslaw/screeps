@@ -4,7 +4,7 @@ const EnergyRole = require('roles_energyrole');
 
 class Builder extends EnergyRole {
   get maxCreepSize() {
-    return 6;
+    return this.bodyPattern.length * 6;
   }
 
   get bodyPattern() {
@@ -12,18 +12,26 @@ class Builder extends EnergyRole {
   }
 
   number(room) {
-    return room.constructionSites.length > 0 ? 1 : 0;
+    const constructionSites = _.some(Memory.rooms, 'needsBuilder');
+
+    return constructionSites ? 1 : 0;
+  }
+
+  findTargetRoom(room) {
+    let roomName = room.name;
+
+    _.forEach(Memory.rooms, function (room, name) {
+      if (room.needsBuilder) {
+        roomName = name;
+        return;
+      }
+    });
+
+    return roomName;
   }
 
   findTarget(creep) {
-    return creep.pos.findClosestByPath(FIND_CONSTRUCTION_SITES);
-  }
-
-  targetNotFound(creep) {
-    // TODO violates single responsibility principle, but useful because when
-    // walls or ramparts are build then the creep automatically repairs them
-    // afterwards.
-    creep.role = 'repairer';
+    return creep.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES);
   }
 
   targetAction(creep, target) {

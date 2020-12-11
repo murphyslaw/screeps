@@ -25,7 +25,7 @@ class Supplier extends EnergyRole {
           return (structure.structureType == STRUCTURE_SPAWN ||
             structure.structureType == STRUCTURE_EXTENSION ||
             structure.structureType == STRUCTURE_TOWER) &&
-            structure.store.getFreeCapacity(this.resource) > 0;
+            structure.store.getFreeCapacity(this.resource(creep)) > 0;
         }
       });
     }
@@ -38,8 +38,8 @@ class Supplier extends EnergyRole {
     return target;
   }
 
-  invalidTarget(target) {
-    return target.store.getFreeCapacity(this.resource) == 0;
+  invalidTarget(creep, target) {
+    return target.store.getFreeCapacity(this.resource(creep)) == 0;
   }
 
   findSource(creep) {
@@ -47,7 +47,7 @@ class Supplier extends EnergyRole {
 
     // storage
     if (!source) {
-      if (creep.room.storage && creep.room.storage.store[this.resource] > 0) {
+      if (creep.room.storage && creep.room.storage.store[this.resource(creep)] > 0) {
         source = creep.room.storage;
       }
     }
@@ -56,7 +56,7 @@ class Supplier extends EnergyRole {
   }
 
   targetAction(creep, target) {
-    if (creep.transfer(target, this.resource) == ERR_NOT_IN_RANGE) {
+    if (creep.transfer(target, this.resource(creep)) == ERR_NOT_IN_RANGE) {
       creep.moveTo(target);
     }
 

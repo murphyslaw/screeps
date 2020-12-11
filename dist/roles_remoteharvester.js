@@ -4,12 +4,23 @@ const EnergyRole = require('roles_energyrole');
 
 class RemoteHarvester extends EnergyRole {
   get bodyPattern() {
-    return [WORK, CARRY, MOVE];
+    return [WORK, CARRY, MOVE, MOVE];
+  }
+
+  get maxCreepSize() {
+    return this.bodyPattern.length * 5;
+  }
+
+  get keepSource() {
+    return true;
+  }
+
+  get keepTarget() {
+    return true;
   }
 
   number(room) {
-    // return room.storage ? _.keys(Game.map.describeExits(room.name)).length : 0;
-    return 0;
+    return room.storage ? _.keys(Game.map.describeExits(room.name)).length : 0;
   }
 
   findSourceRoom(room) {
@@ -17,9 +28,11 @@ class RemoteHarvester extends EnergyRole {
 
     const creeps = this.creeps;
 
-    return _.find(adjacentRooms, function(roomName) {
+    const sourceRoom = _.find(adjacentRooms, function(roomName) {
       return !_.some(creeps, creep => creep.sourceRoom == roomName);
     })
+
+    return sourceRoom;
   }
 
   findSource(creep) {
@@ -30,21 +43,12 @@ class RemoteHarvester extends EnergyRole {
     return creep.room.storage;
   }
 
-  // validate if the target store got full in the meantime
-  invalidTarget(target) {
-    return target.store && target.store.getFreeCapacity(this.resource) == 0;
+  invalidTarget(creep, target) {
+    return target.store && target.store.getFreeCapacity(this.resource(creep)) == 0;
   }
 
   targetAction(creep, target) {
-    if (target.progress && creep.build(target) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(target);
-    }
-
-    if (target.structureType == STRUCTURE_CONTROLLER && creep.upgradeController(target) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(target);
-    }
-
-    if (creep.transfer(target, this.resource) == ERR_NOT_IN_RANGE) {
+    if (creep.transfer(target, this.resource(creep)) == ERR_NOT_IN_RANGE) {
       creep.moveTo(target);
     }
 

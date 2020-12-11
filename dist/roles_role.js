@@ -10,7 +10,7 @@ class Role {
     return this.constructor.name.toLowerCase();
   }
 
-  get generatedName() {
+  get randomName() {
     return Date.now().toString(36) + Math.random().toString(36).substring(2);
   }
 
@@ -23,13 +23,7 @@ class Role {
   }
 
   get creeps() {
-    if (!this._creeps) {
-      this._creeps = {}
-    }
-
-    this._creeps[this.name] = this._creeps[this.name] || _.filter(Game.creeps, 'role', this.name);
-
-    return this._creeps[this.name];
+    return _.filter(Game.creeps, 'role', this.name);
   }
 
   get maxSpawnTime() {
@@ -37,7 +31,7 @@ class Role {
   }
 
   get maxCreepSize() {
-    return MAX_CREEP_SIZE;
+    return this.bodyPattern.length;
   }
 
   get states() {
@@ -71,6 +65,8 @@ class Role {
     if (rerun) {
       this.run(creep);
     }
+
+    return;
   }
 
   run(creep) {
@@ -103,6 +99,10 @@ class Role {
     return;
   }
 
+  isIdle(creep) {
+    return false;
+  }
+
   recycle(creep) {
     creep.recycle();
 
@@ -128,7 +128,7 @@ class Role {
     const spawn = room.nonSpawningSpawns[0];
 
     if (spawn) {
-      const name = this.generatedName;
+      const name = this.randomName;
       const bodyparts = this.bodyparts(room.energyAvailable);
       const memory = this.memory(room);
       memory['role'] = this.name;

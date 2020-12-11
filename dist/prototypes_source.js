@@ -73,12 +73,17 @@ Object.defineProperties(Source.prototype, {
           }
         }
 
-        this._container = Game.getObjectById(this.memory.container);
+        const container = Game.getObjectById(this.memory.container);
+
+        if (container) {
+          this._container = container;
+        } else {
+          delete this.memory.container;
+        }
       }
 
       return this._container;
     },
-    enumerable: false,
     configurable: true
   }
 });

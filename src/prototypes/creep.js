@@ -34,7 +34,11 @@ Object.defineProperties(Creep.prototype, {
       return this._source;
     },
     set: function (value) {
-      this.memory.source = value.id;
+      if (value) {
+        this.memory.source = value.id;
+      } else if (this.memory.source) {
+        delete this.memory.source;
+      }
 
       return;
     },
@@ -50,7 +54,11 @@ Object.defineProperties(Creep.prototype, {
       return this._target;
     },
     set: function (value) {
-      this.memory.target = value.id;
+      if (value) {
+        this.memory.target = value.id;
+      } else if (this.memory.target) {
+        delete this.memory.target;
+      }
 
       return;
     },
@@ -62,7 +70,11 @@ Object.defineProperties(Creep.prototype, {
       return this.memory.targetRoom;
     },
     set: function (value) {
-      this.memory.targetRoom = value;
+      if (value) {
+        this.memory.targetRoom = value;
+      } else if (this.memory.targetRoom) {
+        delete this.memory.targetRoom;
+      }
     },
     configurable: true
   },
@@ -79,7 +91,11 @@ Object.defineProperties(Creep.prototype, {
       return this.memory.sourceRoom;
     },
     set: function (value) {
-      this.memory.sourceRoom = value;
+      if (value) {
+        this.memory.sourceRoom = value;
+      } else if (this.memory.sourceRoom) {
+        delete this.memory.sourceRoom;
+      }
     },
     configurable: true
   },
@@ -89,21 +105,40 @@ Object.defineProperties(Creep.prototype, {
       return this.room.name == this.sourceRoom && !this.pos.isBorderPosition;
     },
     configurable: true
+  },
+
+  'sourceType': {
+    get: function () {
+      return this.memory.sourceType;
+    },
+    set: function (value) {
+      this.memory.sourceType = value;
+    },
+    configurable: true
+  },
+
+  'resources': {
+    get: function() {
+      return this.store.resources;
+    },
+    configurable: true
   }
 });
-
-Creep.prototype.resetSource = function() {
-  delete this.memory.source;
-}
-
-Creep.prototype.resetTarget = function () {
-  delete this.memory.target;
-}
 
 Creep.prototype.moveToRoom = function(roomName) {
   if (roomName) {
     return this.moveTo(new RoomPosition(25, 25, roomName));
   }
+}
+
+Creep.prototype.resetTarget = function() {
+  this.targetRoom = null;
+  this.target = null;
+}
+
+Creep.prototype.resetSource = function() {
+  this.sourceRoom = null;
+  this.source = null;
 }
 
 Creep.prototype.recycle = function() {

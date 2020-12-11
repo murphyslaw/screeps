@@ -4,7 +4,7 @@ const EnergyRole = require('roles_energyrole');
 
 class Repairer extends EnergyRole {
   get maxCreepSize() {
-    return this.bodyPattern.length * 3;
+    return this.bodyPattern.length * 5;
   }
 
   get bodyPattern() {
@@ -12,15 +12,34 @@ class Repairer extends EnergyRole {
   }
 
   number(room) {
-    return room.damagedStructures.length > 0 ? 1 : 0;
+    return room.damagedStructures.length > 0 ? 2 : 0;
+  }
+
+  findTargetRoom(room) {
+    let roomName = room.name;
+
+    // _.forEach(Memory.rooms, function (room, name) {
+    //   if (room.needsRepairer) {
+    //     roomName = name;
+    //     return;
+    //   }
+    // });
+
+    return roomName;
   }
 
   findTarget(creep) {
-    return creep.room.damagedStructures[0];
+    let target = creep.pos.findClosestByRange(creep.room.damagedStructures, {
+      filter: (structure) => {
+        return !_.some(this.creeps, 'target', structure);
+      }
+    });
+
+    return target;
   }
 
-  invalidTarget(target) {
-    return target.hits == target.hitsMax;
+  invalidTarget(creep, target) {
+    return target.healthy;
   }
 
   targetAction(creep, target) {

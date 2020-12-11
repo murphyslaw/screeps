@@ -4,7 +4,7 @@ const EnergyRole = require('roles_energyrole');
 
 class Harvester extends EnergyRole {
   get maxCreepSize() {
-    return 15;
+    return this.bodyPattern.length * 5;
   }
 
   get bodyPattern() {
@@ -12,7 +12,8 @@ class Harvester extends EnergyRole {
   }
 
   number(room) {
-    return room.sources.length;
+    // return room.sources.length;
+    return 0;
   }
 
   findTarget(creep) {
@@ -23,7 +24,7 @@ class Harvester extends EnergyRole {
       targets = creep.pos.lookFor(LOOK_STRUCTURES);
       targets = _.filter(targets, function(structure) {
         return structure.structureType == STRUCTURE_CONTAINER &&
-          structure.store.getFreeCapacity(this.resource) > 0;
+          structure.store.getFreeCapacity(this.resource(creep)) > 0;
       }, this);
     }
 
@@ -32,8 +33,12 @@ class Harvester extends EnergyRole {
       const sourceContainers = creep.room.sourceContainers;
 
       targets = _.filter(sourceContainers, function(container) {
-        return container.store.getFreeCapacity(this.resource) > 0;
+        return container.store.getFreeCapacity(this.resource(creep)) > 0;
       }, this)
+    }
+
+    if (!targets.length) {
+      targets = [creep.room.storage];
     }
 
     const target = targets.length > 1 ? creep.pos.findClosestByPath(targets) : targets[0];
@@ -53,13 +58,12 @@ class Harvester extends EnergyRole {
     return;
   }
 
-  // validate if the target store got full in the meantime
-  invalidTarget(target) {
-    return target.store && target.store.getFreeCapacity(this.resource) == 0;
+  invalidTarget(creep, target) {
+    return target.store && target.store.getFreeCapacity(this.resource(creep)) == 0;
   }
 
   targetAction(creep, target) {
-    if (creep.transfer(target, this.resource) == ERR_NOT_IN_RANGE) {
+    if (creep.transfer(target, this.resource(creep)) == ERR_NOT_IN_RANGE) {
       creep.moveTo(target);
     }
 

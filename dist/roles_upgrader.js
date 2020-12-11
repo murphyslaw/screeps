@@ -8,11 +8,15 @@ class Upgrader extends EnergyRole {
   }
 
   get maxCreepSize() {
-    return 15;
+    return this.bodyPattern.length * 5;
+  }
+
+  get keepTarget() {
+    return true;
   }
 
   number(room) {
-    return room.controller.container ? 1 : 0;
+    return room.controller.container ? 2 : 0;
   }
 
   findTarget(creep) {
@@ -26,13 +30,21 @@ class Upgrader extends EnergyRole {
     if (!source) {
       const container = _.get(creep.room, 'controller.container');
 
-      if (container && container.store[this.resource] > 0) {
+      if (container && container.store[this.resource(creep)] > 0) {
         source = container;
       }
     }
 
+    // storage
+    if (!source) {
+      const storage = creep.room.storage;
+
+      if (storage && storage.store[this.resource(creep)] > 0)
+      source = creep.room.storage;
+    }
+
     // energy source
-    if (!source && !creep.room.controller.container) {
+    if (!source) {
       source = creep.pos.findClosestByPath(creep.room.sources);
     }
 

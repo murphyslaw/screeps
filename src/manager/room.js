@@ -1,6 +1,35 @@
 'use strict';
 
 class RoomManager {
+  stats(room) {
+    if (global.config.stats) {
+      const extensions = room.find(FIND_STRUCTURES, {
+        filter: function(structure) {
+          return structure.structureType == STRUCTURE_EXTENSION;
+        }
+      });
+
+      console.log('extensions', extensions.length);
+    }
+
+    return;
+  }
+
+  visuals(room) {
+    if (global.config.visuals) {
+      const damagedStructures = room.damagedStructures;
+
+      console.log('damaged structures', damagedStructures.length);
+
+      _.forEach(damagedStructures, function(structure) {
+        room.visual.circle(structure.pos,
+          { fill: 'red', radius: 0.55, stroke: 'red' });
+      });
+    }
+
+    return;
+  }
+
   defense(room) {
     const towers = room.find(FIND_MY_STRUCTURES, {
       filter: { structureType: STRUCTURE_TOWER }
@@ -41,13 +70,15 @@ class RoomManager {
         return;
       }
     });
+
+    return;
   }
 
   intelligence(room) {
     let updateFrequency;
 
     updateFrequency = global.ENERGY_REGEN_TIME;
-    if (Game.time % updateFrequency == 0) {
+    if (global.config.intelligence && Game.time % updateFrequency == 0) {
       if (room.storage) {
         const before = room.memory.last_storage_capacity || 0;
 
@@ -65,8 +96,8 @@ class RoomManager {
       }
     }
 
-    updateFrequency = 100;
-    if (Game.time % updateFrequency == 0) {
+    updateFrequency = global.ENERGY_REGEN_TIME;
+    if (global.config.intelligence && Game.time % updateFrequency == 0) {
       if (room.controller) {
         const before = room.memory.last_controller_progress || 0;
         const now = room.controller.progress;
@@ -79,20 +110,22 @@ class RoomManager {
       }
     }
 
-    updateFrequency = 100;
-    if (Game.time % updateFrequency == 0) {
-      const adjacentRooms = Game.map.describeExits(room.name);
+    // updateFrequency = 100;
+    // if (global.config.intelligence && Game.time % updateFrequency == 0) {
+    //   const adjacentRooms = Game.map.describeExits(room.name);
 
-      _.forEach(adjacentRooms, function(roomName, direction) {
-        Memory.rooms[roomName] = Memory.rooms[roomName] || {};
+    //   _.forEach(adjacentRooms, function(roomName, direction) {
+    //     Memory.rooms[roomName] = Memory.rooms[roomName] || {};
 
-        const data = Memory.rooms[roomName];
-        const roomStatus = Game.map.getRoomStatus(roomName);
+    //     const data = Memory.rooms[roomName];
+    //     const roomStatus = Game.map.getRoomStatus(roomName);
 
-        data.direction = direction;
-        data.status = roomStatus.status;
-      });
-    }
+    //     data.direction = direction;
+    //     data.status = roomStatus.status;
+    //   });
+    // }
+
+    return;
   }
 }
 

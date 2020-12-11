@@ -2,7 +2,7 @@
 
 const EnergyRole = require('roles_energyrole');
 
-class Hauler extends EnergyRole {
+class EnergyHauler extends EnergyRole {
   get bodyPattern() {
     return [CARRY, MOVE];
   }
@@ -25,28 +25,26 @@ class Hauler extends EnergyRole {
           return (structure.structureType == STRUCTURE_SPAWN ||
             structure.structureType == STRUCTURE_EXTENSION ||
             structure.structureType == STRUCTURE_TOWER) &&
-            structure.store.getFreeCapacity(this.resource) > 0 &&
+            structure.store.getFreeCapacity(this.resource(creep)) > 0 &&
             !_.some(this.creeps, 'target', structure);
         }
       });
     }
 
-    // storage without full energy
+    // storage
     if (!target) {
-      target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-        filter: (structure) => {
-          return structure.structureType == STRUCTURE_STORAGE &&
-            structure.store.getFreeCapacity(this.resource) > 0 &&
-            !_.some(this.creeps, 'target', structure);
-        }
-      });
+      target = creep.room.storage;
     }
 
     return target;
   }
 
-  invalidTarget(target) {
-    return target.store.getFreeCapacity(this.resource) == 0;
+  invalidTarget(creep, target) {
+    const result = _.some(creep.resources, function (resource) {
+      return target.store.getFreeCapacity(resource) === 0;
+    });
+
+    return result;
   }
 
   findSource(creep) {
@@ -69,7 +67,7 @@ class Hauler extends EnergyRole {
     if (!source) {
       const tombstones = creep.room.find(FIND_TOMBSTONES, {
         filter: (tombstone) => {
-          return tombstone.store[this.resource] > 0 &&
+          return tombstone.store[this.resource(creep)] > 0 &&
             !_.some(this.creeps, 'source', tombstone);
         }
       });
@@ -83,7 +81,7 @@ class Hauler extends EnergyRole {
     if (!source) {
       const ruins = creep.room.find(FIND_RUINS, {
         filter: (ruin) => {
-          return ruin.store[this.resource] > 0 &&
+          return ruin.store[this.resource(creep)] > 0 &&
             !_.some(this.creeps, 'source', ruin);
         }
       });
@@ -99,7 +97,7 @@ class Hauler extends EnergyRole {
 
       source = creep.pos.findClosestByPath(sourceContainers, {
         filter: (structure) => {
-          return structure.store[this.resource] > 0 &&
+          return structure.store[this.resource(creep)] > 0 &&
             !_.some(this.creeps, 'source', structure);
         }
       });
@@ -109,12 +107,21 @@ class Hauler extends EnergyRole {
   }
 
   targetAction(creep, target) {
-    if (creep.transfer(target, this.resource) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(target);
-    }
+    _.forEach(_.keys(creep.store), function(resource) {
+      const result = creep.transfer(target, resource);
+
+      switch(result) {
+        case ERR_NOT_IN_RANGE:
+          creep.moveTo(target);
+          break;
+        case ERR_INVALID_TARGET:
+          creep.resetTarget();
+          break;
+      }
+    });
 
     return;
   }
 };
 
-module.exports = new Hauler();
+module.exports = new EnergyHauler();

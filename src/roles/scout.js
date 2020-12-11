@@ -7,10 +7,6 @@ class Scout extends Role {
     return [MOVE];
   }
 
-  get maxCreepSize() {
-    return 1;
-  }
-
   number(room) {
     return 0;
   }

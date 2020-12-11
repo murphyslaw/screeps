@@ -5,7 +5,6 @@ Object.defineProperties(StructureController.prototype, {
     get: function () {
       return this.room.memory.controller = this.room.memory.controller || {};
     },
-    enumerable: false,
     configurable: true
   },
 
@@ -24,12 +23,17 @@ Object.defineProperties(StructureController.prototype, {
           }
         }
 
-        this._container = Game.getObjectById(this.memory.container);
+        const container = Game.getObjectById(this.memory.container);
+
+        if (container) {
+          this._container = container;
+        } else {
+          delete this.memory.container;
+        }
       }
 
       return this._container;
     },
-    enumerable: false,
     configurable: true
   }
 });

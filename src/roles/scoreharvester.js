@@ -11,7 +11,7 @@ class ScoreHarvester extends EnergyRole {
     return this.bodyPattern.length * 6;
   }
 
-  get resource() {
+  resource(creep) {
     return RESOURCE_SCORE;
   }
 
@@ -23,8 +23,21 @@ class ScoreHarvester extends EnergyRole {
     return creep.room.storage;
   }
 
-  invalidTarget(target) {
-    return target.store.getFreeCapacity(this.resource) == 0;
+  invalidTarget(creep, target) {
+    return target.store.getFreeCapacity(this.resource(creep)) == 0;
+  }
+
+  findSourceRoom(room) {
+    let roomName = room.name;
+
+    _.forEach(Memory.rooms, function (room, name) {
+      if (room.needsScoreHarvester) {
+        roomName = name;
+        return;
+      }
+    });
+
+    return roomName;
   }
 
   findSource(creep) {
@@ -43,7 +56,7 @@ class ScoreHarvester extends EnergyRole {
   }
 
   targetAction(creep, target) {
-    if (creep.transfer(target, this.resource) == ERR_NOT_IN_RANGE) {
+    if (creep.transfer(target, this.resource(creep)) == ERR_NOT_IN_RANGE) {
       creep.moveTo(target);
     }
 
