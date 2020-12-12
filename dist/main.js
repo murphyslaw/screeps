@@ -17,6 +17,7 @@ require('prototypes_store');
 const memoryManager = require('manager_memory');
 const creepManager = require('manager_creep');
 const roomManager = require('manager_room');
+const statsManager = require('manager_stats');
 
 global.config = {
   visuals: false,
@@ -39,4 +40,6 @@ module.exports.loop = function() {
       creepManager.run();
     }
   });
+
+  statsManager.exportStats();
 }
