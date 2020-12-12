@@ -5,7 +5,6 @@ module.exports = function (grunt) {
 
   const email = grunt.option('email') || config.email;
   const password = grunt.option('password') || config.password;
-  const branch = grunt.option('branch') || config.branch;
   const ptr = grunt.option('ptr') ? true : config.ptr
   const season = grunt.option('season') ? true : config.season;
   const local_directory = grunt.option('local_directory') || config.local_directory;
@@ -15,28 +14,31 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-file-append');
   grunt.loadNpmTasks('grunt-rsync');
-  grunt.loadNpmTasks('grunt-jsbeautifier');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-gitinfo');
   grunt.loadNpmTasks('lodash');
 
   var currentdate = new Date();
 
-  // Output the current date and branch.
+  // Output the current date.
   grunt.log.subhead('Task Start: ' + currentdate.toLocaleString());
-  grunt.log.writeln('Branch: ' + branch);
 
   grunt.initConfig({
     screeps: {
       options: {
         email: email,
         password: password,
-        branch: branch,
+        branch: '<%= gitinfo.local.branch.current.name %>',
         ptr: ptr
       },
       dist: {
         src: ['src/*.js']
       }
     },
+
+    // gitinfo: {
+    //   options: {}
+    // },
 
     // Remove all files from the dist folder.
     clean: {
@@ -87,25 +89,7 @@ module.exports = function (grunt) {
       local: {
         options: {
           src: './dist/',
-          dest: local_directory + (season ? 'screeps.com___season/default' : 'screeps.com/default')
-        }
-      }
-    },
-
-    // Apply code styling rules.
-    jsbeautifier: {
-      modify: {
-        src: ['src/**/*.js'],
-        options: {
-          config: '.jsbeautifyrc'
-        }
-      },
-
-      verify: {
-        src: ['src/**/*.js'],
-        options: {
-          mode: 'VERIFY_ONLY',
-          config: '.jsbeautifyrc'
+          dest: local_directory + (season ? 'screeps.com___season/' : 'screeps.com/') + '<%= gitinfo.local.branch.current.name %>'
         }
       }
     },
@@ -122,20 +106,20 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('default', [
+  grunt.registerTask('prepare', [
+    'gitinfo',
     'clean',
     'copy:screeps',
-    'file_append:versioning',
+    'file_append:versioning'
+  ]);
+
+  grunt.registerTask('default', [
+    'prepare',
     'screeps'
   ]);
 
   grunt.registerTask('local', [
-    'clean',
-    'copy:screeps',
-    'file_append:versioning',
+    'prepare',
     'rsync:local'
   ]);
-
-  grunt.registerTask('test', ['jsbeautifier:verify']);
-  grunt.registerTask('pretty', ['jsbeautifier:modify']);
 };
