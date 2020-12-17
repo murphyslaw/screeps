@@ -8,6 +8,7 @@ module.exports = function (grunt) {
   const ptr = grunt.option('ptr') ? true : config.ptr
   const season = grunt.option('season') ? true : config.season;
   const local_directory = grunt.option('local_directory') || config.local_directory;
+  const grafana_api_key = grunt.option('grafana') || config.grafana_api_key;
 
   grunt.loadNpmTasks('grunt-screeps');
   grunt.loadNpmTasks('grunt-contrib-clean');
@@ -16,6 +17,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-rsync');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-gitinfo');
+  grunt.loadNpmTasks('grunt-http');
   grunt.loadNpmTasks('lodash');
 
   var currentdate = new Date();
@@ -35,10 +37,6 @@ module.exports = function (grunt) {
         src: ['src/*.js']
       }
     },
-
-    // gitinfo: {
-    //   options: {}
-    // },
 
     // Remove all files from the dist folder.
     clean: {
@@ -94,6 +92,25 @@ module.exports = function (grunt) {
       }
     },
 
+    http: {
+      grafana: {
+        options: {
+          url: 'http://localhost:1337/api/annotations',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + grafana_api_key,
+          },
+          method: 'POST',
+          body: {
+            'text': 'Deployment',
+            'tags': ['deployment']
+          },
+          json: true,
+          timeout: 2000,
+        },
+      }
+    },
+
     watch: {
       scripts: {
         files: ['src/**/*.js'],
@@ -110,7 +127,8 @@ module.exports = function (grunt) {
     'gitinfo',
     'clean',
     'copy:screeps',
-    'file_append:versioning'
+    'file_append:versioning',
+    'http'
   ]);
 
   grunt.registerTask('default', [

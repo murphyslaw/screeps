@@ -1,44 +1,42 @@
-'use strict';
+'use strict'
 
-const EnergyRole = require('roles_energyrole');
+global.Builder = class extends EnergyRole {
+  get name() { return 'builder' }
 
-class Builder extends EnergyRole {
   get maxCreepSize() {
-    return this.bodyPattern.length * 6;
+    return this.bodyPattern.length * 6
   }
 
   get bodyPattern() {
-    return [WORK, CARRY, MOVE];
+    return [WORK, CARRY, MOVE]
   }
 
   number(room) {
-    const constructionSites = _.some(Memory.rooms, 'needsBuilder');
+    const needsBuilder = _.some(Memory.rooms, 'needsBuilder')
 
-    return constructionSites ? 1 : 0;
+    return needsBuilder ? 1 : 0
   }
 
   findTargetRoom(room) {
-    let roomName = room.name;
+    let roomName = room.name
 
     _.forEach(Memory.rooms, function (room, name) {
       if (room.needsBuilder) {
-        roomName = name;
-        return;
+        roomName = name
+        return
       }
     });
 
-    return roomName;
+    return roomName
   }
 
   findTarget(creep) {
-    return creep.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES);
+    return creep.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES)
   }
 
   targetAction(creep, target) {
     if (creep.build(target) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(target);
+      creep.moveTo(target)
     }
   }
-};
-
-module.exports = new Builder();
+}

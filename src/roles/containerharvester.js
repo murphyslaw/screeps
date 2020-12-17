@@ -1,10 +1,10 @@
-'use strict';
+'use strict'
 
-const EnergyRole = require('roles_energyrole');
+global.ContainerHarvester = class extends EnergyRole {
+  get name() { return 'containerharvester' }
 
-class ContainerHarvester extends EnergyRole {
   get bodyPattern() {
-    return [WORK, WORK, WORK, WORK, WORK, MOVE];
+    return [WORK, WORK, WORK, WORK, WORK, MOVE]
   }
 
   get states() {
@@ -14,42 +14,40 @@ class ContainerHarvester extends EnergyRole {
   }
 
   get keepSource() {
-    return true;
+    return true
   }
 
   get keepTarget() {
-    return true;
+    return true
   }
 
   number(room) {
-    return room.sourceContainers.length;
+    return room.sourceContainers.length
   }
 
   findSource(creep) {
     const sources = _.filter(creep.room.sources, function(source) {
-      return !_.some(this.creeps, 'source', source);
-    }, this);
+      return !_.some(this.creeps, 'source', source)
+    }, this)
 
-    return creep.pos.findClosestByPath(sources);
+    return creep.pos.findClosestByPath(sources)
   }
 
   sourceNotFound(creep) {
-    return;
+    return
   }
 
   sourceAction(creep, source) {
-    const container = source.container;
+    const container = source.container
 
     if (container) {
       if (creep.pos.isEqualTo(container)) {
-        creep.harvest(source);
+        creep.harvest(source)
       } else {
-        creep.moveTo(container);
+        creep.moveTo(container)
       }
     }
 
-    return;
+    return
   }
-};
-
-module.exports = new ContainerHarvester();
+}

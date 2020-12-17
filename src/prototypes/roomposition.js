@@ -27,6 +27,7 @@ Object.defineProperties(RoomPosition.prototype, {
       }
 
       return positions;
-    }
-  }
+    },
+    configurable: true
+  },
 });

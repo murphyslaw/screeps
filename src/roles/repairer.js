@@ -1,8 +1,8 @@
 'use strict';
 
-const EnergyRole = require('roles_energyrole');
+global.Repairer = class extends EnergyRole {
+  get name() { return 'repairer' }
 
-class Repairer extends EnergyRole {
   get maxCreepSize() {
     return this.bodyPattern.length * 5;
   }
@@ -12,30 +12,29 @@ class Repairer extends EnergyRole {
   }
 
   number(room) {
-    return room.damagedStructures.length > 0 ? 2 : 0;
+    return room.damagedStructures.length > 0 ? 1 : 0;
   }
 
   findTargetRoom(room) {
-    let roomName = room.name;
+    let roomName = room.name
 
-    // _.forEach(Memory.rooms, function (room, name) {
-    //   if (room.needsRepairer) {
-    //     roomName = name;
-    //     return;
-    //   }
-    // });
+    if (!room.needsRepairer) {
+      _.forEach(Memory.rooms, function (room, name) {
+        if (room.needsRepairer) {
+          roomName = name
 
-    return roomName;
+          return
+        }
+      });
+    }
+
+    return roomName
   }
 
   findTarget(creep) {
-    let target = creep.pos.findClosestByRange(creep.room.damagedStructures, {
-      filter: (structure) => {
-        return !_.some(this.creeps, 'target', structure);
-      }
-    });
+    let target = creep.pos.findClosestByRange(creep.room.damagedStructures)
 
-    return target;
+    return target
   }
 
   invalidTarget(creep, target) {
@@ -43,10 +42,8 @@ class Repairer extends EnergyRole {
   }
 
   targetAction(creep, target) {
-    if (creep.repair(target) == ERR_NOT_IN_RANGE) {
+    if (creep.repair(target) === ERR_NOT_IN_RANGE) {
       creep.moveTo(target);
     }
   }
 };
-
-module.exports = new Repairer();

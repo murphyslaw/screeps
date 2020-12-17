@@ -1,8 +1,8 @@
 'use strict';
 
-const Role = require('roles_role');
+global.Scout = class extends Role {
+  get name() { return 'scout' }
 
-class Scout extends Role {
   get bodyPattern() {
     return [MOVE];
   }
@@ -11,5 +11,3 @@ class Scout extends Role {
     return 0;
   }
 };
-
-module.exports = new Scout();

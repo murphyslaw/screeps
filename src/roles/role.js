@@ -1,62 +1,52 @@
-'use strict';
+'use strict'
 
-global.CREEP_STATE_INITIALIZE = 0;
-global.CREEP_STATE_REFILL = 2;
-global.CREEP_STATE_WORK = 3;
-global.CREEP_STATE_RECYCLE = 9;
+global.CREEP_STATE_INITIALIZE = 0
+global.CREEP_STATE_REFILL = 2
+global.CREEP_STATE_WORK = 3
+global.CREEP_STATE_RECYCLE = 9
 
-class Role {
-  get name() {
-    return this.constructor.name.toLowerCase();
+global.Role = class {
+  constructor() {
+    this.logger = new Logger('Role')
   }
 
-  get randomName() {
-    return Date.now().toString(36) + Math.random().toString(36).substring(2);
-  }
+  get name() { throw Error('not implemented') }
+  get randomName() { return Date.now().toString(36) + Math.random().toString(36).substring(2) }
 
-  get bodyPattern() {
-    return [];
-  }
+  get startState() { return CREEP_STATE_INITIALIZE }
+  get states() { return {} }
 
-  get startState() {
-    return CREEP_STATE_INITIALIZE;
-  }
-
-  get creeps() {
-    return _.filter(Game.creeps, 'role', this.name);
-  }
-
-  get maxSpawnTime() {
-    return this.maxCreepSize * CREEP_SPAWN_TIME;
-  }
-
-  get maxCreepSize() {
-    return this.bodyPattern.length;
-  }
-
-  get states() {
-    return {}
-  }
+  get bodyPattern() { return [] }
+  get creeps() { return _.filter(Game.creeps, 'role', this.name) }
+  get maxSpawnTime() { return this.maxCreepSize * CREEP_SPAWN_TIME }
+  get maxCreepSize() { return this.bodyPattern.length }
 
   number(room) {
-    return 0;
+    return 0
+  }
+
+  cost(body) {
+    const cost = _.sum(body, part => BODYPART_COST[part])
+
+    return cost
   }
 
   bodyparts(energyAvailable) {
-    const pattern = this.bodyPattern;
-    const patternSize = pattern.length;
-    const maxFactor = Math.floor(this.maxCreepSize / patternSize);
+    const pattern = this.bodyPattern
+    const patternSize = pattern.length
+    const maxFactor = Math.floor(this.maxCreepSize / patternSize)
 
-    const patternCost = _.sum(pattern, s => BODYPART_COST[s]);
-    const patternFactor = Math.floor(energyAvailable / patternCost);
+    const patternCost = this.cost(pattern)
+    const patternFactor = Math.floor(energyAvailable / patternCost)
 
-    const factor = Math.min(patternFactor, maxFactor);
+    const factor = Math.min(patternFactor, maxFactor)
+    const body = _.flatten(Array(factor).fill(pattern))
 
-    return _.flatten(Array(factor).fill(pattern));
+    return body
   }
 
   memory(room) {
-    return {};
+    return {}
   }
 
   changeState(creep, state, rerun = true) {
@@ -70,37 +60,34 @@ class Role {
   }
 
   run(creep) {
-    let state = creep.state;
+    let state = creep.state
 
     if (!state) {
-      state = creep.state = this.startState;
+      state = creep.state = this.startState
     }
 
-    const action = this.states[state];
+    const action = this.states[state]
 
     if (action) {
-      action.call(this, creep);
+      action.call(this, creep)
     } else {
       switch (state) {
         case global.CREEP_STATE_INITIALIZE:
-          this.initialize(creep);
-          break;
+          this.initialize(creep)
+
+          break
         case global.CREEP_STATE_RECYCLE:
-          this.recycle(creep);
-          break;
+          this.recycle(creep)
+
+          break
       }
     }
 
-
-    return;
+    return
   }
 
   initialize(creep) {
     return;
-  }
-
-  isIdle(creep) {
-    return false;
   }
 
   recycle(creep) {
@@ -134,7 +121,7 @@ class Role {
       memory['role'] = this.name;
 
       if (spawn.spawnCreep(bodyparts, name, { memory: memory }) == OK) {
-        console.log('Spawning ' + this.name + ': ' + name);
+        this.logger.debug('Spawning ' + this.name + ': ' + name);
       }
     }
 

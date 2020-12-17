@@ -1,25 +1,24 @@
 'use strict';
 
 class RoomManager {
-  stats(room) {
-    if (global.config.stats) {
-      const extensions = room.find(FIND_STRUCTURES, {
-        filter: function(structure) {
-          return structure.structureType == STRUCTURE_EXTENSION;
-        }
-      });
+  constructor() {
+    this.logger = new global.Logger('RoomManager');
+  }
 
-      console.log('extensions', extensions.length);
-    }
+  updateState(room) {
+    room.needsBuilder = room.constructionSites.length > 0
+    room.needsRepairer = room.damagedStructures.length > 0
+    room.needsScoreHarvester = room.scoreContainers.length > 0
+    room.needsSigner = room.controller && !room.controller.sign
 
-    return;
+    return
   }
 
   visuals(room) {
     if (global.config.visuals) {
       const damagedStructures = room.damagedStructures;
 
-      console.log('damaged structures', damagedStructures.length);
+      this.logger.debug('damaged structures', damagedStructures.length);
 
       _.forEach(damagedStructures, function(structure) {
         room.visual.circle(structure.pos,
@@ -73,60 +72,6 @@ class RoomManager {
 
     return;
   }
-
-  intelligence(room) {
-    let updateFrequency;
-
-    updateFrequency = global.ENERGY_REGEN_TIME;
-    if (global.config.intelligence && Game.time % updateFrequency == 0) {
-      if (room.storage) {
-        const before = room.memory.last_storage_capacity || 0;
-
-        let now = room.energyAvailable;
-        now += room.storage.store.getUsedCapacity(RESOURCE_ENERGY);
-        now += _.sum(room.containers, container => container.store.getUsedCapacity(RESOURCE_ENERGY));
-        now += _.sum(Game.creeps, creep => creep.store.getUsedCapacity(RESOURCE_ENERGY));
-
-        const change = before ? (now - before) / before * 100 : 0;
-        const perTick = Math.floor((now - before) / updateFrequency);
-
-        room.memory.last_storage_capacity = now;
-
-        console.log('INTELLIGENCE: ', room.name, 'storage change', now, perTick, (Math.round(change * 100) / 100).toString() + '%');
-      }
-    }
-
-    updateFrequency = global.ENERGY_REGEN_TIME;
-    if (global.config.intelligence && Game.time % updateFrequency == 0) {
-      if (room.controller) {
-        const before = room.memory.last_controller_progress || 0;
-        const now = room.controller.progress;
-        const change = before ? (now - before) / before * 100 : 0;
-        const perTick = Math.floor((now - before) / updateFrequency);
-
-        room.memory.last_controller_progress = now;
-
-        console.log('INTELLIGENCE: ', room.name, 'controller progress', perTick, (Math.round(change * 100) / 100).toString() + '%');
-      }
-    }
-
-    // updateFrequency = 100;
-    // if (global.config.intelligence && Game.time % updateFrequency == 0) {
-    //   const adjacentRooms = Game.map.describeExits(room.name);
-
-    //   _.forEach(adjacentRooms, function(roomName, direction) {
-    //     Memory.rooms[roomName] = Memory.rooms[roomName] || {};
-
-    //     const data = Memory.rooms[roomName];
-    //     const roomStatus = Game.map.getRoomStatus(roomName);
-
-    //     data.direction = direction;
-    //     data.status = roomStatus.status;
-    //   });
-    // }
-
-    return;
-  }
 }
 
-module.exports = new RoomManager();
+global.roomManager = new RoomManager();

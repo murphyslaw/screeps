@@ -1,14 +1,20 @@
 'use strict';
 
-Room.prototype.updateState = function() {
-  this.needsBuilder = this.constructionSites.length > 0;
-  this.needsRepairer = this.damagedStructures.length > 0;
-  this.needsScoreHarvester = this.scoreContainers.length > 0;
+const prototype = Room.prototype;
 
-  return;
-}
+prototype.logger = new global.Logger('room');
+prototype.debug = function (...messages) {
+  this.logger.debug('"' + this.name + '"', '-', ...messages);
+};
 
-Object.defineProperties(Room.prototype, {
+Object.defineProperties(prototype, {
+  'my': {
+    get: function () {
+      return this.controller && this.controller.my
+    },
+    configurable: true
+  },
+
   'needsBuilder': {
     get: function () {
       return this.memory.needsBuilder;
@@ -18,6 +24,22 @@ Object.defineProperties(Room.prototype, {
         this.memory.needsBuilder = value;
       } else if (this.memory.needsBuilder) {
         delete this.memory.needsBuilder;
+      }
+
+      return;
+    },
+    configurable: true
+  },
+
+  'needsSigner': {
+    get: function () {
+      return this.memory.needsSigner;
+    },
+    set: function (value) {
+      if (value) {
+        this.memory.needsSigner = value;
+      } else if (this.memory.needsSigner) {
+        delete this.memory.needsSigner;
       }
 
       return;
@@ -59,32 +81,41 @@ Object.defineProperties(Room.prototype, {
 
   'damagedStructures': {
     get: function() {
-      const structures = this.find(FIND_STRUCTURES, {
-        filter: function(structure) {
-          return structure.damaged &&
-            structure.structureType != STRUCTURE_RAMPART &&
-            structure.structureType != STRUCTURE_WALL &&
-            structure.structureType != STRUCTURE_TOWER;
-        }
-      });
+      if (!this._damagedStructures) {
+        const structures = this.find(FIND_STRUCTURES, {
+          filter: function(structure) {
+            return structure.damaged &&
+              structure.structureType != STRUCTURE_RAMPART &&
+              structure.structureType != STRUCTURE_WALL &&
+              structure.structureType != STRUCTURE_TOWER &&
+              structure.hits / structure.hitsMax < 0.9;
+          }
+        });
 
-      return structures;
+        this._damagedStructures = structures;
+      }
+
+      return this._damagedStructures;
     },
     configurable: true
   },
 
   'damagedDefenses': {
     get: function() {
-      const structures = this.find(FIND_STRUCTURES, {
-        filter: function(structure) {
-          return structure.damaged &&
-            (structure.structureType == STRUCTURE_RAMPART ||
-            structure.structureType == STRUCTURE_WALL ||
-            structure.structureType == STRUCTURE_TOWER)
-        }
-      });
+      if (!this._damagedDefenses) {
+        const structures = this.find(FIND_STRUCTURES, {
+          filter: function(structure) {
+            return structure.damaged &&
+              (structure.structureType == STRUCTURE_RAMPART ||
+              structure.structureType == STRUCTURE_WALL ||
+              structure.structureType == STRUCTURE_TOWER)
+          }
+        });
 
-      return structures;
+        this._damagedDefenses = structures;
+      }
+
+      return this._damagedDefenses;
     },
     configurable: true
   },
@@ -199,7 +230,7 @@ Object.defineProperties(Room.prototype, {
     configurable: true
   },
 
-  'minerals': {
+  'mineral': {
     get: function () {
       if (!this._minerals) {
         if (!this.memory.minerals) {
@@ -213,7 +244,7 @@ Object.defineProperties(Room.prototype, {
         this._minerals = _.keys(this.memory.minerals).map(id => Game.getObjectById(id));
       }
 
-      return this._minerals;
+      return this._minerals[0];
     },
     configurable: true
   },

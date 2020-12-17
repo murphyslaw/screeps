@@ -1,8 +1,8 @@
 'use strict';
 
-const EnergyRole = require('roles_energyrole');
+global.DefenseRepairer = class extends EnergyRole {
+  get name() { return 'defenserepairer' }
 
-class DefenseRepairer extends EnergyRole {
   get maxCreepSize() {
     return this.bodyPattern.length * 5;
   }
@@ -42,15 +42,9 @@ class DefenseRepairer extends EnergyRole {
     return structures[0];
   }
 
-  invalidTarget(creep, target) {
-    return Game.time % 5 === 0;
-  }
-
   targetAction(creep, target) {
     if (creep.repair(target) == ERR_NOT_IN_RANGE) {
       creep.moveTo(target);
     }
   }
 };
-
-module.exports = new DefenseRepairer();

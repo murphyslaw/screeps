@@ -1,14 +1,14 @@
 'use strict';
 
-const EnergyRole = require('roles_energyrole');
+global.Upgrader = class extends EnergyRole {
+  get name() { return 'upgrader' }
 
-class Upgrader extends EnergyRole {
   get bodyPattern() {
     return [WORK, CARRY, MOVE];
   }
 
   get maxCreepSize() {
-    return this.bodyPattern.length * 5;
+    return this.bodyPattern.length * 6;
   }
 
   get keepTarget() {
@@ -59,5 +59,3 @@ class Upgrader extends EnergyRole {
     return;
   }
 };
-
-module.exports = new Upgrader();

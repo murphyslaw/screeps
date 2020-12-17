@@ -1,8 +1,8 @@
 'use strict';
 
-const EnergyRole = require('roles_energyrole');
+global.Harvester = class extends EnergyRole {
+  get name() { return 'harvester' }
 
-class Harvester extends EnergyRole {
   get maxCreepSize() {
     return this.bodyPattern.length * 5;
   }
@@ -70,5 +70,3 @@ class Harvester extends EnergyRole {
     return;
   }
 };
-
-module.exports = new Harvester();

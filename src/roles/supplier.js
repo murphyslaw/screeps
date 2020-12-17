@@ -1,14 +1,14 @@
 'use strict';
 
-const EnergyRole = require('roles_energyrole');
+global.Supplier = class extends EnergyRole {
+  get name() { return 'supplier' }
 
-class Supplier extends EnergyRole {
   get bodyPattern() {
     return [CARRY, MOVE];
   }
 
   get maxCreepSize() {
-    return this.bodyPattern.length * 2;
+    return this.bodyPattern.length * 20;
   }
 
   number(room) {
@@ -63,5 +63,3 @@ class Supplier extends EnergyRole {
     return;
   }
 };
-
-module.exports = new Supplier();

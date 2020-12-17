@@ -1,8 +1,6 @@
 'use strict';
 
-const Role = require('roles_role');
-
-class EnergyRole extends Role {
+global.EnergyRole = class extends Role {
   resource(creep) {
     return RESOURCE_ENERGY;
   }
@@ -10,7 +8,7 @@ class EnergyRole extends Role {
   get states() {
     return {
       [global.CREEP_STATE_REFILL]: this.refill,
-      [global.CREEP_STATE_WORK]: this.work
+      [global.CREEP_STATE_WORK]: this.work,
     }
   }
 
@@ -40,9 +38,9 @@ class EnergyRole extends Role {
   }
 
   assignSourceRoom(creep) {
-    creep.sourceRoom = this.findSourceRoom(creep.room);
+    creep.sourceRoom = this.findSourceRoom(creep.room)
 
-    return;
+    return
   }
 
   findSource(creep) {
@@ -87,7 +85,12 @@ class EnergyRole extends Role {
   }
 
   invalidSource(creep, source) {
-    return source.energy === 0 || (source.store && source.store[this.resource(creep)] === 0);
+    if (source.energy) { return source.energy === 0 }
+    if (source.mineralAmount) { return source.mineralAmount === 0 }
+    if (!source.store) { return true }
+    if (source.store.getUsedCapacity() === 0) { return true }
+
+    return false
   }
 
   resetSource(creep, force = false) {
@@ -103,9 +106,9 @@ class EnergyRole extends Role {
   }
 
   assignTargetRoom(creep) {
-    creep.targetRoom = this.findTargetRoom(creep.room);
+    creep.targetRoom = this.findTargetRoom(creep.room)
 
-    return;
+    return
   }
 
   findTarget(creep) {
@@ -141,21 +144,23 @@ class EnergyRole extends Role {
 
   work(creep) {
     // a working creep without energy needs to refill
-    if (creep.store.getUsedCapacity() == 0) {
-      this.resetTarget(creep);
-      this.changeState(creep, CREEP_STATE_REFILL);
-      return;
+    if (creep.store.getUsedCapacity() === 0) {
+      this.resetTarget(creep)
+      this.changeState(creep, CREEP_STATE_REFILL)
+
+      return
     }
 
     // a working creep without a target room needs to find one
     if (!creep.targetRoom) {
-      this.assignTargetRoom(creep);
+      this.assignTargetRoom(creep)
     }
 
     // a working creep in the wrong room needs to reach the target room
     if (!creep.inTargetRoom) {
-      creep.moveToRoom(creep.targetRoom);
-      return;
+      creep.moveToRoom(creep.targetRoom)
+
+      return
     }
 
     // a working creep needs a target
@@ -218,23 +223,21 @@ class EnergyRole extends Role {
     if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
       creep.moveTo(source);
 
-      return;
+      return
     }
 
     if (creep.withdraw(source, this.resource(creep)) == ERR_NOT_IN_RANGE) {
       creep.moveTo(source);
 
-      return;
+      return
     }
 
     if (creep.pickup(source) == ERR_NOT_IN_RANGE) {
       creep.moveTo(source);
 
-      return;
+      return
     }
 
-    return;
+    return
   }
 }
-
-module.exports = EnergyRole;

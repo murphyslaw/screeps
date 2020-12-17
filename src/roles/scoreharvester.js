@@ -1,8 +1,8 @@
 'use strict';
 
-const EnergyRole = require('roles_energyrole');
+global.ScoreHarvester = class extends EnergyRole {
+  get name() { return 'scoreharvester' }
 
-class ScoreHarvester extends EnergyRole {
   get bodyPattern() {
     return [CARRY, MOVE];
   }
@@ -16,7 +16,9 @@ class ScoreHarvester extends EnergyRole {
   }
 
   number(room) {
-    return room.scoreContainers.length;
+    const roomsNeedScoreHarvester = _.filter(Memory.rooms, 'needsScoreHarvester');
+
+    return roomsNeedScoreHarvester.length;
   }
 
   findTarget(creep) {
@@ -28,16 +30,19 @@ class ScoreHarvester extends EnergyRole {
   }
 
   findSourceRoom(room) {
-    let roomName = room.name;
+    let roomName = room.name
 
-    _.forEach(Memory.rooms, function (room, name) {
-      if (room.needsScoreHarvester) {
-        roomName = name;
-        return;
-      }
-    });
+    if (!room.needsScoreHarvester) {
+      _.forEach(Memory.rooms, function (room, name) {
+        if (room.needsScoreHarvester) {
+          roomName = name
 
-    return roomName;
+          return
+        }
+      });
+    }
+
+    return roomName
   }
 
   findSource(creep) {
@@ -63,5 +68,3 @@ class ScoreHarvester extends EnergyRole {
     return;
   }
 };
-
-module.exports = new ScoreHarvester();
