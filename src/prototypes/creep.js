@@ -45,6 +45,26 @@ Object.defineProperties(Creep.prototype, {
     configurable: true
   },
 
+  'dest': {
+    get: function () {
+      if (!this._dest) {
+        this._dest = Game.getObjectById(this.memory.dest)
+      }
+
+      return this._dest;
+    },
+    set: function (value) {
+      if (value) {
+        this.memory.dest = value.id;
+      } else if (this.memory.dest) {
+        delete this.memory.dest;
+      }
+
+      return;
+    },
+    configurable: true
+  },
+
   'target': {
     get: function () {
       if (!this._target) {

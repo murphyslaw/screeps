@@ -22,7 +22,7 @@ global.Recycling = class extends global.State {
 
     // execute action
     if (OK === result) {
-      let action = new Recycle(this.actor, this.spawn)
+      const action = new Recycle(this.actor, this.spawn)
       result = action.update()
     }
 

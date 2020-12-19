@@ -22,4 +22,5 @@ module.exports.loop = function() {
   });
 
   statsManager.exportGlobalStats()
+
 }

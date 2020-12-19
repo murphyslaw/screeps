@@ -1,4 +1,24 @@
-'use strict';
+'use strict'
+
+RoomPosition.prototype.neighbors = function (range = 1) {
+  const positions = []
+  let x
+  let y
+
+  for (let xRange = range; xRange >= -range; xRange--) {
+    x = _.clamp(this.x + xRange, 1, 49)
+
+    for (let yRange = range; yRange >= -range; yRange--) {
+      y = _.clamp(this.y + yRange, 1, 49)
+
+      if (!(x === this.x && y === this.y)) {
+        positions.push(new RoomPosition(x, y, this.roomName))
+      }
+    }
+  }
+
+  return positions
+}
 
 Object.defineProperties(RoomPosition.prototype, {
   'isBorderPosition': {
@@ -10,23 +30,7 @@ Object.defineProperties(RoomPosition.prototype, {
 
   'adjacentPositions': {
     get: function() {
-      const positions = [];
-      let x;
-      let y;
-
-      for (let xRange = 1; xRange >= -1; xRange--) {
-        x = _.clamp(this.x + xRange, 1, 49);
-
-        for (let yRange = 1; yRange >= -1; yRange--) {
-          y = _.clamp(this.y + yRange, 1, 49);
-
-          if (!(x == this.x && y == this.y)) {
-            positions.push(new RoomPosition(x, y, this.roomName));
-          }
-        }
-      }
-
-      return positions;
+      return this.neighbors(1)
     },
     configurable: true
   },

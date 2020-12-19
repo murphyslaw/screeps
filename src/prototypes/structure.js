@@ -13,5 +13,12 @@ Object.defineProperties(Structure.prototype, {
       return this.hits == this.hitsMax;
     },
     configurable: true
+  },
+
+  'walkable': {
+    get: function () {
+      return !OBSTACLE_OBJECT_TYPES.includes(this.structureType)
+    },
+    configurable: true
   }
 });

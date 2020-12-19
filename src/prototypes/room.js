@@ -264,5 +264,12 @@ Object.defineProperties(prototype, {
       return mineralContainers;
     },
     configurable: true
+  },
+
+  'scoreCollector': {
+    get: function () {
+      return this.find(FIND_SCORE_COLLECTORS)[0]
+    },
+    configurable: true
   }
 });

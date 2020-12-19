@@ -6,6 +6,7 @@ global.states = {
   WORKING: 3,
   MOVING: 4,
   SIGNING: 5,
+  DISMANTLING: 6,
   RECYCLING: 9,
 }
 

@@ -12,11 +12,13 @@ global.Moving = class extends State {
     let context = {}
 
     // check prerequisites
-    if (!this.actor.target) { result = ERR_INVALID_TARGET }
+    if (!this.actor.dest) { result = ERR_INVALID_TARGET }
 
     // execute action
-    let action = new Move(this.actor, this.actor.target)
-    result = action.update()
+    if (OK === result) {
+      const action = new Move(this.actor, this.actor.dest)
+      result = action.update()
+    }
 
     // provide context for decider
     context.result = result

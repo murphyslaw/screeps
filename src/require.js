@@ -3,6 +3,9 @@
 // globals
 require('version')
 require('utility_logger')
+require('utility_monument')
+require('utility_monumentpathfinder')
+require('utility_monumentvisualizer')
 
 // prototypes
 require('prototypes_lodash')
@@ -45,6 +48,7 @@ require('roles_scout')
 require('roles_signer')
 require('roles_supplier')
 require('roles_upgrader')
+require('roles_dismantler')
 
 // configuration
 require('config')
