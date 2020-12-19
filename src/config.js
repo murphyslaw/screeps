@@ -21,6 +21,7 @@ global.roles = {
   harvester: new Harvester(),
   containerharvester: new ContainerHarvester(),
   hauler: new Hauler(),
+  defender: new Defender(),
   defenserepairer: new DefenseRepairer(),
   repairer: new Repairer(),
   builder: new Builder(),

@@ -8,8 +8,6 @@ global.Initialize = class extends global.Action {
   }
 
   update() {
-    console.log(this.actor, 'initializes')
-
     return OK
   }
 }

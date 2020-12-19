@@ -79,6 +79,22 @@ Object.defineProperties(prototype, {
     configurable: true
   },
 
+  'underAttack': {
+    get: function () {
+      return this.memory.underAttack;
+    },
+    set: function (value) {
+      if (value) {
+        this.memory.underAttack = value;
+      } else if (this.memory.underAttack) {
+        delete this.memory.underAttack;
+      }
+
+      return;
+    },
+    configurable: true
+  },
+
   'damagedStructures': {
     get: function() {
       if (!this._damagedStructures) {
@@ -271,5 +287,17 @@ Object.defineProperties(prototype, {
       return this.find(FIND_SCORE_COLLECTORS)[0]
     },
     configurable: true
+  },
+
+  'hostiles': {
+    get: function() {
+      const hostiles = this.find(FIND_HOSTILE_CREEPS, { filter: function (creep) {
+        return creep.getActiveBodyparts(ATTACK) > 0 ||
+          creep.getActiveBodyparts(RANGED_ATTACK) > 0;
+        }
+      })
+
+      return hostiles
+    }
   }
-});
+})

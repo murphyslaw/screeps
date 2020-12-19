@@ -1,35 +1,49 @@
 'use strict'
 
-global.Signer = class extends Creepy {
-  get name() { return 'signer' }
+global.Defender = class extends Creepy {
+  get name() { return 'defender' }
 
-  get bodyPattern() { return [MOVE] }
-
-  get startState() { return states.SIGNING }
+  get bodyPattern() { return [TOUGH, TOUGH, ATTACK, ATTACK, MOVE, MOVE] }
+  get maxCreepSize() { return this.bodyPattern.length * 4 }
 
   get states() {
     return {
-      [states.SIGNING]: Signing,
+      [states.INITIALIZING]: Initializing,
+      [states.DEFENDING]: Defending,
       [states.MOVING]: Moving,
       [states.RECYCLING]: Recycling,
     }
   }
 
   number(room) {
-    return !room.controller.sign ? 1 : 0
+    const underAttack = _.some(Memory.rooms, 'underAttack')
+
+    return underAttack ? 1 : 0
   }
 
   nextState(actor, state, context) {
     let nextState = state
 
     switch(state) {
-      case states.SIGNING:
-        if (OK === context.result) {
-          nextState = states.RECYCLING
+      case states.INITIALIZING:
+        if (!actor.spawning) {
+          let roomName = this.actor.pos.roomName
+
+          _.forEach(Memory.rooms, function (room, name) {
+            if (room.underAttack) {
+              roomName = name
+              return
+            }
+          })
+
+          actor.destination = new RoomPosition(25, 25, roomName)
+          nextState = states.MOVING
         }
 
+        break
+      case states.DEFENDING:
         if (ERR_NOT_IN_RANGE === context.result) {
-          actor.destination = context.controller
+          actor.destination = context.target
           nextState = states.MOVING
           break
         }
@@ -46,13 +60,18 @@ global.Signer = class extends Creepy {
           break
         }
 
+        if (actor.inDestinationRoom && !actor.target) {
+          nextState = states.DEFENDING
+          break
+        }
+
         if (actor.pos.isNearTo(destination)) {
-          switch(actor.target.structureType) {
-            case STRUCTURE_CONTROLLER:
-              nextState = states.SIGNING
-              break
+          switch (actor.target.structureType) {
             case STRUCTURE_SPAWN:
               nextState = states.RECYCLING
+              break
+            default:
+              nextState = states.DEFENDING
               break
           }
 

@@ -6,8 +6,6 @@ global.Moving = class extends State {
   }
 
   run() {
-    console.log('STATE', 'MOVING', 'RUN')
-
     let result = OK
     let context = {}
 
@@ -23,9 +21,7 @@ global.Moving = class extends State {
     // provide context for decider
     context.result = result
 
-    // resolve the next state
-    let nextState = this.nextState(this.actor, states.MOVING, context)
-
-    return nextState
+    // transition to next state with the given context
+    return this.nextState(this.actor, states.MOVING, context)
   }
 }

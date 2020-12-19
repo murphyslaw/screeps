@@ -26,6 +26,8 @@ require('actions_signcontroller')
 require('actions_recycle')
 require('actions_dismantle')
 require('actions_initialize')
+require('actions_attack')
+require('actions_heal')
 
 // states
 require('states_state')
@@ -34,6 +36,8 @@ require('states_recycling')
 require('states_signing')
 require('states_dismantling')
 require('states_initializing')
+require('states_defending')
+require('states_healing')
 
 // roles
 require('roles_role')
@@ -53,6 +57,7 @@ require('roles_signer')
 require('roles_supplier')
 require('roles_upgrader')
 require('roles_dismantler')
+require('roles_defender')
 
 // configuration
 require('config')

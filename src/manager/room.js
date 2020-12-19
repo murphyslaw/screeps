@@ -6,10 +6,19 @@ class RoomManager {
   }
 
   updateState(room) {
-    room.needsBuilder = room.constructionSites.length > 0
-    room.needsRepairer = room.damagedStructures.length > 0
-    room.needsScoreHarvester = room.scoreContainers.length > 0
-    room.needsSigner = room.controller && !room.controller.sign
+    room.underAttack = room.hostiles.length > 0
+
+    if (room.underAttack) {
+      room.needsBuilder = null
+      room.needsRepairer = null
+      room.needsScoreHarvester = null
+      room.needsSigner = null
+    } else {
+      room.needsBuilder = room.constructionSites.length > 0
+      room.needsRepairer = room.damagedStructures.length > 0
+      room.needsScoreHarvester = room.scoreContainers.length > 0
+      room.needsSigner = room.controller && !room.controller.sign
+    }
 
     return
   }
