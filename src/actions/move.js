@@ -1,16 +1,14 @@
 'use strict'
 
 global.Move = class extends global.Action {
-  constructor(actor, target) {
+  constructor(actor, destination) {
     super()
 
     this.actor = actor
-    this.target = target
+    this.destination = destination
   }
 
   update() {
-    console.log(this.actor, 'moves to', this.target)
-
-    return this.actor.moveTo(this.target)
+    return this.actor.moveTo(this.destination)
   }
 }

@@ -30,4 +30,5 @@ global.roles = {
   remoteharvester: new RemoteHarvester(),
   containerextractor: new ContainerExtractor(),
   signer: new Signer(),
+  dismantler: new Dismantler(),
 }

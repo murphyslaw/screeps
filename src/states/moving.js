@@ -12,11 +12,11 @@ global.Moving = class extends State {
     let context = {}
 
     // check prerequisites
-    if (!this.actor.dest) { result = ERR_INVALID_TARGET }
+    if (!this.actor.destination) { result = ERR_INVALID_TARGET }
 
     // execute action
     if (OK === result) {
-      const action = new Move(this.actor, this.actor.dest)
+      const action = new Move(this.actor, this.actor.destination)
       result = action.update()
     }
 

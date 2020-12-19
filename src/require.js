@@ -24,12 +24,16 @@ require('actions_action')
 require('actions_move')
 require('actions_signcontroller')
 require('actions_recycle')
+require('actions_dismantle')
+require('actions_initialize')
 
 // states
 require('states_state')
 require('states_moving')
 require('states_recycling')
 require('states_signing')
+require('states_dismantling')
+require('states_initializing')
 
 // roles
 require('roles_role')

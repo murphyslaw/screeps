@@ -16,7 +16,7 @@ global.Upgrader = class extends EnergyRole {
   }
 
   number(room) {
-    return room.controller.container ? 2 : 0;
+    return room.controller.container ? 3 : 0;
   }
 
   findTarget(creep) {

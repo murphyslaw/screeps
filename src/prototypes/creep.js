@@ -45,22 +45,37 @@ Object.defineProperties(Creep.prototype, {
     configurable: true
   },
 
-  'dest': {
+  'destination': {
     get: function () {
-      if (!this._dest) {
-        this._dest = Game.getObjectById(this.memory.dest)
+      if (!this._destination && this.memory._move) {
+        const destination = this.memory._move.dest
+
+        this._destination = new RoomPosition(destination.x, destination.y, destination.room)
       }
 
-      return this._dest;
+      return this._destination;
     },
     set: function (value) {
-      if (value) {
-        this.memory.dest = value.id;
-      } else if (this.memory.dest) {
-        delete this.memory.dest;
+      if (!this.memory._move) {
+        this.memory._move = {}
       }
 
-      return;
+      if (value) {
+        const destination = value instanceof RoomPosition ? value : value.pos
+
+        this.memory._move.dest = { x: destination.x, y: destination.y, room: destination.roomName }
+      } else if (this.memory._move.dest) {
+        delete this.memory._move.dest
+      }
+
+      return
+    },
+    configurable: true
+  },
+
+  'inDestinationRoom': {
+    get: function () {
+      return this.room.name === this.destination.roomName && !this.pos.isBorderPosition;
     },
     configurable: true
   },

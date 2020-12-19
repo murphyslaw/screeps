@@ -29,7 +29,7 @@ global.Signer = class extends Creepy {
         }
 
         if (ERR_NOT_IN_RANGE === context.result) {
-          actor.target = context.controller
+          actor.destination = context.controller
           nextState = states.MOVING
           break
         }
@@ -64,7 +64,7 @@ global.Signer = class extends Creepy {
         break
       case states.RECYCLING:
         if (ERR_NOT_IN_RANGE === context.result) {
-          actor.target = context.spawn
+          actor.destination = context.spawn
           nextState = states.MOVING
           break
         }

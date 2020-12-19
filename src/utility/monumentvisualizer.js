@@ -57,7 +57,8 @@ global.MonumentVisualizer = class {
     const structure = position.lookFor(LOOK_STRUCTURES)[0]
 
     if (structure && !structure.walkable) {
-      return structure.hits
+      // return structure.hits
+      return Math.floor(structure.hits / structure.hitsMax * 100)
     }
 
     return 0

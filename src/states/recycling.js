@@ -3,7 +3,7 @@
 global.Recycling = class extends global.State {
   get spawn() {
     if (!this._spawn) {
-      const spawn = this.actor.room.spawns[0]
+      const spawn = Game.spawns['Spawn1']
 
       this._spawn = spawn
     }
