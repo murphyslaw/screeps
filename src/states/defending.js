@@ -1,39 +1,36 @@
 'use strict'
 
-global.Defending = class extends global.State {
-  get target() {
-    let target = this.actor.target
+global.Defending = class extends State {
+  get state() { return states.DEFENDING }
 
-    if (!target) {
-      target = this.actor.target = this.actor.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
-    }
+  findRoom() {
+    const room = _.find(World.territory, 'underAttack')
 
-    return target
+    return room ? room.name : null
   }
 
-  run() {
-    let result = OK
-    let context = {}
+  findTarget() {
+    return this.actor.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
+  }
 
-    // check prerequisites
-    if (!this.target) { result = ERR_INVALID_TARGET }
+  handleAction() {
+    let result = State.RUNNING
 
-    // execute action
-    if (OK === result) {
-      const action = new Attack(this.actor, this.target)
-      result = action.update()
-    }
+    const actionResult = new Attack(this.actor, this.target).update()
 
-    // provide context for decider
-    context.result = result
-
-    switch (result) {
-      case ERR_NOT_IN_RANGE:
-        context.target = this.target
+    switch (actionResult) {
+      case OK:
+        result = State.RUNNING
+        break
+      default:
+        result = State.FAILED
         break
     }
 
-    // transition to next state with the given context
-    return this.nextState(this.actor, states.DEFENDING, context)
+    if (!_.some(World.territory, 'underAttack')) {
+      result = State.SUCCESS
+    }
+
+    return result
   }
 }

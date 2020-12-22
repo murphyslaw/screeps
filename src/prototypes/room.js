@@ -2,95 +2,89 @@
 
 const prototype = Room.prototype;
 
-prototype.logger = new global.Logger('room');
+prototype.logger = new global.Logger('room')
 prototype.debug = function (...messages) {
-  this.logger.debug('"' + this.name + '"', '-', ...messages);
-};
+  this.logger.debug('"' + this.name + '"', '-', ...messages)
+}
 
 Object.defineProperties(prototype, {
+  'invisible': {
+    get: function () {
+      return false
+    },
+    configurable: true
+  },
+
   'my': {
     get: function () {
-      return this.controller && this.controller.my
+      return this.controller && this.controller.my ? true : false
+    },
+    configurable: true
+  },
+
+  'isHighway': {
+    get: function () {
+      const parsed = /^[WE]([0-9]+)[NS]([0-9]+)$/.exec(this.name)
+      const isHighway = (parsed[1] % 10 === 0) || (parsed[2] % 10 === 0)
+
+      return isHighway
+    },
+    configurable: true
+  },
+
+  'neighbors': {
+    get: function () {
+      return _.values(Game.map.describeExits(this.name))
     },
     configurable: true
   },
 
   'needsBuilder': {
     get: function () {
-      return this.memory.needsBuilder;
+      return this.memory.needsBuilder ? true : false
     },
     set: function (value) {
-      if (value) {
-        this.memory.needsBuilder = value;
-      } else if (this.memory.needsBuilder) {
-        delete this.memory.needsBuilder;
-      }
-
-      return;
+      return this.memory.needsBuilder = value ? Game.time : 0
     },
     configurable: true
   },
 
   'needsSigner': {
     get: function () {
-      return this.memory.needsSigner;
+      return this.memory.needsSigner ? true : false
     },
     set: function (value) {
-      if (value) {
-        this.memory.needsSigner = value;
-      } else if (this.memory.needsSigner) {
-        delete this.memory.needsSigner;
-      }
-
-      return;
+      return this.memory.needsSigner = value ? Game.time : 0
     },
     configurable: true
   },
 
   'needsRepairer': {
     get: function () {
-      return this.memory.needsRepairer;
+      return this.memory.needsRepairer ? true : false
     },
     set: function (value) {
-      if (value) {
-        this.memory.needsRepairer = value;
-      } else if (this.memory.needsRepairer) {
-        delete this.memory.needsRepairer;
-      }
-
-      return;
+      return this.memory.needsRepairer = value ? Game.time : 0
     },
     configurable: true
   },
 
   'needsScoreHarvester': {
     get: function () {
-      return this.memory.needsScoreHarvester;
+      return this.memory.needsScoreHarvester ? true : false
     },
     set: function (value) {
-      if (value) {
-        this.memory.needsScoreHarvester = value;
-      } else if (this.memory.needsScoreHarvester) {
-        delete this.memory.needsScoreHarvester;
-      }
-
-      return;
+      return this.memory.needsScoreHarvester = value ? Game.time : 0
     },
     configurable: true
   },
 
   'underAttack': {
     get: function () {
-      return this.memory.underAttack;
+      return this.memory.underAttack ? true : false
     },
     set: function (value) {
-      if (value) {
-        this.memory.underAttack = value;
-      } else if (this.memory.underAttack) {
-        delete this.memory.underAttack;
-      }
-
-      return;
+      return this.memory.underAttack = value ? Game.time : 0
     },
     configurable: true
   },
@@ -138,42 +132,64 @@ Object.defineProperties(prototype, {
 
   'containers': {
     get: function() {
-      return this.find(FIND_STRUCTURES, {
-        filter: (structure) => {
-          return structure.structureType == STRUCTURE_CONTAINER;
-        }
-      });
+      if (!this._containers) {
+        const containers = this.find(FIND_STRUCTURES, {
+          filter: (structure) => {
+            return structure.structureType == STRUCTURE_CONTAINER
+          }
+        })
+
+        this._containers = containers
+      }
+
+      return this._containers
     },
     configurable: true
   },
 
   'sourceContainers': {
     get: function () {
-      const sourceContainers = _.reduce(this.sources, function(containers, source) {
-        const container = source.container;
+      if (!this._sourceContainers) {
+        const sourceContainers = _.reduce(this.sources, function(containers, source) {
+          const container = source.container
 
-        if (container) {
-          containers.push(container);
-        }
+          if (container) {
+            containers.push(container)
+          }
 
-        return containers;
-      }, []);
+          return containers
+        }, [])
 
-      return sourceContainers;
+        this._sourceContainers = sourceContainers
+      }
+
+      return this._sourceContainers
     },
     configurable: true
   },
 
   'scoreContainers': {
     get: function () {
-      return this.find(FIND_SCORE_CONTAINERS);
+      if (!this._scoreContainers) {
+        const scoreContainers = this.find(FIND_SCORE_CONTAINERS);
+
+        this._scoreContainers = scoreContainers
+      }
+
+      return this._scoreContainers
     },
     configurable: true
   },
 
   'constructionSites': {
     get: function() {
-      return this.find(FIND_MY_CONSTRUCTION_SITES);
+      if (!this._constructionSites) {
+        const constructionSites = this.find(FIND_MY_CONSTRUCTION_SITES)
+
+        this._constructionSites = constructionSites
+      }
+
+      return this._constructionSites
     },
     configurable: true
   },
@@ -191,7 +207,13 @@ Object.defineProperties(prototype, {
 
   'nonSpawningSpawns': {
     get: function() {
-      return this.find(FIND_MY_SPAWNS, { filter: spawn => !spawn.spawning });
+      if (!this._nonSpawningSpawns) {
+        const spawns = this.find(FIND_MY_SPAWNS, { filter: spawn => !spawn.spawning })
+
+        this._nonSpawningSpawns = spawns
+      }
+
+      return this._nonSpawningSpawns
     },
     configurable: true
   },
@@ -221,27 +243,27 @@ Object.defineProperties(prototype, {
 
           const extractors = this.find(FIND_MY_STRUCTURES, {
             filter: (structure) => {
-              return structure.structureType == STRUCTURE_EXTRACTOR;
+              return structure.structureType == STRUCTURE_EXTRACTOR
             }
-          });
+          })
 
           extractors.map(extractor => this.memory.extractors[extractor.id] = {})
         }
 
         this._extractors = _.reduce(_.keys(this.memory.extractors), function (extractors, id) {
-          const extractor = Game.getObjectById(id);
+          const extractor = Game.getObjectById(id)
 
           if (extractor) {
-            extractors.push(extractor);
+            extractors.push(extractor)
           } else {
-            delete this.memory.extractors[id];
+            delete this.memory.extractors[id]
           }
 
-          return extractors;
-        }, []);
+          return extractors
+        }, [])
       }
 
-      return this._extractors;
+      return this._extractors
     },
     configurable: true
   },
@@ -252,15 +274,15 @@ Object.defineProperties(prototype, {
         if (!this.memory.minerals) {
           this.memory.minerals = {}
 
-          const minerals = this.find(FIND_MINERALS);
+          const minerals = this.find(FIND_MINERALS)
 
           minerals.map(mineral => this.memory.minerals[mineral.id] = {})
         }
 
-        this._minerals = _.keys(this.memory.minerals).map(id => Game.getObjectById(id));
+        this._minerals = _.keys(this.memory.minerals).map(id => Game.getObjectById(id))
       }
 
-      return this._minerals[0];
+      return this._minerals[0]
     },
     configurable: true
   },
@@ -268,36 +290,54 @@ Object.defineProperties(prototype, {
   'mineralContainers': {
     get: function () {
       const mineralContainers = _.reduce(this.minerals, function (containers, mineral) {
-        const container = mineral.container;
+        const container = mineral.container
 
         if (container) {
-          containers.push(container);
+          containers.push(container)
         }
 
-        return containers;
-      }, []);
+        return containers
+      }, [])
 
-      return mineralContainers;
+      return mineralContainers
     },
     configurable: true
   },
 
   'scoreCollector': {
     get: function () {
-      return this.find(FIND_SCORE_COLLECTORS)[0]
+      if (!this._scoreCollector) {
+        const scoreCollector = this.find(FIND_SCORE_COLLECTORS)[0]
+
+        this._scoreCollector = scoreCollector
+      }
+
+      return this._scoreCollector
     },
     configurable: true
   },
 
   'hostiles': {
     get: function() {
-      const hostiles = this.find(FIND_HOSTILE_CREEPS, { filter: function (creep) {
-        return creep.getActiveBodyparts(ATTACK) > 0 ||
-          creep.getActiveBodyparts(RANGED_ATTACK) > 0;
-        }
-      })
+      if (!this._hostiles) {
+        const hostiles = this.find(FIND_HOSTILE_CREEPS, { filter: function (creep) {
+          return creep.getActiveBodyparts(ATTACK) > 0 ||
+            creep.getActiveBodyparts(RANGED_ATTACK) > 0;
+          }
+        })
 
-      return hostiles
-    }
+        this._hostiles = hostiles
+      }
+
+      return this._hostiles
+    },
+    configurable: true
+  },
+
+  'isTerritory': {
+    get: function () {
+      return World.territory.includes(this.name)
+    },
+    configurable: true
   }
 })

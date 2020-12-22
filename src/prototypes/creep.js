@@ -50,7 +50,9 @@ Object.defineProperties(Creep.prototype, {
       if (!this._destination && this.memory._move) {
         const destination = this.memory._move.dest
 
-        this._destination = new RoomPosition(destination.x, destination.y, destination.room)
+        if (destination) {
+          this._destination = new RoomPosition(destination.x, destination.y, destination.room)
+        }
       }
 
       return this._destination;
@@ -75,7 +77,16 @@ Object.defineProperties(Creep.prototype, {
 
   'inDestinationRoom': {
     get: function () {
-      return this.room.name === this.destination.roomName && !this.pos.isBorderPosition;
+      if (!this.destination) return false
+
+      return this.room.name === this.destination.roomName && !this.pos.isBorderPosition
+    },
+    configurable: true
+  },
+
+  'wounded': {
+    get: function () {
+      return Math.floor(this.hits / this.hitsMax * 100) < 75
     },
     configurable: true
   },
@@ -177,11 +188,11 @@ Creep.prototype.resetSource = function() {
 }
 
 Creep.prototype.recycle = function() {
-  const spawn = this.room.spawns[0];
+  const spawn = Game.spawns['Spawn1']
 
   if (spawn && spawn.recycleCreep(this) == ERR_NOT_IN_RANGE) {
-    return this.moveTo(spawn);
+    return this.moveTo(spawn)
   }
 
-  return;
+  return
 }

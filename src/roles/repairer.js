@@ -16,19 +16,11 @@ global.Repairer = class extends EnergyRole {
   }
 
   findTargetRoom(room) {
-    let roomName = room.name
+    room = _.find(World.territory, 'needsRepairer')
 
-    if (!room.needsRepairer) {
-      _.forEach(Memory.rooms, function (room, name) {
-        if (room.needsRepairer) {
-          roomName = name
+    if (room) return room.name
 
-          return
-        }
-      });
-    }
-
-    return roomName
+    return
   }
 
   findTarget(creep) {

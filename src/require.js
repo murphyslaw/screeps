@@ -6,6 +6,7 @@ require('utility_logger')
 require('utility_monument')
 require('utility_monumentpathfinder')
 require('utility_monumentvisualizer')
+require('utility_invisibleroom')
 
 // prototypes
 require('prototypes_lodash')
@@ -25,19 +26,21 @@ require('actions_move')
 require('actions_signcontroller')
 require('actions_recycle')
 require('actions_dismantle')
-require('actions_initialize')
 require('actions_attack')
 require('actions_heal')
+require('actions_withdraw')
+require('actions_score')
 
 // states
 require('states_state')
-require('states_moving')
 require('states_recycling')
 require('states_signing')
 require('states_dismantling')
 require('states_initializing')
 require('states_defending')
 require('states_healing')
+require('states_refilling')
+require('states_scoring')
 
 // roles
 require('roles_role')
@@ -58,12 +61,13 @@ require('roles_supplier')
 require('roles_upgrader')
 require('roles_dismantler')
 require('roles_defender')
+require('roles_scorer')
 
 // configuration
 require('config')
 
 require('manager_global')
-require('manager_memory')
 require('manager_creep')
 require('manager_room')
 require('manager_stats')
+require('manager_world')

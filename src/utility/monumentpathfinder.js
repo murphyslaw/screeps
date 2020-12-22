@@ -10,22 +10,25 @@ global.MonumentPathFinder = class {
       costCallback: this.costCallback,
     }
 
-    const result = start.findPathTo(goal, options)
+    const path = start.findPathTo(goal, options)
 
-    return result
+    return path
   }
 
   costCallback(roomName, costMatrix) {
-    const room = Game.rooms[roomName]
+    const room = World.getRoom(roomName)
 
-    if (!room) return
+    if (room.invisible) return
     if (!room.scoreCollector) return
 
     const positions = room.scoreCollector.pos.neighbors(WALLS_RADIUS)
     positions.forEach(function (position) {
       const structure = position.lookFor(LOOK_STRUCTURES)[0]
-      const hitPercent = Math.floor(structure.hits / structure.hitsMax * 10)
-      const weight = structure && !structure.walkable ? hitPercent : 1
+      let weight = 1
+
+      if (structure && !structure.walkable) {
+        weight = Math.floor(structure.hits / structure.hitsMax * 10)
+      }
 
       costMatrix.set(position.x, position.y, weight)
     })

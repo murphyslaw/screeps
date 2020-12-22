@@ -2,6 +2,9 @@
 
 global.Creepy = class extends Role {
   get startState() { return states.INITIALIZING }
+  get states() { return {} }
+
+  nextState(context) { throw Error('not implemented') }
 
   run(actor) {
     let state = actor.state
@@ -14,7 +17,11 @@ global.Creepy = class extends Role {
 
     if (stateClass) {
       const stateInstance = new stateClass(actor, this.nextState)
-      actor.state = stateInstance.run()
+      const nextState = stateInstance.run()
+
+      if (actor.state !== nextState) stateInstance.exit()
+
+      actor.state = nextState
     }
   }
 }

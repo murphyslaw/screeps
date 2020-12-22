@@ -16,7 +16,7 @@ global.ScoreHarvester = class extends EnergyRole {
   }
 
   number(room) {
-    const roomsNeedScoreHarvester = _.filter(Memory.rooms, 'needsScoreHarvester');
+    const roomsNeedScoreHarvester = _.filter(World.territory, 'needsScoreHarvester')
 
     return roomsNeedScoreHarvester.length;
   }

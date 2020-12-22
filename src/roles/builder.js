@@ -12,22 +12,17 @@ global.Builder = class extends EnergyRole {
   }
 
   number(room) {
-    const needsBuilder = _.some(Memory.rooms, 'needsBuilder')
+    const needsBuilder = _.some(World.territory, 'needsBuilder')
 
     return needsBuilder ? 1 : 0
   }
 
   findTargetRoom(room) {
-    let roomName = room.name
+    room = _.find(World.territory, 'needsBuilder')
 
-    _.forEach(Memory.rooms, function (room, name) {
-      if (room.needsBuilder) {
-        roomName = name
-        return
-      }
-    });
+    if (room) return room.name
 
-    return roomName
+    return
   }
 
   findTarget(creep) {

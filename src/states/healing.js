@@ -1,39 +1,34 @@
 'use strict'
 
-global.Healing = class extends global.State {
-  get target() {
-    let target = this.actor.target
+global.Healing = class extends State {
+  get state() { return states.HEALING }
 
-    if (!target) {
-      target = this.actor.target = this.actor
-    }
-
-    return target
+  findRoom() {
+    return this.actor.room
   }
 
-  run() {
-    let result = OK
-    let context = {}
+  findTarget() {
+    return this.actor
+  }
 
-    // check prerequisites
-    if (!this.target) { return ERR_INVALID_TARGET }
+  handleAction() {
+    let result = State.SUCCESS
 
-    // execute action
-    if (OK === result) {
-      const action = new Heal(this.actor, this.target)
-      result = action.update()
-    }
+    const actionResult = new Heal(this.actor, this.target).update()
 
-    // provide context for decider
-    context.result = result
-
-    switch (result) {
-      case ERR_NOT_IN_RANGE:
-        context.target = this.target
+    switch (actionResult) {
+      case OK:
+        result = State.RUNNING
+        break
+      default:
+        result = State.FAILED
         break
     }
 
-    // transition to next state with the given context
-    return this.nextState(this.actor, states.HEALING, context)
+    if (!this.actor.wounded) {
+      result = State.SUCCESS
+    }
+
+    return result
   }
 }

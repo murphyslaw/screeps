@@ -4,68 +4,34 @@ global.Dismantler = class extends Creepy {
   get name() { return 'dismantler' }
 
   get bodyPattern() { return [WORK, MOVE] }
-  get maxCreepSize() { return this.bodyPattern.length * 14 }
+  get maxCreepSize() { return MAX_CREEP_SIZE }
 
   get states() {
     return {
       [states.INITIALIZING]: Initializing,
-      [states.MOVING]: Moving,
       [states.DISMANTLING]: Dismantling,
+      [states.RECYCLING]: Recycling,
     }
   }
 
-  number(room) { return 2 }
+  number(room) { return 1 }
 
-  nextState(actor, state, context) {
-    let nextState = state
+  nextState(context) {
+    const actor = context.actor
+    const result = context.result
+    const state = context.currentState
+    let nextState = context.currentState
 
     switch (state) {
       case states.INITIALIZING:
-        if (!actor.spawning) {
-          actor.destination = new RoomPosition(25, 25, 'W20N30')
-          nextState = states.MOVING
+        if (State.SUCCESS === result) {
+          nextState = states.DISMANTLING
         }
 
         break
       case states.DISMANTLING:
-        if (ERR_INVALID_TARGET === context.result) {
-          nextState = states.RECYCLING
-          break
-        }
-
-        if (ERR_NOT_IN_RANGE === context.result) {
-          actor.destination = context.target.pos
-          nextState = states.MOVING
-          break
-        }
-
-        break
-      case states.MOVING:
-        if (ERR_INVALID_TARGET === context.result) {
-          nextState = states.RECYCLING
-          break
-        }
-
-        if (actor.inDestinationRoom && !actor.target) {
-          nextState = states.DISMANTLING
-          break
-        }
-
-        if (actor.pos.isNearTo(actor.destination)) {
-          nextState = states.DISMANTLING
-          break
-        }
-
         break
       case states.RECYCLING:
-        nextState = states.MOVING
-
-        if (ERR_NOT_IN_RANGE === context.result) {
-          actor.destination = context.spawn
-          nextState = states.MOVING
-          break
-        }
-
         break
       default:
         console.log('DISMANTLER', 'unhandled state', state, JSON.stringify(context))

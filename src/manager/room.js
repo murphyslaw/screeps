@@ -1,29 +1,16 @@
-'use strict';
+'use strict'
 
 class RoomManager {
   constructor() {
-    this.logger = new global.Logger('RoomManager');
-  }
-
-  updateState(room) {
-    room.underAttack = room.hostiles.length > 0
-
-    if (room.underAttack) {
-      room.needsBuilder = null
-      room.needsRepairer = null
-      room.needsScoreHarvester = null
-      room.needsSigner = null
-    } else {
-      room.needsBuilder = room.constructionSites.length > 0
-      room.needsRepairer = room.damagedStructures.length > 0
-      room.needsScoreHarvester = room.scoreContainers.length > 0
-      room.needsSigner = room.controller && !room.controller.sign
-    }
-
-    return
+    this.logger = new global.Logger('RoomManager')
   }
 
   visuals(room) {
+    if ('W20N30' === room.name) {
+      const visualizer = new MonumentVisualizer(room)
+      visualizer.run()
+    }
+
     if (global.config.visuals) {
       const damagedStructures = room.damagedStructures;
 
@@ -47,7 +34,9 @@ class RoomManager {
       const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
         filter: function(creep) {
           return creep.getActiveBodyparts(ATTACK) > 0 ||
-            creep.getActiveBodyparts(RANGED_ATTACK) > 0;
+            creep.getActiveBodyparts(RANGED_ATTACK) > 0 ||
+            creep.getActiveBodyparts(WORK) > 0 ||
+            creep.owner.username === 'Invader'
         }
       });
 

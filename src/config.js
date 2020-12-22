@@ -32,4 +32,5 @@ global.roles = {
   containerextractor: new ContainerExtractor(),
   signer: new Signer(),
   dismantler: new Dismantler(),
+  scorer: new Scorer(),
 }

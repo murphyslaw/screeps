@@ -22,19 +22,19 @@ global.RemoteHarvester = class extends EnergyRole {
   number(room) {
     if (!room.storage) { return 0 }
 
-    return _.keys(Game.map.describeExits(room.name)).length
+    return _.keys(World.remoteRooms).length
   }
 
   findSourceRoom(room) {
-    const adjacentRooms = Game.map.describeExits(room.name)
+    const remoteRooms = World.remoteRooms
 
     const creeps = this.creeps
 
-    const sourceRoom = _.find(adjacentRooms, function(roomName) {
-      return !_.some(creeps, creep => creep.sourceRoom == roomName)
+    const sourceRoom = _.find(remoteRooms, function(room) {
+      return !_.some(creeps, creep => creep.sourceRoom === room.name)
     })
 
-    return sourceRoom
+    return sourceRoom && sourceRoom.name
   }
 
   findSource(creep) {

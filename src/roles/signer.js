@@ -5,12 +5,10 @@ global.Signer = class extends Creepy {
 
   get bodyPattern() { return [MOVE] }
 
-  get startState() { return states.SIGNING }
-
   get states() {
     return {
+      [states.INITIALIZING]: Initializing,
       [states.SIGNING]: Signing,
-      [states.MOVING]: Moving,
       [states.RECYCLING]: Recycling,
     }
   }
@@ -19,54 +17,32 @@ global.Signer = class extends Creepy {
     return !room.controller.sign ? 1 : 0
   }
 
-  nextState(actor, state, context) {
-    let nextState = state
+  nextState(context) {
+    const actor = context.actor
+    const result = context.result
+    const state = context.currentState
+    let nextState = context.currentState
 
-    switch(state) {
-      case states.SIGNING:
-        if (OK === context.result) {
-          nextState = states.RECYCLING
-        }
-
-        if (ERR_NOT_IN_RANGE === context.result) {
-          actor.destination = context.controller
-          nextState = states.MOVING
-          break
-        }
-
-        if (ERR_INVALID_TARGET === context.result) {
-          nextState = states.RECYCLING
-          break
+    switch (state) {
+      case states.INITIALIZING:
+        if (!actor.spawning) {
+          nextState = states.SIGNING
         }
 
         break
-      case states.MOVING:
-        if (ERR_INVALID_TARGET === context.result) {
+      case states.SIGNING:
+        if (State.SUCCESS === result) {
           nextState = states.RECYCLING
           break
         }
 
-        if (actor.pos.isNearTo(destination)) {
-          switch(actor.target.structureType) {
-            case STRUCTURE_CONTROLLER:
-              nextState = states.SIGNING
-              break
-            case STRUCTURE_SPAWN:
-              nextState = states.RECYCLING
-              break
-          }
-
+        if (State.FAILED === result) {
+          nextState = states.RECYCLING
           break
         }
 
         break
       case states.RECYCLING:
-        if (ERR_NOT_IN_RANGE === context.result) {
-          actor.destination = context.spawn
-          nextState = states.MOVING
-          break
-        }
-
         break
       default:
         console.log('SIGNER', 'unhandled state', state, JSON.stringify(context))

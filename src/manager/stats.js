@@ -6,6 +6,7 @@ class StatsManager {
       gcl: {},
       rooms: {},
       cpu: {},
+      creeps: {},
     }
   }
 
@@ -32,6 +33,10 @@ class StatsManager {
     Memory.stats.cpu.bucket = Game.cpu.bucket
     Memory.stats.cpu.limit = Game.cpu.limit
     Memory.stats.cpu.used = Game.cpu.getUsed()
+
+    _.forEach(global.roles, function(role, name) {
+      Memory.stats.creeps[name] = role.creeps.length
+    })
   }
 }
 

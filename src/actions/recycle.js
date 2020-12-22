@@ -9,8 +9,6 @@ global.Recycle = class extends Action {
   }
 
   update() {
-    console.log(this.spawn, 'recycles', this.actor)
-
     return this.spawn.recycleCreep(this.actor)
   }
 }

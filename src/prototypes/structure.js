@@ -17,7 +17,12 @@ Object.defineProperties(Structure.prototype, {
 
   'walkable': {
     get: function () {
-      return !OBSTACLE_OBJECT_TYPES.includes(this.structureType)
+      const structureType = this.structureType
+
+      if (STRUCTURE_RAMPART === structureType && this.my) return true
+      if (OBSTACLE_OBJECT_TYPES.includes(structureType)) return false
+
+      return true
     },
     configurable: true
   }

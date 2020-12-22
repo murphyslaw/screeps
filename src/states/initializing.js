@@ -1,23 +1,18 @@
 'use strict'
 
-global.Initializing = class extends global.State {
-  run() {
-    let result = OK
-    let context = {}
+global.Initializing = class extends State {
+  get state() { return states.INITIALIZING }
 
-    // check prerequisites
-    if (false) {}
+  handleTarget() { return State.RUNNING }
+  handleMovement() { return State.SUCCESS }
 
-    // execute action
-    if (OK === result) {
-      const action = new Initialize(this.actor)
-      result = action.update()
+  handleAction() {
+    let result = State.RUNNING
+
+    if (!this.actor.spawning) {
+      result = State.SUCCESS
     }
 
-    // provide context for decider
-    context.result = result
-
-    // transition to next state with the given context
-    return this.nextState(this.actor, states.INITIALIZING, context)
+    return result
   }
 }

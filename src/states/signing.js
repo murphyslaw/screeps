@@ -1,44 +1,70 @@
 'use strict'
 
 global.Signing = class extends State {
-  get controller() {
-    if (!this._controller) {
-      const controller = this.actor.room.controller
+  get state() { return states.SIGNING }
 
-      if (controller && !controller.sign) {
-        this._controller = controller
+  findRoom() {
+    return _.find(World.myRooms, 'needsSigner').name
+  }
+
+  findTarget() {
+    this.room.controller
+  }
+
+  handleTarget() {
+    const room = this.room
+
+    if (!room) return State.FAILED
+    if (!this.actor.inDestinationRoom) {
+      this.actor.destination = new RoomPosition(25, 25, room.name)
+      return State.RUNNING
+    }
+
+    const target = this.target
+
+    if (!target) return State.FAILED
+    if (Signing.text === target.sign) return State.FAILED
+
+    this.actor.destination = target
+    this.actor.target = target
+
+    return State.RUNNING
+  }
+
+  handleMovement() {
+    let result = State.SUCCESS
+
+    if (!this.actor.pos.isNearTo(this.actor.destination)) {
+      const actionResult = new Move(this.actor, this.actor.destination, {}).update()
+
+      switch (actionResult) {
+        case OK:
+          result = State.RUNNING
+          break
+        default:
+          result = State.FAILED
+          break
       }
     }
 
-    return this._controller
+    return result
   }
 
-  run() {
-    console.log('STATE', 'SIGNING', 'RUN')
+  handleAction() {
+    let result = State.SUCCESS
 
-    let result = OK
-    let context = {}
+    const actionResult = new Sign(this.actor, this.target, Signing.text).update()
 
-    // check prerequisites
-    if (!this.controller) { result = ERR_INVALID_TARGET }
-
-    // execute action
-    if (OK === result) {
-      let action = new SignController(this.actor, this.controller, Signing.text)
-      result = action.update()
-    }
-
-    // provide context for decider
-    context.result = result
-
-    switch (result) {
-      case ERR_NOT_IN_RANGE:
-        context.controller = this.controller
+    switch (actionResult) {
+      case OK:
+        result = State.SUCCESS
+        break
+      default:
+        result = State.FAILED
         break
     }
 
-    // transition to next state with the given context
-    return this.nextState(this.actor, states.SIGNING, context)
+    return result
   }
 }
 

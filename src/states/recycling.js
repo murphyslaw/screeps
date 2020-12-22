@@ -1,41 +1,40 @@
 'use strict'
 
-global.Recycling = class extends global.State {
-  get spawn() {
-    if (!this._spawn) {
-      const spawn = Game.spawns['Spawn1']
+global.Recycling = class extends State {
+  get state() { return states.RECYCLING }
 
-      this._spawn = spawn
-    }
+  get room() {
+    let roomName
 
-    return this._spawn
+    roomName = this.actor.destination && this.actor.destination.roomName
+    roomName = roomName || World.myRooms[0].name
+
+    return World.getRoom(roomName)
   }
 
-  run() {
-    console.log('STATE', 'RECYCLING', 'RUN')
+  get target() {
+    let target
 
-    let result = OK
-    let context = {}
+    target = this.actor.target
+    target = target || this.room.spawns[0]
 
-    // check prerequisites
-    if (false) {}
+    return target
+  }
 
-    // execute action
-    if (OK === result) {
-      const action = new Recycle(this.actor, this.spawn)
-      result = action.update()
-    }
+  handleAction() {
+    let result = State.RUNNING
 
-    // provide context for decider
-    context.result = result
+    const actionResult = new Recycle(this.actor, this.target).update()
 
-    switch (result) {
-      case ERR_NOT_IN_RANGE:
-        context.spawn = this.spawn
+    switch (actionResult) {
+      case OK:
+        result = State.SUCCESS
+        break
+      default:
+        result = State.FAILED
         break
     }
 
-    // transition to next state with the given context
-    return this.nextState(this.actor, states.RECYCLING, context)
+    return result
   }
 }
