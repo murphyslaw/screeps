@@ -1,52 +1,62 @@
 'use strict'
 
-global.ScoreHarvester = class extends EnergyRole {
-  get name() { return 'scoreharvester' }
-
+class ScoreHarvester extends Creepy {
   get bodyPattern() { return [CARRY, MOVE] }
-
   get maxCreepSize() { return this.bodyPattern.length * 6 }
 
-  resource(creep) { return RESOURCE_SCORE }
-
   number(room) {
-    const roomsNeedScoreHarvester = _.filter(World.territory, 'needsScoreHarvester')
+    const needsScoreHarvester = _.some(World.territory, 'needsScoreHarvester')
 
-    return roomsNeedScoreHarvester.length
+    return needsScoreHarvester ? 2 : 0
   }
 
-  findTarget(creep) { return creep.room.storage }
+  nextState(context) {
+    const actor = context.actor
+    const result = context.result
+    const currentState = context.currentState
+    let nextState = context.currentState
 
-  invalidTarget(creep, target) {
-    return target.store.getFreeCapacity(this.resource(creep)) == 0
-  }
+    switch (currentState) {
+      case states.INITIALIZING:
+        if (!actor.spawning) {
+          nextState = states.COLLECTING
+          break
+        }
 
-  findSourceRoom(room) {
-    const needsScoreHarvester = _.find(World.territory, 'needsScoreHarvester')
+        break
+      case states.COLLECTING:
+        if (State.SUCCESS === result) {
+          nextState = states.STORING
+          break
+        }
 
-    return needsScoreHarvester ? needsScoreHarvester.name : null
-  }
+        if (State.FAILED === result) {
+          nextState = states.RECYCLING
+          break
+        }
 
-  findSource(creep) {
-    let source
+        break
+      case states.STORING:
+        if (State.SUCCESS === result) {
+          nextState = states.COLLECTING
+          break
+        }
 
-    // score containers
-    if (!source) {
-      const scoreContainers = creep.room.scoreContainers
+        if (State.FAILED === result) {
+          nextState = states.RECYCLING
+          break
+        }
 
-      if (scoreContainers.length) {
-        source = scoreContainers[0]
-      }
+        break
+      case states.RECYCLING:
+        break
+      default:
+        console.log('SCOREHARVESTER', 'unhandled state', currentState, JSON.stringify(context))
+        break
     }
 
-    return source
-  }
-
-  targetAction(creep, target) {
-    if (creep.transfer(target, this.resource(creep)) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(target)
-    }
-
-    return
+    return nextState
   }
 }
+
+global.ScoreHarvester = ScoreHarvester

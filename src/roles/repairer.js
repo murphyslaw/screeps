@@ -1,15 +1,8 @@
 'use strict'
 
-global.Repairer = class extends EnergyRole {
-  get name() { return 'repairer' }
-
-  get maxCreepSize() {
-    return this.bodyPattern.length * 5
-  }
-
-  get bodyPattern() {
-    return [WORK, CARRY, MOVE]
-  }
+class Repairer extends Creepy {
+  get bodyPattern() { return [WORK, CARRY, MOVE] }
+  get maxCreepSize() { return this.bodyPattern.length * 5 }
 
   number(room) {
     const needsRepairer = _.some(World.territory, 'needsRepairer')
@@ -17,27 +10,65 @@ global.Repairer = class extends EnergyRole {
     return needsRepairer ? 2 : 0
   }
 
-  findTargetRoom(room) {
-    room = _.find(World.territory, 'needsRepairer')
+  nextState(context) {
+    const actor = context.actor
+    const result = context.result
+    const currentState = context.currentState
+    let nextState = context.currentState
 
-    if (room) return room.name
+    switch (currentState) {
+      case states.INITIALIZING:
+        if (!actor.spawning) {
+          nextState = states.REFILLING
+          break
+        }
 
-    return
-  }
+        break
+      case states.IDLE:
+        if (State.SUCCESS === result) {
+          nextState = states.REPAIRING
+          break
+        }
 
-  findTarget(creep) {
-    let target = creep.pos.findClosestByRange(creep.room.damagedStructures)
+        if (State.FAILED === result) {
+          nextState = states.RECYCLING
+          break
+        }
 
-    return target
-  }
+        break
+      case states.REPAIRING:
+        if (State.SUCCESS === result) {
+          nextState = states.REFILLING
+          break
+        }
 
-  invalidTarget(creep, target) {
-    return target.healthy
-  }
+        if (State.FAILED === result) {
+          nextState = states.IDLE
+          break
+        }
 
-  targetAction(creep, target) {
-    if (creep.repair(target) === ERR_NOT_IN_RANGE) {
-      creep.moveTo(target)
+        break
+      case states.REFILLING:
+        if (State.SUCCESS === result) {
+          nextState = states.REPAIRING
+          break
+        }
+
+        if (State.FAILED === result) {
+          nextState = states.RECYCLING
+          break
+        }
+
+        break
+      case states.RECYCLING:
+        break
+      default:
+        console.log('REPAIRER', 'unhandled state', currentState, JSON.stringify(context))
+        break
     }
+
+    return nextState
   }
 }
+
+global.Repairer = Repairer

@@ -19,6 +19,23 @@ prototype.creeps = function(role) {
   return _.filter(Game.creeps, creep => _.every(conditions, cond => cond.call(this, creep)))
 }
 
+prototype.findWithPriorities = function(type, priorities, filter) {
+  let structures = this.find(type)
+  structures = _.filter(structures, function(structure) {
+    return priorities.includes(structure.structureType) &&
+      filter ? filter.call(this, structure) : true
+  }, this)
+
+  const groups = _.groupBy(structures, 'structureType')
+  const targets = _.reduce(priorities, function(total, type) {
+    if (groups[type]) total.push(groups[type].shift())
+
+    return total
+  }, [])
+
+  return targets
+}
+
 Object.defineProperties(prototype, {
   'invisible': {
     get: function () {
@@ -169,9 +186,7 @@ Object.defineProperties(prototype, {
     get: function() {
       if (!this._containers) {
         const containers = this.find(FIND_STRUCTURES, {
-          filter: (structure) => {
-            return structure.structureType == STRUCTURE_CONTAINER
-          }
+          filter: { structureType: STRUCTURE_CONTAINER }
         })
 
         this._containers = containers

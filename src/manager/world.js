@@ -41,6 +41,26 @@ class World {
     return _.filter(Game.creeps, creep => _.every(conditions, cond => cond.call(this, creep)))
   }
 
+  allowedRooms(from, to) {
+    const allowedRooms = { [from]: true }
+
+    const route = Game.map.findRoute(from, to, {
+      routeCallback(roomName) {
+        const room = global.World.getRoom(roomName)
+
+        if (!room.underAttack && (room.isHighway || room.my)) {
+          return 1
+        } else {
+          return 2.5
+        }
+      }
+    })
+
+    route.forEach(info => allowedRooms[info.room] = true)
+
+    return allowedRooms
+  }
+
   getRoom(name) {
     if (!name) return
 

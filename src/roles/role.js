@@ -50,13 +50,13 @@ global.Role = class {
   }
 
   changeState(creep, state, rerun = true) {
-    creep.state = state;
+    creep.state = state
 
     if (rerun) {
-      this.run(creep);
+      this.run(creep)
     }
 
-    return;
+    return
   }
 
   run(creep) {
@@ -86,29 +86,27 @@ global.Role = class {
     return
   }
 
-  initialize(creep) {
-    return;
-  }
+  initialize(creep) { return }
 
   recycle(creep) {
-    creep.recycle();
+    creep.recycle()
 
-    return;
+    return
   }
 
   wantsToSpawn(room) {
-    const creeps = this.creeps;
+    const creeps = this.creeps
 
-    const count = creeps.length;
-    const number = this.number(room);
+    const count = creeps.length
+    const number = this.number(room)
 
-    if (count > number) { return false; }
+    if (count > number) { return false }
 
     const renew = _.some(creeps, function (creep) {
-      return creep.ticksToLive <= this.maxSpawnTime;
+      return creep.ticksToLive <= this.maxSpawnTime
     }, this)
 
-    return (count < number) || (count == number && renew);
+    return (count < number) || (count == number && renew)
   }
 
   spawn(room) {
@@ -133,4 +131,4 @@ global.Role = class {
   }
 }
 
-module.exports = Role;
+module.exports = Role

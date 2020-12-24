@@ -1,7 +1,15 @@
 'use strict'
 
 class Dismantler extends Creepy {
-  get bodyPattern() { return [WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE] }
+  get bodyPattern() {
+    return [
+      WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK,
+      WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK,
+      WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE,
+      MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE,
+    ]
+  }
   get maxCreepSize() { return MAX_CREEP_SIZE }
 
   number(room) { return 1 }

@@ -16,6 +16,19 @@ global.config = {
       state: false,
     }
   },
+
+  rooms: {
+    W18N28: {
+      harvester: 0,
+      upgrader: 2,
+      containerharvester: 2,
+    },
+    W18N29: {
+      harvester: 1,
+      upgrader: 3,
+      containerharvester: 1,
+    },
+  }
 }
 
 global.roles = {

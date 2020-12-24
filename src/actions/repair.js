@@ -1,6 +1,6 @@
 'use strict'
 
-class Build extends Action {
+class Repair extends Action {
   constructor(actor, target) {
     super()
 
@@ -9,8 +9,8 @@ class Build extends Action {
   }
 
   update() {
-    return this.actor.build(this.target)
+    return this.actor.repair(this.target)
   }
 }
 
-global.Build = Build
+global.Repair = Repair

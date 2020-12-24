@@ -1,20 +1,24 @@
 'use strict'
 
-global.Building = class extends State {
+class Repairing extends State {
   findRoom() {
-    const room = _.find(World.territory, 'needsBuilder')
+    const room = _.sample(_.filter(World.territory, 'needsRepairer'))
 
     return room ? room.name : null
   }
 
+  validateTarget(target) {
+    return target && target.hits < target.hitsMax ? target : null
+  }
+
   findTarget() {
-    const target = this.actor.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES)
+    const target = this.actor.pos.findClosestByRange(this.room.damagedStructures)
 
     return target
   }
 
   handleAction() {
-    const actionResult = new Build(this.actor, this.target).update()
+    let actionResult = new Repair(this.actor, this.target).update()
 
     switch (actionResult) {
       case OK:
@@ -34,8 +38,12 @@ global.Building = class extends State {
         return [State.FAILED, actionResult]
 
       default:
-        console.log('BUILDING', 'unhandled action result', actionResult)
+        console.log('REPAIRING', 'unhandled action result', actionResult)
         return [State.FAILED, actionResult]
     }
   }
+
+  get validRange() { return 3 }
 }
+
+global.Repairing = Repairing

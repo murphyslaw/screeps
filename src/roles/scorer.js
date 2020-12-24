@@ -1,7 +1,15 @@
 'use strict'
 
 class Scorer extends Creepy {
-  get bodyPattern() { return [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE] }
+  get bodyPattern() {
+    return [
+      CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE,
+      CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE,
+      CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE,
+      CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE,
+      CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE,
+    ]
+  }
   get maxCreepSize() { return MAX_CREEP_SIZE }
 
   number(room) { return 2 }
@@ -11,8 +19,6 @@ class Scorer extends Creepy {
     const result = context.result
     const currentState = context.currentState
     let nextState = context.currentState
-
-    this.logger.debug('scorer', 'nextState', actor, result, currentState)
 
     switch (currentState) {
       case states.INITIALIZING:

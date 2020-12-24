@@ -1,12 +1,13 @@
 'use strict'
 
 class State {
-  constructor(state, actor, nextState) {
+  constructor(state, actor, role) {
     this.state = state
     this.actor = actor
-    this.nextState = nextState
+    this.role = role
+    this.nextState = role.nextState
     this.logger = new Logger('State')
-    if (this.actor.role === 'builder') this.logger.debug('state', 'constructor', this.actor.destination, this.actor.target)
+    if (this.actor.role === 'repairer') this.logger.debug('state', 'constructor', this.actor.destination, this.actor.target)
   }
 
   get context() {
@@ -26,30 +27,32 @@ class State {
     let target
 
     target = this.actor.target
+    target = this.validateTarget(target)
     target = target || this.findTarget()
 
     return target
   }
 
+  validateTarget(target) { return target }
+  findTarget() {}
+
   run() {
-    if (this.actor.role === 'builder') this.logger.debug('state', 'run', this.actor.destination, this.actor.target)
+    if (this.actor.role === 'repairer') this.logger.debug('state', 'run', this.actor.pos, this.actor.destination, this.actor.target, this.actor.target && this.actor.target.pos)
     let context = this.context
 
     let [stateResult, stepResult] = this.handleTarget()
+    if (this.actor.role === 'repairer') this.logger.debug('state', 'run', 'handleTarget', stateResult, stepResult)
 
-    if (this.actor.role === 'builder') this.logger.debug('state', 'run', 'handleTarget', stateResult, stepResult)
 
     if (State.RUNNING === stateResult && OK === stepResult) {
       [stateResult, stepResult] = this.handleAction()
+      if (this.actor.role === 'repairer') this.logger.debug('state', 'run', 'handleAction', stateResult, stepResult)
     }
-
-    if (this.actor.role === 'builder') this.logger.debug('state', 'run', 'handleAction', stateResult, stepResult)
 
     if (State.RUNNING === stateResult) {
       [stateResult, stepResult] = this.handleMovement()
+      if (this.actor.role === 'repairer') this.logger.debug('state', 'run', 'handleMovement', stateResult, stepResult)
     }
-
-    if (this.actor.role === 'builder') this.logger.debug('state', 'run', 'handleMovement', stateResult, stepResult)
 
     context.result = stateResult
 
@@ -84,8 +87,10 @@ class State {
   handleAction() { throw Error('not implemented') }
 
   handleMovement() {
-    if (!this.actor.pos.isNearTo(this.actor.destination)) {
-      const actionResult = new Move(this.actor, this.actor.destination, {}).update()
+    if (!this.actor.destination) return [State.RUNNING, ERR_INVALID_TARGET]
+
+    if (!this.actor.pos.inRangeTo(this.actor.destination, this.validRange)) {
+      const actionResult = new Move(this.actor, this.actor.destination, this.movementOptions).update()
 
       switch (actionResult) {
         case OK:
@@ -96,6 +101,7 @@ class State {
         case ERR_NO_PATH:
         case ERR_INVALID_TARGET:
           this.actor.destination = null
+          this.actor.target = null
           return [State.RUNNING, actionResult]
 
         case ERR_NO_BODYPART:
@@ -107,6 +113,9 @@ class State {
 
     return [State.RUNNING, OK]
   }
+
+  get validRange() { return 1 }
+  get movementOptions() { return {} }
 
   exit() {
     this.actor.destination = null
@@ -122,6 +131,7 @@ State.FAILED = -1
 
 global.states = {
   INITIALIZING: 0,
+  IDLE: 1,
   REFILLING: 2,
   MOVING: 4,
   SIGNING: 5,
@@ -132,6 +142,9 @@ global.states = {
   SCORING: 10,
   CLAIMING: 11,
   BUILDING: 12,
+  REPAIRING: 13,
+  COLLECTING: 14,
+  STORING: 15,
 }
 
 global.State = State

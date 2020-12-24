@@ -6,6 +6,7 @@ class Creepy extends Role {
   get states() {
     return {
       [states.INITIALIZING]: Initializing,
+      [states.IDLE]: Idle,
       [states.REFILLING]: Refilling,
       [states.SIGNING]: Signing,
       [states.DISMANTLING]: Dismantling,
@@ -15,6 +16,9 @@ class Creepy extends Role {
       [states.SCORING]: Scoring,
       [states.CLAIMING]: Claiming,
       [states.BUILDING]: Building,
+      [states.REPAIRING]: Repairing,
+      [states.COLLECTING]: Collecting,
+      [states.STORING]: Storing,
     }
   }
 
@@ -30,7 +34,7 @@ class Creepy extends Role {
     const stateClass = this.states[state]
 
     if (stateClass) {
-      const stateInstance = new stateClass(state, actor, this.nextState)
+      const stateInstance = new stateClass(state, actor, this)
       const nextState = stateInstance.run()
 
       if (actor.state !== nextState) stateInstance.exit()

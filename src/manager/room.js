@@ -11,10 +11,11 @@ class RoomManager {
       visualizer.run()
     }
 
-    World.creeps('builder').forEach(function (creep) {
-      new RoomVisual(creep.room.name).circle(creep.pos,
-        { fill: 'transparent', radius: 1, stroke: 'blue', strokeWidth: .1, opacity: 1 })
-    })
+    // World.creeps('repairer').forEach(function (creep) {
+    //   const visual = new RoomVisual(creep.room.name)
+    //   visual.circle(creep.pos,
+    //     { fill: 'transparent', radius: 1, stroke: 'blue', strokeWidth: .1, opacity: 1 })
+    // })
 
     if (global.config.visuals) {
       const damagedStructures = room.damagedStructures;

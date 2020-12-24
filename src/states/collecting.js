@@ -1,9 +1,9 @@
 'use strict'
 
-class Refilling extends State {
+class Collecting extends State {
   findRoom() {
     // prioritize current room
-    const rooms = World.myRooms
+    const rooms = World.territory
     const currentRoom = this.actor.room
     const index = rooms.indexOf(currentRoom)
 
@@ -12,34 +12,19 @@ class Refilling extends State {
       rooms.unshift(currentRoom)
     }
 
-    const room = _.find(rooms, function(room) {
-      const targets = room.findWithPriorities(
-        FIND_STRUCTURES,
-        this.structurePriorities,
-        structure => structure.store.getUsedCapacity(this.resource) > 0
-      )
+    const room = _.find(rooms, 'needsScoreHarvester')
 
-      return targets.length > 0
-    }, this)
-
-    return room.name
+    return room ? room.name : null
   }
 
-  get structurePriorities() {
-    return [
-      STRUCTURE_STORAGE,
-      STRUCTURE_CONTAINER,
-    ]
+  validateTarget(target) {
+    return target && target.store.getUsedCapacity(this.resource) > 0 ? target : null
   }
 
   findTarget() {
-    const targets = this.room.findWithPriorities(
-      FIND_STRUCTURES,
-      this.structurePriorities,
-      structure => structure.store.getUsedCapacity(this.resource) > 0
-    )
+    const scoreContainers = this.room.scoreContainers
 
-    return targets[0]
+    return scoreContainers.length ? scoreContainers[0] : null
   }
 
   get resource() {
@@ -75,12 +60,10 @@ class Refilling extends State {
         return [State.FAILED, actionResult]
 
       default:
-        console.log('REFILLING', 'unhandled action result', actionResult)
+        console.log('COLLECTING', 'unhandled action result', actionResult)
         return [State.FAILED, actionResult]
     }
   }
-
-  get movementOptions() { return { path: true } }
 }
 
-global.Refilling = Refilling
+global.Collecting = Collecting

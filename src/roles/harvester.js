@@ -5,7 +5,7 @@ global.Harvester = class extends EnergyRole {
   get maxCreepSize() { return this.bodyPattern.length * 5 }
   get bodyPattern() { return [WORK, CARRY, MOVE] }
 
-  number(room) { return 0 }
+  number(room) { return 1 }
 
   findTargetRoom(room) { return 'W18N29' }
 

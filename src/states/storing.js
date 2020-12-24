@@ -1,6 +1,6 @@
 'use strict'
 
-class Refilling extends State {
+class Storing extends State {
   findRoom() {
     // prioritize current room
     const rooms = World.myRooms
@@ -12,11 +12,11 @@ class Refilling extends State {
       rooms.unshift(currentRoom)
     }
 
-    const room = _.find(rooms, function(room) {
+    const room = _.find(rooms, function (room) {
       const targets = room.findWithPriorities(
         FIND_STRUCTURES,
         this.structurePriorities,
-        structure => structure.store.getUsedCapacity(this.resource) > 0
+        structure => structure.store.getFreeCapacity(this.resource) > 0
       )
 
       return targets.length > 0
@@ -28,7 +28,6 @@ class Refilling extends State {
   get structurePriorities() {
     return [
       STRUCTURE_STORAGE,
-      STRUCTURE_CONTAINER,
     ]
   }
 
@@ -36,15 +35,14 @@ class Refilling extends State {
     const targets = this.room.findWithPriorities(
       FIND_STRUCTURES,
       this.structurePriorities,
-      structure => structure.store.getUsedCapacity(this.resource) > 0
+      structure => structure.store.getFreeCapacity(this.resource) > 0
     )
 
     return targets[0]
   }
 
   get resource() {
-    switch(this.actor.role) {
-      case 'scorer':
+    switch (this.actor.role) {
       case 'scoreharvester':
         return RESOURCE_SCORE
       default:
@@ -53,18 +51,18 @@ class Refilling extends State {
   }
 
   handleAction() {
-    const actionResult = new Withdraw(this.actor, this.target, this.resource).update()
+    const actionResult = new Transfer(this.actor, this.target, this.resource).update()
 
     switch (actionResult) {
       case OK:
-      case ERR_FULL:
+      case ERR_NOT_ENOUGH_RESOURCES:
         return [State.SUCCESS, actionResult]
 
       case ERR_BUSY:
       case ERR_NOT_IN_RANGE:
         return [State.RUNNING, actionResult]
 
-      case ERR_NOT_ENOUGH_RESOURCES:
+      case ERR_FULL:
       case ERR_INVALID_TARGET:
         this.actor.target = null
         return [State.RUNNING, actionResult]
@@ -75,12 +73,10 @@ class Refilling extends State {
         return [State.FAILED, actionResult]
 
       default:
-        console.log('REFILLING', 'unhandled action result', actionResult)
+        console.log('STORING', 'unhandled action result', actionResult)
         return [State.FAILED, actionResult]
     }
   }
-
-  get movementOptions() { return { path: true } }
 }
 
-global.Refilling = Refilling
+global.Storing = Storing
