@@ -1,35 +1,45 @@
 'use strict'
 
-global.Dismantling = class extends State {
-  get state() { return states.DISMANTLING }
-
+class Dismantling extends State {
   findRoom() {
     return 'W20N30'
   }
 
   findTarget() {
-    const roomName = this.room.name
-    const monument = new Monument(roomName)
-    const start = new RoomPosition(38, 27, roomName)
+    const monument = new Monument(this.room)
+    const start = new RoomPosition(38, 27, this.room.name)
     const target = monument.blocker(start)
 
     return target
   }
 
   handleAction() {
-    let result = State.RUNNING
-
     const actionResult = new Dismantle(this.actor, this.target).update()
 
     switch (actionResult) {
       case OK:
-        result = State.RUNNING
-        break
-      default:
-        result = State.FAILED
-        break
-    }
+      case ERR_BUSY:
+      case ERR_NOT_IN_RANGE:
+        // check now and then if a better target exists
+        if (0 === Game.time % 20) {
+          this.actor.target = null
+        }
 
-    return result
+        return [State.RUNNING, actionResult]
+
+      case ERR_INVALID_TARGET:
+        this.actor.target = null
+        return [State.RUNNING, actionResult]
+
+      case ERR_NO_BODYPART:
+      case ERR_NOT_OWNER:
+        return [State.FAILED, actionResult]
+
+      default:
+        console.log('DEFENDING', 'unhandled action result', actionResult)
+        return [State.FAILED, actionResult]
+    }
   }
 }
+
+global.Dismantling = Dismantling

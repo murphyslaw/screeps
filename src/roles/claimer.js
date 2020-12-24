@@ -1,13 +1,12 @@
 'use strict'
 
-class Defender extends Creepy {
-  get bodyPattern() { return [TOUGH, TOUGH, ATTACK, ATTACK, MOVE, MOVE] }
-  get maxCreepSize() { return this.bodyPattern.length * 4 }
+class Claimer extends Creepy {
+  get bodyPattern() { return [CLAIM, MOVE] }
 
   number(room) {
-    const underAttack = _.some(World.territory, 'underAttack')
+    const needsClaimer = _.some(World.territory, 'needsClaimer')
 
-    return underAttack ? 1 : 0
+    return needsClaimer ? 1 : 0
   }
 
   nextState(context) {
@@ -18,25 +17,27 @@ class Defender extends Creepy {
 
     switch (currentState) {
       case states.INITIALIZING:
-        if (State.SUCCESS === result) {
-          nextState = states.DEFENDING
+        if (!actor.spawning) {
+          nextState = states.CLAIMING
         }
 
         break
-      case states.DEFENDING:
+      case states.CLAIMING:
         if (State.SUCCESS === result) {
           nextState = states.RECYCLING
+          break
         }
 
         if (State.FAILED === result) {
           nextState = states.RECYCLING
+          break
         }
 
         break
       case states.RECYCLING:
         break
       default:
-        console.log('DEFENDER', 'unhandled state', currentState, JSON.stringify(context))
+        console.log('CLAIMER', 'unhandled state', currentState, JSON.stringify(context))
         break
     }
 
@@ -44,4 +45,4 @@ class Defender extends Creepy {
   }
 }
 
-global.Defender = Defender
+global.Claimer = Claimer

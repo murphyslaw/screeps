@@ -1,6 +1,6 @@
 'use strict'
 
-global.SignController = class extends global.Action {
+global.SignController = class extends Action {
   constructor(actor, target, text) {
     super()
 

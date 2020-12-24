@@ -4,19 +4,19 @@ Source.prototype.vacancies = function() {
   const creeps = _.filter(Game.creeps, function (creep) {
     return creep.getActiveBodyparts(WORK) > 0 &&
       creep.source == this
-  }, this);
+  }, this)
 
   if (creeps.length >= this.freeSpaceCount) {
-    return false;
+    return false
   }
 
   const neededWorkparts = this.energyCapacity / HARVEST_POWER / ENERGY_REGEN_TIME;
   const workpartsCount = _.sum(creeps, function (creep) {
-    return creep.getActiveBodyparts(WORK);
-  });
+    return creep.getActiveBodyparts(WORK)
+  })
 
   if (workpartsCount >= neededWorkparts) {
-    return false;
+    return false
   }
 
   return true;
@@ -42,7 +42,7 @@ Object.defineProperties(Source.prototype, {
             const terrain = this.room.getTerrain();
 
             return terrain.get(position.x, position.y) != TERRAIN_MASK_WALL;
-          })
+          }, this)
 
           this.memory.freeSpaceCount = freePositions.length;
         }

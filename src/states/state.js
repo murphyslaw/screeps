@@ -1,26 +1,17 @@
 'use strict'
 
-global.states = {
-  INITIALIZING: 0,
-  REFILLING: 2,
-  WORKING: 3,
-  MOVING: 4,
-  SIGNING: 5,
-  DISMANTLING: 6,
-  DEFENDING: 7,
-  HEALING: 8,
-  RECYCLING: 9,
-  SCORING: 10,
-}
-
-global.State = class {
-  constructor(actor, nextState) {
+class State {
+  constructor(state, actor, nextState) {
+    this.state = state
     this.actor = actor
     this.nextState = nextState
+    this.logger = new Logger('State')
+    if (this.actor.role === 'builder') this.logger.debug('state', 'constructor', this.actor.destination, this.actor.target)
   }
 
-  get state() { throw Error('not implemented') }
-  get context() { return { actor: this.actor, currentState: this.state } }
+  get context() {
+    return { actor: this.actor, currentState: this.state }
+  }
 
   get room() {
     let roomName
@@ -41,74 +32,86 @@ global.State = class {
   }
 
   run() {
-    let stateResult = State.SUCCESS
+    if (this.actor.role === 'builder') this.logger.debug('state', 'run', this.actor.destination, this.actor.target)
     let context = this.context
 
-    // handle target
-    if (State.FAILED !== stateResult) {
-      stateResult = this.handleTarget()
+    let [stateResult, stepResult] = this.handleTarget()
+
+    if (this.actor.role === 'builder') this.logger.debug('state', 'run', 'handleTarget', stateResult, stepResult)
+
+    if (State.RUNNING === stateResult && OK === stepResult) {
+      [stateResult, stepResult] = this.handleAction()
     }
 
-    // handle movement
-    if (State.FAILED !== stateResult) {
-      stateResult = this.handleMovement()
+    if (this.actor.role === 'builder') this.logger.debug('state', 'run', 'handleAction', stateResult, stepResult)
+
+    if (State.RUNNING === stateResult) {
+      [stateResult, stepResult] = this.handleMovement()
     }
 
-    // handle action
-    if (State.SUCCESS === stateResult) {
-      stateResult = this.handleAction()
-    }
+    if (this.actor.role === 'builder') this.logger.debug('state', 'run', 'handleMovement', stateResult, stepResult)
 
-    // provide context for decider
     context.result = stateResult
 
-    // transition to next state with the given context
     return this.nextState(context)
   }
 
   handleTarget() {
     const room = this.room
 
-    if (!room) return State.FAILED
-    if (!this.actor.inDestinationRoom) {
+    if (!room) {
+      return [State.FAILED, ERR_INVALID_TARGET]
+    }
+
+    if (this.actor.room !== room) {
       this.actor.destination = new RoomPosition(25, 25, room.name)
-      return State.RUNNING
+      return [State.RUNNING, ERR_NOT_IN_RANGE]
     }
 
     const target = this.target
 
-    if (!target) return State.FAILED
+    if (!target) {
+      this.actor.destination = null
+      return [State.RUNNING, ERR_INVALID_TARGET]
+    }
 
     this.actor.destination = target
     this.actor.target = target
 
-    return State.RUNNING
+    return [State.RUNNING, OK]
   }
 
-  handleMovement() {
-    let result = State.SUCCESS
+  handleAction() { throw Error('not implemented') }
 
+  handleMovement() {
     if (!this.actor.pos.isNearTo(this.actor.destination)) {
       const actionResult = new Move(this.actor, this.actor.destination, {}).update()
 
       switch (actionResult) {
         case OK:
-          result = State.RUNNING
-          break
+        case ERR_BUSY:
+        case ERR_TIRED:
+          return [State.RUNNING, actionResult]
+
+        case ERR_NO_PATH:
+        case ERR_INVALID_TARGET:
+          this.actor.destination = null
+          return [State.RUNNING, actionResult]
+
+        case ERR_NO_BODYPART:
+        case ERR_NOT_OWNER:
         default:
-          result = State.FAILED
-          break
+          return [State.FAILED, actionResult]
       }
     }
 
-    return result
+    return [State.RUNNING, OK]
   }
-
-  handleAction() { throw Error('not implemented') }
 
   exit() {
     this.actor.destination = null
     this.actor.target = null
+    this.logger.debug('state', 'exit', this.actor, this.actor.destination, this.actor.target)
   }
 }
 
@@ -116,3 +119,19 @@ global.State = class {
 State.SUCCESS = 0
 State.RUNNING = 1
 State.FAILED = -1
+
+global.states = {
+  INITIALIZING: 0,
+  REFILLING: 2,
+  MOVING: 4,
+  SIGNING: 5,
+  DISMANTLING: 6,
+  DEFENDING: 7,
+  HEALING: 8,
+  RECYCLING: 9,
+  SCORING: 10,
+  CLAIMING: 11,
+  BUILDING: 12,
+}
+
+global.State = State

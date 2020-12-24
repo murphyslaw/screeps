@@ -1,20 +1,15 @@
 'use strict'
 
-global.Hauler = class extends EnergyRole {
+class Hauler extends EnergyRole {
   get name() { return 'hauler' }
+  get bodyPattern() { return [CARRY, MOVE] }
 
-  get bodyPattern() {
-    return [CARRY, MOVE]
-  }
-
-  get maxCreepSize() {
-    return this.bodyPattern.length * 5
-  }
+  get maxCreepSize() { return this.bodyPattern.length * 5 }
 
   number(room) {
     let number = room.sources.length
 
-    if (room.mineral && room.mineral.container) {
+    if (room.mineral && room.mineral.container && !room.mineral.ticksToRegeneration) {
       number += 1
     }
 
@@ -32,7 +27,7 @@ global.Hauler = class extends EnergyRole {
             structure.structureType == STRUCTURE_EXTENSION ||
             structure.structureType == STRUCTURE_TOWER) &&
             structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0 &&
-            !_.some(this.creeps, 'target', structure);
+            !_.some(this.creeps, 'target', structure)
         }
       })
     }
@@ -66,7 +61,7 @@ global.Hauler = class extends EnergyRole {
         filter: (resource) => {
           return !_.some(this.creeps, 'source', resource)
         }
-      });
+      })
 
       if (dropped.length) {
         source = dropped[0]
@@ -78,9 +73,9 @@ global.Hauler = class extends EnergyRole {
       const tombstones = creep.room.find(FIND_TOMBSTONES, {
         filter: (tombstone) => {
           return tombstone.store.getUsedCapacity() > 0 &&
-            !_.some(this.creeps, 'source', tombstone);
+            !_.some(this.creeps, 'source', tombstone)
         }
-      });
+      })
 
       if (tombstones.length) {
         source = tombstones[0]
@@ -92,9 +87,9 @@ global.Hauler = class extends EnergyRole {
       const ruins = creep.room.find(FIND_RUINS, {
         filter: (ruin) => {
           return ruin.store.getUsedCapacity() > 0 &&
-            !_.some(this.creeps, 'source', ruin);
+            !_.some(this.creeps, 'source', ruin)
         }
-      });
+      })
 
       if (ruins.length) {
         source = ruins[0]
@@ -109,7 +104,7 @@ global.Hauler = class extends EnergyRole {
         filter: (structure) => {
           return structure.store.getUsedCapacity() > creep.store.getFreeCapacity() &&
             structure != creep.room.controller.container &&
-            !_.some(this.creeps, 'source', structure);
+            !_.some(this.creeps, 'source', structure)
         }
       });
     }
@@ -119,7 +114,7 @@ global.Hauler = class extends EnergyRole {
 
   sourceAction(creep, source) {
     if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(source);
+      creep.moveTo(source)
 
       return
     }
@@ -166,3 +161,5 @@ global.Hauler = class extends EnergyRole {
     return
   }
 }
+
+global.Hauler = Hauler

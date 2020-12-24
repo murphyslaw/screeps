@@ -1,8 +1,6 @@
 'use strict'
 
 global.Healing = class extends State {
-  get state() { return states.HEALING }
-
   findRoom() {
     return this.actor.room
   }

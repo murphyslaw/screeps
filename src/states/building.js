@@ -1,18 +1,16 @@
 'use strict'
 
-global.Defending = class extends State {
+global.Building = class extends State {
   findRoom() {
-    const room = _.find(World.territory, 'underAttack')
-
-    return room ? room.name : null
+    return _.find(World.territory, 'needsBuilder').name
   }
 
   findTarget() {
-    return this.actor.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
+    return this.actor.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES)
   }
 
   handleAction() {
-    const actionResult = new Attack(this.actor, this.target).update()
+    const actionResult = new Build(this.actor, this.target).update()
 
     switch (actionResult) {
       case OK:
@@ -20,16 +18,19 @@ global.Defending = class extends State {
       case ERR_NOT_IN_RANGE:
         return [State.RUNNING, actionResult]
 
+      case ERR_NOT_ENOUGH_RESOURCES:
+        return [State.SUCCESS, actionResult]
+
       case ERR_INVALID_TARGET:
         this.actor.target = null
         return [State.RUNNING, actionResult]
 
-      case ERR_NO_BODYPART:
       case ERR_NOT_OWNER:
+      case ERR_NO_BODYPART:
         return [State.FAILED, actionResult]
 
       default:
-        console.log('DEFENDING', 'unhandled action result', actionResult)
+        console.log('BUILDING', 'unhandled action result', actionResult)
         return [State.FAILED, actionResult]
     }
   }

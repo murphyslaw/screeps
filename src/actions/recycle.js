@@ -1,6 +1,6 @@
 'use strict'
 
-global.Recycle = class extends Action {
+class Recycle extends Action {
   constructor(actor, spawn) {
     super()
 
@@ -12,3 +12,5 @@ global.Recycle = class extends Action {
     return this.spawn.recycleCreep(this.actor)
   }
 }
+
+global.Recycle = Recycle

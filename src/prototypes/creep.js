@@ -31,13 +31,15 @@ Object.defineProperties(Creep.prototype, {
         this._source = Game.getObjectById(this.memory.source)
       }
 
-      return this._source;
+      return this._source
     },
     set: function (value) {
+      this._source = value
+
       if (value) {
-        this.memory.source = value.id;
-      } else if (this.memory.source) {
-        delete this.memory.source;
+        this.memory.source = value.id
+      } else {
+        delete this.memory.source
       }
 
       return;
@@ -65,9 +67,11 @@ Object.defineProperties(Creep.prototype, {
       if (value) {
         const destination = value instanceof RoomPosition ? value : value.pos
 
+        this._destination = destination
         this.memory._move.dest = { x: destination.x, y: destination.y, room: destination.roomName }
-      } else if (this.memory._move.dest) {
-        delete this.memory._move.dest
+      } else {
+        this._destination = value
+        delete this.memory._move
       }
 
       return
@@ -100,26 +104,28 @@ Object.defineProperties(Creep.prototype, {
       return this._target;
     },
     set: function (value) {
+      this._target = value
+
       if (value) {
-        this.memory.target = value.id;
-      } else if (this.memory.target) {
-        delete this.memory.target;
+        this.memory.target = value.id
+      } else {
+        delete this.memory.target
       }
 
-      return;
+      return
     },
     configurable: true
   },
 
   'targetRoom': {
     get: function () {
-      return this.memory.targetRoom;
+      return this.memory.targetRoom
     },
     set: function (value) {
       if (value) {
-        this.memory.targetRoom = value;
+        this.memory.targetRoom = value
       } else if (this.memory.targetRoom) {
-        delete this.memory.targetRoom;
+        delete this.memory.targetRoom
       }
     },
     configurable: true
@@ -134,13 +140,13 @@ Object.defineProperties(Creep.prototype, {
 
   'sourceRoom': {
     get: function () {
-      return this.memory.sourceRoom;
+      return this.memory.sourceRoom
     },
     set: function (value) {
       if (value) {
-        this.memory.sourceRoom = value;
+        this.memory.sourceRoom = value
       } else if (this.memory.sourceRoom) {
-        delete this.memory.sourceRoom;
+        delete this.memory.sourceRoom
       }
     },
     configurable: true
@@ -148,24 +154,24 @@ Object.defineProperties(Creep.prototype, {
 
   'inSourceRoom': {
     get: function () {
-      return this.room.name == this.sourceRoom && !this.pos.isBorderPosition;
+      return this.room.name == this.sourceRoom && !this.pos.isBorderPosition
     },
     configurable: true
   },
 
   'sourceType': {
     get: function () {
-      return this.memory.sourceType;
+      return this.memory.sourceType
     },
     set: function (value) {
-      this.memory.sourceType = value;
+      this.memory.sourceType = value
     },
     configurable: true
   },
 
   'resources': {
     get: function() {
-      return this.store.resources;
+      return this.store.resources
     },
     configurable: true
   }
@@ -173,18 +179,20 @@ Object.defineProperties(Creep.prototype, {
 
 Creep.prototype.moveToRoom = function(roomName) {
   if (roomName) {
-    return this.moveTo(new RoomPosition(25, 25, roomName));
+    return this.moveTo(new RoomPosition(25, 25, roomName))
   }
 }
 
 Creep.prototype.resetTarget = function() {
-  this.targetRoom = null;
-  this.target = null;
+  this.targetRoom = null
+  this.target = null
+  this.destination = null
 }
 
 Creep.prototype.resetSource = function() {
-  this.sourceRoom = null;
-  this.source = null;
+  this.sourceRoom = null
+  this.source = null
+  this.destination = null
 }
 
 Creep.prototype.recycle = function() {

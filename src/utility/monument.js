@@ -1,8 +1,8 @@
 'use strict'
 
 global.Monument = class {
-  constructor(roomName) {
-    this.room = Game.rooms[roomName]
+  constructor(room) {
+    this.room = room
   }
 
   get scoreCollector() {

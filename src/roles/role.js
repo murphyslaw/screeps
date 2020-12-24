@@ -112,20 +112,24 @@ global.Role = class {
   }
 
   spawn(room) {
-    const spawn = room.nonSpawningSpawns[0];
+    const spawns = room.nonSpawningSpawns
+    let actionResult
 
-    if (spawn) {
-      const name = this.randomName;
-      const bodyparts = this.bodyparts(room.energyAvailable);
-      const memory = this.memory(room);
-      memory['role'] = this.name;
+    spawns.some(function(spawn) {
+      const name = this.randomName
+      const bodyparts = this.bodyparts(room.energyAvailable)
+      const memory = this.memory(room)
+      memory['role'] = this.name
 
-      if (spawn.spawnCreep(bodyparts, name, { memory: memory }) == OK) {
-        this.logger.debug('Spawning ' + this.name + ': ' + name);
+      actionResult = spawn.spawnCreep(bodyparts, name, { memory: memory })
+
+      if (OK === actionResult) {
+        this.logger.debug('spawning ' + this.name + ': ' + name, ' at ', spawn.pos)
+        return true
       }
-    }
+    }, this)
 
-    return;
+    return actionResult
   }
 }
 

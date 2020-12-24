@@ -1,18 +1,13 @@
 'use strict'
 
 global.Initializing = class extends State {
-  get state() { return states.INITIALIZING }
-
-  handleTarget() { return State.RUNNING }
-  handleMovement() { return State.SUCCESS }
+  handleTarget() { return [State.RUNNING, OK] }
 
   handleAction() {
-    let result = State.RUNNING
+    if (!this.actor.spawning) { return [State.SUCCESS, OK] }
 
-    if (!this.actor.spawning) {
-      result = State.SUCCESS
-    }
-
-    return result
+    return [State.RUNNING, OK]
   }
+
+  handleMovement() { return [State.RUNNING, OK] }
 }

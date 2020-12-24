@@ -1,40 +1,35 @@
 'use strict'
 
 global.Recycling = class extends State {
-  get state() { return states.RECYCLING }
+  findRoom() {
+    const spawnRooms = World.spawnRooms
 
-  get room() {
-    let roomName
-
-    roomName = this.actor.destination && this.actor.destination.roomName
-    roomName = roomName || World.myRooms[0].name
-
-    return World.getRoom(roomName)
+    return spawnRooms.length ? spawnRooms[0].name : null
   }
 
-  get target() {
-    let target
-
-    target = this.actor.target
-    target = target || this.room.spawns[0]
-
-    return target
+  findTarget() {
+    return this.room.spawns[0]
   }
 
   handleAction() {
-    let result = State.RUNNING
-
     const actionResult = new Recycle(this.actor, this.target).update()
 
     switch (actionResult) {
       case OK:
-        result = State.SUCCESS
-        break
-      default:
-        result = State.FAILED
-        break
-    }
+        return [State.SUCCESS, actionResult]
 
-    return result
+      case ERR_NOT_IN_RANGE:
+        return [State.RUNNING, actionResult]
+
+      case ERR_RCL_NOT_ENOUGH:
+      case ERR_INVALID_TARGET:
+      case ERR_NO_BODYPART:
+      case ERR_NOT_OWNER:
+        return [State.FAILED, actionResult]
+
+      default:
+        console.log('RECYCLING', 'unhandled action result', actionResult)
+        return [State.FAILED, actionResult]
+    }
   }
 }

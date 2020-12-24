@@ -1,22 +1,16 @@
-'use strict';
+'use strict'
 
 global.Supplier = class extends EnergyRole {
   get name() { return 'supplier' }
-
-  get bodyPattern() {
-    return [CARRY, MOVE];
-  }
-
-  get maxCreepSize() {
-    return this.bodyPattern.length * 20;
-  }
+  get bodyPattern() { return [CARRY, MOVE] }
+  get maxCreepSize() { return this.bodyPattern.length * 10 }
 
   number(room) {
-    return room.storage ? 1 : 0;
+    return room.storage ? 1 : 0
   }
 
   findTarget(creep) {
-    let target;
+    let target
 
     // spawns, extensions and towers without full energy
     if (!target) {
@@ -27,39 +21,39 @@ global.Supplier = class extends EnergyRole {
             structure.structureType == STRUCTURE_TOWER) &&
             structure.store.getFreeCapacity(this.resource(creep)) > 0;
         }
-      });
+      })
     }
 
     // controller container
     if (!target) {
-      target = creep.room.controller.container;
+      target = creep.room.controller.container
     }
 
-    return target;
+    return target
   }
 
   invalidTarget(creep, target) {
-    return target.store.getFreeCapacity(this.resource(creep)) == 0;
+    return target.store.getFreeCapacity(this.resource(creep)) == 0
   }
 
   findSource(creep) {
-    let source;
+    let source
 
     // storage
     if (!source) {
       if (creep.room.storage && creep.room.storage.store[this.resource(creep)] > 0) {
-        source = creep.room.storage;
+        source = creep.room.storage
       }
     }
 
-    return source;
+    return source
   }
 
   targetAction(creep, target) {
     if (creep.transfer(target, this.resource(creep)) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(target);
+      creep.moveTo(target)
     }
 
-    return;
+    return
   }
-};
+}

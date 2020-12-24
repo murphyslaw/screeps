@@ -1,69 +1,59 @@
 'use strict'
 
-global.Scorer = class extends Creepy {
-  get name() { return 'scorer' }
+class Scorer extends Creepy {
+  get bodyPattern() { return [CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE] }
+  get maxCreepSize() { return MAX_CREEP_SIZE }
 
-  get bodyPattern() { return [CARRY, MOVE] }
-  get maxCreepSize() { return this.bodyPattern.length * 5 }
-
-  get states() {
-    return {
-      [states.INITIALIZING]: Initializing,
-      [states.SCORING]: Scoring,
-      [states.REFILLING]: Refilling,
-      [states.RECYCLING]: Recycling,
-    }
-  }
-
-  number(room) { return 1 }
+  number(room) { return 2 }
 
   nextState(context) {
     const actor = context.actor
     const result = context.result
-    const state = context.currentState
+    const currentState = context.currentState
     let nextState = context.currentState
 
-    switch (state) {
+    this.logger.debug('scorer', 'nextState', actor, result, currentState)
+
+    switch (currentState) {
       case states.INITIALIZING:
         if (State.SUCCESS === result) {
-          nextState = states.REFILLING
-          break
+          return states.REFILLING
         }
 
         break
       case states.SCORING:
         if (State.SUCCESS === result) {
-          actor.destination = null
-          actor.target = null
-          nextState = states.RECYCLING
-          break
+          return states.REFILLING
         }
 
         if (State.FAILED === result) {
-          nextState = states.RECYCLING
-          break
+          // return states.RECYCLING
         }
 
         break
       case states.REFILLING:
+        if (actor.inDestinationRoom && actor.ticksToLive < 700) {
+          // return states.RECYCLING
+        }
+
         if (State.SUCCESS === result) {
-          actor.destination = null
-          actor.target = null
-          nextState = states.SCORING
-          break
+          return states.SCORING
         }
 
         if (State.FAILED === result) {
-          nextState = states.RECYCLING
-          break
+          // return states.RECYCLING
         }
+
+        break
       case states.RECYCLING:
         break
       default:
-        console.log('SCORER', 'unhandled state', state, JSON.stringify(context))
+        console.log('SCORER', 'unhandled state', currentState, JSON.stringify(context))
         break
     }
 
     return nextState
   }
 }
+
+global.Scorer = Scorer

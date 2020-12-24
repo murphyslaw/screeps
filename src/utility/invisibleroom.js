@@ -77,11 +77,21 @@ class InvisibleRoom {
 
   set needsSigner(value) {}
 
+  get needsClaimer() {
+    const flag = Game.flags.claim
+
+    return (flag && this.name === flag.pos.roomName) ? true : false
+  }
+
   get isHighway() {
     const parsed = /^[WE]([0-9]+)[NS]([0-9]+)$/.exec(this.name)
     const isHighway = (parsed[1] % 10 === 0) || (parsed[2] % 10 === 0)
 
     return isHighway
+  }
+
+  get flags() {
+    return _.filter(Game.flags, flag => this.name === flag.pos.roomName)
   }
 
   get neighbors() {

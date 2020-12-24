@@ -151,6 +151,7 @@ global.EnergyRole = class extends Role {
       return
     }
 
+
     // a working creep without a target room needs to find one
     if (!creep.targetRoom) {
       this.assignTargetRoom(creep)

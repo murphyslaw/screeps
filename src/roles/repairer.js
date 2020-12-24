@@ -1,18 +1,20 @@
-'use strict';
+'use strict'
 
 global.Repairer = class extends EnergyRole {
   get name() { return 'repairer' }
 
   get maxCreepSize() {
-    return this.bodyPattern.length * 5;
+    return this.bodyPattern.length * 5
   }
 
   get bodyPattern() {
-    return [WORK, CARRY, MOVE];
+    return [WORK, CARRY, MOVE]
   }
 
   number(room) {
-    return room.damagedStructures.length > 0 ? 1 : 0;
+    const needsRepairer = _.some(World.territory, 'needsRepairer')
+
+    return needsRepairer ? 2 : 0
   }
 
   findTargetRoom(room) {
@@ -30,12 +32,12 @@ global.Repairer = class extends EnergyRole {
   }
 
   invalidTarget(creep, target) {
-    return target.healthy;
+    return target.healthy
   }
 
   targetAction(creep, target) {
     if (creep.repair(target) === ERR_NOT_IN_RANGE) {
-      creep.moveTo(target);
+      creep.moveTo(target)
     }
   }
-};
+}

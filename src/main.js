@@ -19,7 +19,9 @@ module.exports.loop = function() {
 
       statsManager.exportRoomStats(room)
     }
-  });
+  })
 
   statsManager.exportGlobalStats()
+
+  Sandbox.run()
 }

@@ -1,8 +1,6 @@
 'use strict'
 
 global.Refilling = class extends State {
-  get state() { return states.REFILLING }
-
   findRoom() {
     return _.find(World.myRooms, 'storage').name
   }
@@ -11,52 +9,78 @@ global.Refilling = class extends State {
     return this.room.storage
   }
 
-  handleAction() {
-    let result = State.RUNNING
+  get resource() {
+    switch(this.actor.role) {
+      case 'scorer':
+        return RESOURCE_SCORE
+      default:
+        return RESOURCE_ENERGY
+    }
+  }
 
-    const actionResult = new Withdraw(this.actor, this.target, RESOURCE_SCORE).update()
+  handleAction() {
+    const actionResult = new Withdraw(this.actor, this.target, this.resource).update()
 
     switch (actionResult) {
       case OK:
-        result = State.RUNNING
-        break
+      case ERR_FULL:
+        return [State.SUCCESS, actionResult]
+
+      case ERR_BUSY:
+      case ERR_NOT_IN_RANGE:
+        return [State.RUNNING, actionResult]
+
+      case ERR_NOT_ENOUGH_RESOURCES:
+      case ERR_INVALID_TARGET:
+        this.actor.target = null
+        return [State.RUNNING, actionResult]
+
+      case ERR_INVALID_ARGS:
+      case ERR_NO_BODYPART:
+      case ERR_NOT_OWNER:
+        return [State.FAILED, actionResult]
+
       default:
-        result = State.FAILED
-        break
+        console.log('REFILLING', 'unhandled action result', actionResult)
+        return [State.FAILED, actionResult]
     }
-
-    if (0 === this.actor.store.getFreeCapacity()) {
-      result = State.SUCCESS
-    }
-
-    return result
   }
 
   handleMovement() {
-    let result = State.SUCCESS
-
     if (!this.actor.pos.isNearTo(this.actor.destination)) {
-      const from = this.actor.pos
-      const to = this.actor.destination
-      const path = this.findPath(from, to)
+      let actionResult
 
-      const options = {
-        path: path
+      if (!this.actor.inDestinationRoom && !World.myRooms.includes(this.actor.room)) {
+        const from = this.actor.pos
+        const to = this.actor.destination
+        const path = this.findPath(from, to)
+
+        const options = { path: path }
+
+        actionResult = new Move(this.actor, this.actor.destination, options).update()
+      } else {
+        actionResult = new Move(this.actor, this.actor.destination, {}).update()
       }
-
-      const actionResult = new Move(this.actor, this.actor.destination, options).update()
 
       switch (actionResult) {
         case OK:
-          result = State.RUNNING
-          break
+        case ERR_BUSY:
+        case ERR_TIRED:
+          return [State.RUNNING, actionResult]
+
+        case ERR_NO_PATH:
+        case ERR_INVALID_TARGET:
+          this.actor.destination = null
+          return [State.RUNNING, actionResult]
+
+        case ERR_NO_BODYPART:
+        case ERR_NOT_OWNER:
         default:
-          result = State.FAILED
-          break
+          return [State.FAILED, actionResult]
       }
     }
 
-    return result
+    return [State.RUNNING, OK]
   }
 
   findPath(from, to) {

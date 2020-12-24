@@ -1,29 +1,21 @@
 'use strict'
 
-global.Signer = class extends Creepy {
-  get name() { return 'signer' }
-
+class Signer extends Creepy {
   get bodyPattern() { return [MOVE] }
 
-  get states() {
-    return {
-      [states.INITIALIZING]: Initializing,
-      [states.SIGNING]: Signing,
-      [states.RECYCLING]: Recycling,
-    }
-  }
-
   number(room) {
-    return !room.controller.sign ? 1 : 0
+    const needsSigner = _.some(World.myRooms, 'needsSigner')
+
+    return needsSigner ? 1 : 0
   }
 
   nextState(context) {
     const actor = context.actor
     const result = context.result
-    const state = context.currentState
+    const currentState = context.currentState
     let nextState = context.currentState
 
-    switch (state) {
+    switch (currentState) {
       case states.INITIALIZING:
         if (!actor.spawning) {
           nextState = states.SIGNING
@@ -45,10 +37,12 @@ global.Signer = class extends Creepy {
       case states.RECYCLING:
         break
       default:
-        console.log('SIGNER', 'unhandled state', state, JSON.stringify(context))
+        console.log('SIGNER', 'unhandled state', currentState, JSON.stringify(context))
         break
     }
 
     return nextState
   }
 }
+
+global.Signer = Signer

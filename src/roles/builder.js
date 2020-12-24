@@ -1,37 +1,62 @@
 'use strict'
 
-global.Builder = class extends EnergyRole {
-  get name() { return 'builder' }
-
-  get maxCreepSize() {
-    return this.bodyPattern.length * 6
-  }
-
-  get bodyPattern() {
-    return [WORK, CARRY, MOVE]
-  }
+class Builder extends Creepy {
+  get bodyPattern() { return [WORK, CARRY, MOVE] }
+  get maxCreepSize() { return this.bodyPattern.length * 12 }
 
   number(room) {
     const needsBuilder = _.some(World.territory, 'needsBuilder')
 
-    return needsBuilder ? 1 : 0
+    return needsBuilder ? 2 : 0
   }
 
-  findTargetRoom(room) {
-    room = _.find(World.territory, 'needsBuilder')
+  nextState(context) {
+    const actor = context.actor
+    const result = context.result
+    const currentState = context.currentState
+    let nextState = context.currentState
 
-    if (room) return room.name
+    switch (currentState) {
+      case states.INITIALIZING:
+        if (!actor.spawning) {
+          nextState = states.REFILLING
+          break
+        }
 
-    return
-  }
+        break
+      case states.BUILDING:
+        if (State.SUCCESS === result) {
+          nextState = states.REFILLING
+          break
+        }
 
-  findTarget(creep) {
-    return creep.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES)
-  }
+        if (State.FAILED === result) {
+          nextState = states.RECYCLING
+          break
+        }
 
-  targetAction(creep, target) {
-    if (creep.build(target) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(target)
+        break
+      case states.REFILLING:
+        if (State.SUCCESS === result) {
+          nextState = states.BUILDING
+          break
+        }
+
+        if (State.FAILED === result) {
+          nextState = states.RECYCLING
+          break
+        }
+
+        break
+      case states.RECYCLING:
+        break
+      default:
+        console.log('BUILDER', 'unhandled state', currentState, JSON.stringify(context))
+        break
     }
+
+    return nextState
   }
 }
+
+global.Builder = Builder

@@ -11,6 +11,11 @@ class RoomManager {
       visualizer.run()
     }
 
+    World.creeps('builder').forEach(function (creep) {
+      new RoomVisual(creep.room.name).circle(creep.pos,
+        { fill: 'transparent', radius: 1, stroke: 'blue', strokeWidth: .1, opacity: 1 })
+    })
+
     if (global.config.visuals) {
       const damagedStructures = room.damagedStructures;
 
@@ -28,7 +33,7 @@ class RoomManager {
   defense(room) {
     const towers = room.find(FIND_MY_STRUCTURES, {
       filter: { structureType: STRUCTURE_TOWER }
-    });
+    })
 
     _.forEach(towers, function(tower) {
       const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
@@ -38,38 +43,38 @@ class RoomManager {
             creep.getActiveBodyparts(WORK) > 0 ||
             creep.owner.username === 'Invader'
         }
-      });
+      })
 
       if (closestHostile) {
-        tower.attack(closestHostile);
-        return;
+        tower.attack(closestHostile)
+        return
       }
 
       const closestWoundedFriend = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
         filter: function (creep) {
-          return (creep.hits / creep.hitsMax * 100) < 75;
+          return (creep.hits / creep.hitsMax * 100) < 75
         }
-      });
+      })
 
       if (closestWoundedFriend) {
-        tower.heal(closestWoundedFriend);
-        return;
+        tower.heal(closestWoundedFriend)
+        return
       }
 
       const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
         filter: function (structure) {
-          return (structure.hits / structure.hitsMax * 100) < 0.1;
+          return (structure.hits / structure.hitsMax * 100) < 0.1
         }
-      });
+      })
 
       if (closestDamagedStructure) {
         tower.repair(closestDamagedStructure)
         return;
       }
-    });
+    })
 
-    return;
+    return
   }
 }
 
-global.roomManager = new RoomManager();
+global.roomManager = new RoomManager()

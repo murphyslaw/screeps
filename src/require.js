@@ -3,6 +3,7 @@
 // globals
 require('version')
 require('utility_logger')
+require('utility_sandbox')
 require('utility_monument')
 require('utility_monumentpathfinder')
 require('utility_monumentvisualizer')
@@ -10,6 +11,7 @@ require('utility_invisibleroom')
 
 // prototypes
 require('prototypes_lodash')
+require('prototypes_flag')
 require('prototypes_room')
 require('prototypes_source')
 require('prototypes_roomposition')
@@ -30,6 +32,8 @@ require('actions_attack')
 require('actions_heal')
 require('actions_withdraw')
 require('actions_score')
+require('actions_claimcontroller')
+require('actions_build')
 
 // states
 require('states_state')
@@ -41,6 +45,8 @@ require('states_defending')
 require('states_healing')
 require('states_refilling')
 require('states_scoring')
+require('states_claiming')
+require('states_building')
 
 // roles
 require('roles_role')
@@ -62,6 +68,7 @@ require('roles_upgrader')
 require('roles_dismantler')
 require('roles_defender')
 require('roles_scorer')
+require('roles_claimer')
 
 // configuration
 require('config')

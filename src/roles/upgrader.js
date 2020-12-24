@@ -2,60 +2,75 @@
 
 global.Upgrader = class extends EnergyRole {
   get name() { return 'upgrader' }
+  get bodyPattern() { return [WORK, CARRY, MOVE] }
+  get maxCreepSize() { return this.bodyPattern.length * 6}
 
-  get bodyPattern() {
-    return [WORK, CARRY, MOVE];
-  }
+  get keepTarget() { return true }
+  get keepSource() { return true }
 
-  get maxCreepSize() {
-    return this.bodyPattern.length * 6;
-  }
+  number(room) { return World.myRooms.length + 1 }
 
-  get keepTarget() {
-    return true;
-  }
+  findSourceRoom(room) {
+    room = _.min(World.myRooms, function(myRoom) {
+      let count = room.creeps('upgrader').length
 
-  number(room) {
-    return room.controller.container ? 2 : 0;
-  }
+      // don't count the searching creep
+      if (room === myRoom) count -= 1
 
-  findTarget(creep) {
-    return creep.room.controller;
+      return count
+    })
+
+    return room.name
   }
 
   findSource(creep) {
-    let source;
+    let source
 
     // controller container
     if (!source) {
-      const container = _.get(creep.room, 'controller.container');
+      const container = _.get(creep.room, 'controller.container')
 
       if (container && container.store[this.resource(creep)] > 0) {
-        source = container;
+        source = container
       }
     }
 
     // storage
     if (!source) {
-      const storage = creep.room.storage;
+      const storage = creep.room.storage
 
       if (storage && storage.store[this.resource(creep)] > 0)
-      source = creep.room.storage;
+      source = creep.room.storage
     }
 
     // energy source
     if (!source) {
-      source = creep.pos.findClosestByPath(creep.room.sources);
+      source = creep.pos.findClosestByPath(creep.room.sources)
     }
 
-    return source;
+    return source
   }
+
+  findTargetRoom(room) {
+    room = _.min(World.myRooms, function (myRoom) {
+      let count = room.creeps('upgrader').length
+
+      // don't count the searching creep
+      if (room === myRoom) count -= 1
+
+      return count
+    })
+
+    return room.name
+  }
+
+  findTarget(creep) { return creep.room.controller }
 
   targetAction(creep, target) {
     if (creep.upgradeController(target) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(target);
+      creep.moveTo(target)
     }
 
-    return;
+    return
   }
-};
+}

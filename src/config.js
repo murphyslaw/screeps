@@ -13,6 +13,7 @@ global.config = {
       room: true,
       role: true,
       roommanager: true,
+      state: false,
     }
   },
 }
@@ -33,4 +34,5 @@ global.roles = {
   signer: new Signer(),
   dismantler: new Dismantler(),
   scorer: new Scorer(),
+  claimer: new Claimer(),
 }

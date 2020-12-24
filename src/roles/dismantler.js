@@ -1,18 +1,8 @@
 'use strict'
 
-global.Dismantler = class extends Creepy {
-  get name() { return 'dismantler' }
-
-  get bodyPattern() { return [WORK, MOVE] }
+class Dismantler extends Creepy {
+  get bodyPattern() { return [WORK, MOVE, WORK, MOVE, WORK, MOVE, WORK, MOVE] }
   get maxCreepSize() { return MAX_CREEP_SIZE }
-
-  get states() {
-    return {
-      [states.INITIALIZING]: Initializing,
-      [states.DISMANTLING]: Dismantling,
-      [states.RECYCLING]: Recycling,
-    }
-  }
 
   number(room) { return 1 }
 
@@ -41,3 +31,5 @@ global.Dismantler = class extends Creepy {
     return nextState
   }
 }
+
+global.Dismantler = Dismantler

@@ -7,6 +7,18 @@ prototype.debug = function (...messages) {
   this.logger.debug('"' + this.name + '"', '-', ...messages)
 }
 
+prototype.creeps = function(role) {
+  let conditions = [
+    creep => creep.room.name === this.name
+  ]
+
+  if (role) {
+    conditions.push(creep => creep.role === role)
+  }
+
+  return _.filter(Game.creeps, creep => _.every(conditions, cond => cond.call(this, creep)))
+}
+
 Object.defineProperties(prototype, {
   'invisible': {
     get: function () {
@@ -75,6 +87,29 @@ Object.defineProperties(prototype, {
     },
     set: function (value) {
       return this.memory.needsScoreHarvester = value ? Game.time : 0
+    },
+    configurable: true
+  },
+
+  'needsClaimer': {
+    get: function () {
+      return this.claimFlag ? true : false
+    },
+    configurable: true
+  },
+
+  'flags': {
+    get: function() {
+      return _.filter(Game.flags, flag => this.name === flag.pos.roomName)
+    },
+    configurable: true
+  },
+
+  'claimFlag': {
+    get: function() {
+      const flag = Game.flags.claim
+
+      return (flag && this.name === flag.pos.roomName) ? flag : null
     },
     configurable: true
   },
@@ -197,7 +232,7 @@ Object.defineProperties(prototype, {
   'spawns': {
     get: function() {
       if (!this._spawns) {
-        this._spawns = this.find(FIND_MY_SPAWNS);
+        this._spawns = _.filter(Game.spawns, spawn => this.name === spawn.room.name)
       }
 
       return this._spawns;
@@ -208,7 +243,7 @@ Object.defineProperties(prototype, {
   'nonSpawningSpawns': {
     get: function() {
       if (!this._nonSpawningSpawns) {
-        const spawns = this.find(FIND_MY_SPAWNS, { filter: spawn => !spawn.spawning })
+        const spawns = _.reject(Game.spawns, 'spawning')
 
         this._nonSpawningSpawns = spawns
       }

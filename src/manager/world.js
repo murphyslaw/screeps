@@ -27,6 +27,20 @@ class World {
     return _.uniq(_.union(this.myRooms, this.neighbors))
   }
 
+  get spawnRooms() {
+    return _.map(Game.spawns, spawn => this.getRoom(spawn.room.name))
+  }
+
+  creeps(role) {
+    let conditions = []
+
+    if (role) {
+      conditions.push(creep => creep.role === role)
+    }
+
+    return _.filter(Game.creeps, creep => _.every(conditions, cond => cond.call(this, creep)))
+  }
+
   getRoom(name) {
     if (!name) return
 
@@ -55,7 +69,16 @@ class World {
       if (room.underAttack) {
         Game.map.visual.text('🔥', new RoomPosition(45, 5, room.name), style)
       }
+    })
 
+    this.myRooms.forEach(function (room) {
+      room.needsSigner = !room.controller.sign
+      if (room.needsSigner) {
+        Game.map.visual.text('📜', new RoomPosition(5, 45, room.name), style)
+      }
+    })
+
+    this.territory.forEach(function(room) {
       room.needsBuilder = room.constructionSites.length > 0
       if (room.needsBuilder) {
         Game.map.visual.text('🚧', new RoomPosition(25, 5, room.name), style)
@@ -69,13 +92,6 @@ class World {
       room.needsScoreHarvester = room.scoreContainers.length > 0
       if (room.needsScoreHarvester) {
         Game.map.visual.text('🏆', new RoomPosition(5, 5, room.name), style)
-      }
-    })
-
-    this.myRooms.forEach(function (room) {
-      room.needsSigner = !room.controller.sign
-      if (room.needsSigner) {
-        Game.map.visual.text('📜', new RoomPosition(5, 45, room.name), style)
       }
     })
 

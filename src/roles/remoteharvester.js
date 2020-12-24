@@ -2,28 +2,12 @@
 
 global.RemoteHarvester = class extends EnergyRole {
   get name() { return 'remoteharvester' }
+  get bodyPattern() { return [WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE] }
+  get maxCreepSize() { return this.bodyPattern.length * 4 }
+  get keepSource() { return true }
+  get keepTarget() { return true }
 
-  get bodyPattern() {
-    return [WORK, CARRY, MOVE, MOVE]
-  }
-
-  get maxCreepSize() {
-    return this.bodyPattern.length * 8
-  }
-
-  get keepSource() {
-    return true
-  }
-
-  get keepTarget() {
-    return true
-  }
-
-  number(room) {
-    if (!room.storage) { return 0 }
-
-    return _.keys(World.remoteRooms).length
-  }
+  number(room) { return _.keys(World.remoteRooms).length }
 
   findSourceRoom(room) {
     const remoteRooms = World.remoteRooms

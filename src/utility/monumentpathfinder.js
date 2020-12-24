@@ -35,7 +35,12 @@ global.MonumentPathFinder = class {
 
     // avoid creeps in the room
     room.find(FIND_CREEPS).forEach(function (creep) {
-      costMatrix.set(creep.pos.x, creep.pos.y, Infinity)
+      if (!creep.my) {
+        costMatrix.set(creep.pos.x, creep.pos.y, Infinity)
+      }
     })
+
+    // handle special case to work together with joethebarber
+    costMatrix.set(36, 24, Infinity)
   }
 }

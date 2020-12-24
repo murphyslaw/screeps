@@ -1,70 +1,39 @@
 'use strict'
 
 global.Signing = class extends State {
-  get state() { return states.SIGNING }
-
   findRoom() {
-    return _.find(World.myRooms, 'needsSigner').name
+    const room = _.find(World.myRooms, 'needsSigner')
+
+    return room ? room.name : null
   }
 
   findTarget() {
-    this.room.controller
-  }
+    const controller = this.room.controller
 
-  handleTarget() {
-    const room = this.room
+    if (controller && Signing.text !== controller.sign) return controller
 
-    if (!room) return State.FAILED
-    if (!this.actor.inDestinationRoom) {
-      this.actor.destination = new RoomPosition(25, 25, room.name)
-      return State.RUNNING
-    }
-
-    const target = this.target
-
-    if (!target) return State.FAILED
-    if (Signing.text === target.sign) return State.FAILED
-
-    this.actor.destination = target
-    this.actor.target = target
-
-    return State.RUNNING
-  }
-
-  handleMovement() {
-    let result = State.SUCCESS
-
-    if (!this.actor.pos.isNearTo(this.actor.destination)) {
-      const actionResult = new Move(this.actor, this.actor.destination, {}).update()
-
-      switch (actionResult) {
-        case OK:
-          result = State.RUNNING
-          break
-        default:
-          result = State.FAILED
-          break
-      }
-    }
-
-    return result
+    return null
   }
 
   handleAction() {
-    let result = State.SUCCESS
-
-    const actionResult = new Sign(this.actor, this.target, Signing.text).update()
+    const actionResult = new SignController(this.actor, this.target, Signing.text).update()
 
     switch (actionResult) {
       case OK:
-        result = State.SUCCESS
-        break
-      default:
-        result = State.FAILED
-        break
-    }
+        return [State.SUCCESS, actionResult]
 
-    return result
+      case ERR_BUSY:
+      case ERR_NOT_IN_RANGE:
+        return [State.RUNNING, actionResult]
+
+      case ERR_INVALID_TARGET:
+        this.actor.target = null
+        return [State.RUNNING, actionResult]
+
+      default:
+        console.log('SIGNING', 'unhandled action result', actionResult)
+        return [State.FAILED, actionResult]
+    }
   }
 }
 

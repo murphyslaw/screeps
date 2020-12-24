@@ -1,8 +1,6 @@
 'use strict'
 
 global.Scoring = class extends State {
-  get state() { return states.SCORING }
-
   findRoom() {
     return 'W10N30'
   }
@@ -12,51 +10,62 @@ global.Scoring = class extends State {
   }
 
   handleAction() {
-    let result = State.RUNNING
-
     const actionResult = new Score(this.actor, this.target).update()
 
     switch (actionResult) {
       case OK:
-        result = State.RUNNING
-        break
+        return [State.SUCCESS, actionResult]
+
+      case ERR_BUSY: // -4
+      case ERR_NOT_IN_RANGE: // -9
+        return [State.RUNNING, actionResult]
+
+      case ERR_FULL: // -8
+      case ERR_INVALID_TARGET: // -7
+        this.actor.target = null
+        return [State.RUNNING, actionResult]
+
+      case ERR_NOT_ENOUGH_RESOURCES: // -6
+      case ERR_INVALID_ARGS: // -10
+      case ERR_NOT_OWNER: // -1
+        return [State.FAILED, actionResult]
+
       default:
-        result = State.FAILED
-        break
+        console.log('SCORING', 'unhandled action result', actionResult)
+        return [State.FAILED, actionResult]
     }
-
-    if (0 === this.actor.store.getUsedCapacity()) {
-      result = State.SUCCESS
-    }
-
-    return result
   }
 
   handleMovement() {
-    let result = State.SUCCESS
-
     if (!this.actor.pos.isNearTo(this.actor.destination)) {
       const from = this.actor.pos
       const to = this.actor.destination
       const path = this.findPath(from, to)
 
-      const options = {
-        path: path
-      }
+      const options = { path: path }
 
       const actionResult = new Move(this.actor, this.actor.destination, options).update()
 
       switch (actionResult) {
-        case OK:
-          result = State.RUNNING
-          break
+        case OK: // 0
+        case ERR_BUSY: // -4
+        case ERR_TIRED: // -11
+          return [State.RUNNING, actionResult]
+
+        case ERR_NO_PATH: // -2
+        case ERR_INVALID_TARGET: // -7
+          this.actor.destination = null
+          this.actor.target = null
+          return [State.RUNNING, actionResult]
+
+        case ERR_NO_BODYPART: // -12
+        case ERR_NOT_OWNER: // -1
         default:
-          result = State.FAILED
-          break
+          return [State.FAILED, actionResult]
       }
     }
 
-    return result
+    return [State.RUNNING, OK]
   }
 
   findPath(from, to) {

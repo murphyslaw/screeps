@@ -6,8 +6,9 @@ class CreepManager {
 
     _.forEach(global.roles, function (role) {
       if (!spawned && role.wantsToSpawn(room)) {
-        role.spawn(room)
-        spawned = true
+        let actionResult = role.spawn(room)
+
+        actionResult === OK ? spawned = true : spawned = false
       }
     })
   }
