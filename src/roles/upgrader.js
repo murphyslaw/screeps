@@ -5,14 +5,11 @@ global.Upgrader = class extends EnergyRole {
   get bodyPattern() { return [WORK, CARRY, MOVE] }
   get maxCreepSize() { return this.bodyPattern.length * 6}
 
-  get keepTarget() { return true }
-  get keepSource() { return true }
-
   number(room) { return World.myRooms.length + 1 }
 
   findSourceRoom(room) {
     room = _.min(World.myRooms, function(myRoom) {
-      let count = room.creeps('upgrader').length
+      let count = myRoom.creeps('upgrader').length
 
       // don't count the searching creep
       if (room === myRoom) count -= 1
@@ -53,7 +50,7 @@ global.Upgrader = class extends EnergyRole {
 
   findTargetRoom(room) {
     room = _.min(World.myRooms, function (myRoom) {
-      let count = room.creeps('upgrader').length
+      let count = myRoom.creeps('upgrader').length
 
       // don't count the searching creep
       if (room === myRoom) count -= 1

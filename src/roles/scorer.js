@@ -12,7 +12,7 @@ class Scorer extends Creepy {
   }
   get maxCreepSize() { return MAX_CREEP_SIZE }
 
-  number(room) { return 2 }
+  number(room) { return 3 }
 
   nextState(context) {
     const actor = context.actor
@@ -33,13 +33,13 @@ class Scorer extends Creepy {
         }
 
         if (State.FAILED === result) {
-          // return states.RECYCLING
+          return states.RECYCLING
         }
 
         break
       case states.REFILLING:
         if (actor.inDestinationRoom && actor.ticksToLive < 700) {
-          // return states.RECYCLING
+          return states.RECYCLING
         }
 
         if (State.SUCCESS === result) {
@@ -47,7 +47,7 @@ class Scorer extends Creepy {
         }
 
         if (State.FAILED === result) {
-          // return states.RECYCLING
+          return states.RECYCLING
         }
 
         break

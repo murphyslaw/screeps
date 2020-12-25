@@ -6,9 +6,7 @@ class Dismantling extends State {
   }
 
   findTarget() {
-    const monument = new Monument(this.room)
-    const start = new RoomPosition(38, 26, this.room.name)
-    const target = monument.blocker(start)
+    const target = this.room.scoreCollector.blocker
 
     return target
   }

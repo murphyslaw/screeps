@@ -4,7 +4,6 @@
 require('version')
 require('utility_logger')
 require('utility_sandbox')
-require('utility_monument')
 require('utility_monumentpathfinder')
 require('utility_monumentvisualizer')
 require('utility_invisibleroom')
@@ -21,6 +20,7 @@ require('prototypes_structurecontroller')
 require('prototypes_structureextractor')
 require('prototypes_mineral')
 require('prototypes_store')
+require('prototypes_scorecollector')
 
 // actions
 require('actions_action')

@@ -32,6 +32,10 @@ class Refilling extends State {
     ]
   }
 
+  validateTarget(target) {
+    return target && target.store.getUsedCapacity(this.resource) > 0 ? target : null
+  }
+
   findTarget() {
     const targets = this.room.findWithPriorities(
       FIND_STRUCTURES,

@@ -1,6 +1,6 @@
-'use strict';
+'use strict'
 
-const prototype = Room.prototype;
+const prototype = Room.prototype
 
 prototype.logger = new global.Logger('room')
 prototype.debug = function (...messages) {
@@ -150,14 +150,14 @@ Object.defineProperties(prototype, {
               structure.structureType != STRUCTURE_RAMPART &&
               structure.structureType != STRUCTURE_WALL &&
               structure.structureType != STRUCTURE_TOWER &&
-              structure.hits / structure.hitsMax < 0.9;
+              structure.hits / structure.hitsMax < 0.9
           }
-        });
+        })
 
-        this._damagedStructures = structures;
+        this._damagedStructures = structures
       }
 
-      return this._damagedStructures;
+      return this._damagedStructures
     },
     configurable: true
   },
@@ -172,12 +172,12 @@ Object.defineProperties(prototype, {
               structure.structureType == STRUCTURE_WALL ||
               structure.structureType == STRUCTURE_TOWER)
           }
-        });
+        })
 
-        this._damagedDefenses = structures;
+        this._damagedDefenses = structures
       }
 
-      return this._damagedDefenses;
+      return this._damagedDefenses
     },
     configurable: true
   },
@@ -221,7 +221,7 @@ Object.defineProperties(prototype, {
   'scoreContainers': {
     get: function () {
       if (!this._scoreContainers) {
-        const scoreContainers = this.find(FIND_SCORE_CONTAINERS);
+        const scoreContainers = this.find(FIND_SCORE_CONTAINERS)
 
         this._scoreContainers = scoreContainers
       }
@@ -250,7 +250,7 @@ Object.defineProperties(prototype, {
         this._spawns = _.filter(Game.spawns, spawn => this.name === spawn.room.name)
       }
 
-      return this._spawns;
+      return this._spawns
     },
     configurable: true
   },
@@ -274,13 +274,13 @@ Object.defineProperties(prototype, {
         if (!this.memory.sources) {
           this.memory.sources = {}
 
-          this.find(FIND_SOURCES).map(source => this.memory.sources[source.id] = {});
+          this.find(FIND_SOURCES).map(source => this.memory.sources[source.id] = {})
         }
 
-        this._sources = _.keys(this.memory.sources).map(id => Game.getObjectById(id));
+        this._sources = _.keys(this.memory.sources).map(id => Game.getObjectById(id))
       }
 
-      return this._sources;
+      return this._sources
     },
     configurable: true
   },
@@ -356,10 +356,18 @@ Object.defineProperties(prototype, {
 
   'scoreCollector': {
     get: function () {
-      if (!this._scoreCollector) {
-        const scoreCollector = this.find(FIND_SCORE_COLLECTORS)[0]
+      if (!this.isHighway) return null
 
-        this._scoreCollector = scoreCollector
+      if (!this._scoreCollector) {
+        if (!this.memory.scoreCollector) {
+          const scoreCollector = this.find(FIND_SCORE_COLLECTORS)[0]
+
+          if (scoreCollector) {
+            this.memory.scoreCollector = { id: scoreCollector.id }
+          }
+        }
+
+        this._scoreCollector = Game.getObjectById(this.memory.scoreCollector.id)
       }
 
       return this._scoreCollector
@@ -372,7 +380,7 @@ Object.defineProperties(prototype, {
       if (!this._hostiles) {
         const hostiles = this.find(FIND_HOSTILE_CREEPS, { filter: function (creep) {
           return creep.getActiveBodyparts(ATTACK) > 0 ||
-            creep.getActiveBodyparts(RANGED_ATTACK) > 0;
+            creep.getActiveBodyparts(RANGED_ATTACK) > 0
           }
         })
 

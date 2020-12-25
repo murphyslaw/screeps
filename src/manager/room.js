@@ -6,9 +6,8 @@ class RoomManager {
   }
 
   visuals(room) {
-    if ('W20N30' === room.name) {
-      const visualizer = new MonumentVisualizer(room)
-      visualizer.run()
+    if ('W20N30' === room.name && room.scoreCollector) {
+      room.scoreCollector.visualize()
     }
 
     // World.creeps('repairer').forEach(function (creep) {

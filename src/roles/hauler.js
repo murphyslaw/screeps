@@ -1,15 +1,20 @@
 'use strict'
 
-class Hauler extends EnergyRole {
+global.Hauler = class extends EnergyRole {
   get name() { return 'hauler' }
-  get bodyPattern() { return [CARRY, MOVE] }
 
-  get maxCreepSize() { return this.bodyPattern.length * 5 }
+  get bodyPattern() {
+    return [CARRY, MOVE]
+  }
+
+  get maxCreepSize() {
+    return this.bodyPattern.length * 5
+  }
 
   number(room) {
     let number = room.sources.length
 
-    if (room.mineral && room.mineral.container && !room.mineral.ticksToRegeneration) {
+    if (room.mineral && room.mineral.container) {
       number += 1
     }
 
@@ -103,10 +108,9 @@ class Hauler extends EnergyRole {
       source = creep.pos.findClosestByRange(containers, {
         filter: (structure) => {
           return structure.store.getUsedCapacity() > creep.store.getFreeCapacity() &&
-            structure != creep.room.controller.container &&
-            !_.some(this.creeps, 'source', structure)
+            structure != creep.room.controller.container
         }
-      });
+      })
     }
 
     return source
@@ -128,7 +132,7 @@ class Hauler extends EnergyRole {
         }
 
         if (result == ERR_NOT_IN_RANGE) {
-          creep.moveTo(source);
+          creep.moveTo(source)
 
           return
         }
@@ -136,7 +140,7 @@ class Hauler extends EnergyRole {
     }
 
     if (creep.pickup(source) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(source);
+      creep.moveTo(source)
 
       return
     }
@@ -161,5 +165,3 @@ class Hauler extends EnergyRole {
     return
   }
 }
-
-global.Hauler = Hauler

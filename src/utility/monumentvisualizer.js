@@ -1,25 +1,15 @@
 'use strict'
 
-global.MonumentVisualizer = class {
-  constructor(room) {
-    this.room = room
-    this.visual = room.visual
-  }
-
-  get positions() {
-    if (!this.room) return
-
-    if (!this._positions) {
-      const scoreCollector = this.room.scoreCollector
-      this._positions = scoreCollector ? scoreCollector.pos.neighbors(5) : []
-    }
-
-    return this._positions
+class MonumentVisualizer {
+  constructor(scoreCollector) {
+    this.scoreCollector = scoreCollector
+    this.visual = scoreCollector.room.visual
   }
 
   run() {
     const weights = this.positions.map(this.getWeight)
     const max = Math.max(...weights)
+    const optimalPath = this.scoreCollector.optimalPath
 
     this.positions.forEach(function (position) {
       const value = this.getWeight(position, position)
@@ -35,8 +25,14 @@ global.MonumentVisualizer = class {
       const topLeftY = y - .5
       const height = 1 - offset
 
+      let backgroundColor = '#333333'
+
+      if (optimalPath && _.some(optimalPath, position => position.x === x && position.y === y)) {
+        backgroundColor = '#ffa500'
+      }
+
       this.visual.rect(topLeftX, topLeftY, 1, 1, {
-        fill: '#333333', radius: .5, opacity: 1, stroke: '#000000', strokeWidth: .03
+        fill: backgroundColor, radius: .5, opacity: 1, stroke: '#000000', strokeWidth: .03
       })
 
       this.visual.rect(topLeftX, topLeftY + offset, 1, height, {
@@ -53,11 +49,21 @@ global.MonumentVisualizer = class {
     return
   }
 
+  get positions() {
+    if (!this.scoreCollector) return
+
+    if (!this._positions) {
+      const scoreCollector = this.scoreCollector
+      this._positions = scoreCollector ? scoreCollector.pos.neighbors(5) : []
+    }
+
+    return this._positions
+  }
+
   getWeight(position) {
     const structure = position.lookFor(LOOK_STRUCTURES)[0]
 
     if (structure && !structure.walkable) {
-      // return structure.hits
       return Math.floor(structure.hits / structure.hitsMax * 100)
     }
 
@@ -66,7 +72,7 @@ global.MonumentVisualizer = class {
 
   getGradient(percentFade) {
     const startColor = this.hexToRgb('#00ff00')
-    const endColor = this.hexToRgb('#ff0000')
+    const endColor = this.hexToRgb('#cc0000')
 
     var diffRed = endColor.red - startColor.red
     var diffGreen = endColor.green - startColor.green
@@ -102,3 +108,5 @@ global.MonumentVisualizer = class {
     return hex.length === 1 ? '0' + hex : hex
   }
 }
+
+global.MonumentVisualizer = MonumentVisualizer

@@ -1,0 +1,67 @@
+- **role: hauler**
+- source room: prefer current, territory
+- source: dropped, tombstone, ruin, source container
+- target room: prefer current, balanced my room
+- target: spawns, extensions, towers, storage, containers
+- resourceType: energy
+- range: territory
+- body: carry + move
+- comment:
+  - source exclusive except containers
+  - target is structure
+  - target needs free capacity
+---
+- **role: supplier**
+- source room: prefer current, room
+- source: storage, containers (except controller container)
+- target room: prefer current, room
+- target: spawns, extensions, towers, controller container
+- resourceType: energy
+- range: room
+- body: carry + move
+- comment:
+  - target is structure
+---
+- **role: builder**
+- source room: prefer current, territory
+- source: storage, containers (except controller container)
+- target room: prefer current, territory
+- target: construction sites
+- resourceType: energy
+- range: territory
+- body: work + carry + move
+- comment:
+  - source non exclusive
+---
+- **role: repairer**
+- source room: prefer current, territory
+- source: storage, containers (except controller container)
+- target room: prefer current, territory
+- target: damaged structures
+- resourceType: energy
+- range: territory
+- body: work + carry + move
+- comment:
+  - source non exclusive
+---
+- **role: harvester**
+- source room: prefer current, territory
+- source: source, mineral
+- target room: prefer current, territory
+- target: source container, storage, spawns, extensions, towers, controller container
+- resourceType: energy
+- range: territory
+- body: carry + move
+- comment:
+  - body depends on existance of source/mineral containers
+---
+- **role: upgrader**
+- source room: prefer current, territory
+- source: container, storage, dropped, tombstone, ruin, source
+- target room: prefer current, balanced my room
+- target: controller
+- resourceType: energy
+- range: my room
+- body: carry + move
+- comment:
+  - body depends on existance of source/mineral containers
