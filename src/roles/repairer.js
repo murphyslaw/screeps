@@ -17,50 +17,50 @@ class Repairer extends Creepy {
     let nextState = context.currentState
 
     switch (currentState) {
-      case states.INITIALIZING:
+      case 'Spawning':
         if (!actor.spawning) {
-          nextState = states.REFILLING
+          nextState = 'Refilling'
           break
         }
 
         break
-      case states.IDLE:
+      case 'Idling':
         if (State.SUCCESS === result) {
-          nextState = states.REPAIRING
+          nextState = 'Repairing'
           break
         }
 
         if (State.FAILED === result) {
-          nextState = states.RECYCLING
+          nextState = 'Recycling'
           break
         }
 
         break
-      case states.REPAIRING:
+      case 'Repairing':
         if (State.SUCCESS === result) {
-          nextState = states.REFILLING
+          nextState = 'Refilling'
           break
         }
 
         if (State.FAILED === result) {
-          nextState = states.IDLE
+          nextState = 'Idling'
           break
         }
 
         break
-      case states.REFILLING:
+      case 'Refilling':
         if (State.SUCCESS === result) {
-          nextState = states.REPAIRING
+          nextState = 'Repairing'
           break
         }
 
         if (State.FAILED === result) {
-          nextState = states.RECYCLING
+          nextState = 'Recycling'
           break
         }
 
         break
-      case states.RECYCLING:
+      case 'Recycling':
         break
       default:
         console.log('REPAIRER', 'unhandled state', currentState, JSON.stringify(context))

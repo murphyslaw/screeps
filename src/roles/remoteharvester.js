@@ -1,7 +1,7 @@
 'use strict'
 
 global.RemoteHarvester = class extends EnergyRole {
-  get name() { return 'remoteharvester' }
+  get name() { return 'RemoteHarvester' }
   get bodyPattern() { return [WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE] }
   get maxCreepSize() { return this.bodyPattern.length * 4 }
   get keepSource() { return true }

@@ -1,50 +1,50 @@
-'use strict';
+'use strict'
 
 global.DefenseRepairer = class extends EnergyRole {
-  get name() { return 'defenserepairer' }
+  get name() { return 'DefenseRepairer' }
 
   get maxCreepSize() {
-    return this.bodyPattern.length * 5;
+    return this.bodyPattern.length * 5
   }
 
   get bodyPattern() {
-    return [WORK, CARRY, MOVE];
+    return [WORK, CARRY, MOVE]
   }
 
   number(room) {
-    return 1;
+    return 1
   }
 
   findTarget(creep) {
-    let damagedDefenses = creep.room.damagedDefenses;
+    let damagedDefenses = creep.room.damagedDefenses
 
     const towers = _.filter(damagedDefenses, function(structure) {
       return structure.structureType == STRUCTURE_TOWER &&
-        !_.some(this.creeps, 'target', structure);
-    });
+        !_.some(this.creeps, 'target', structure)
+    })
 
     if (towers.length) {
-      towers = towers.sort((a, b) => a.hits - b.hits);
+      towers = towers.sort((a, b) => a.hits - b.hits)
 
-      return towers[0];
+      return towers[0]
     }
 
-    let structures = [];
+    let structures = []
 
     if (!structures.length) {
       structures = _.filter(damagedDefenses, function (structure) {
-        return !_.some(this.creeps, 'target', structure);
-      }, this);
+        return !_.some(this.creeps, 'target', structure)
+      }, this)
     }
 
-    structures = structures.sort((a, b) => a.hits - b.hits);
+    structures = structures.sort((a, b) => a.hits - b.hits)
 
-    return structures[0];
+    return structures[0]
   }
 
   targetAction(creep, target) {
     if (creep.repair(target) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(target);
+      creep.moveTo(target)
     }
   }
-};
+}

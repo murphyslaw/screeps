@@ -16,25 +16,25 @@ class Claimer extends Creepy {
     let nextState = context.currentState
 
     switch (currentState) {
-      case states.INITIALIZING:
+      case 'Spawning':
         if (!actor.spawning) {
-          nextState = states.CLAIMING
+          nextState = 'Claiming'
         }
 
         break
-      case states.CLAIMING:
+      case 'Claiming':
         if (State.SUCCESS === result) {
-          nextState = states.RECYCLING
+          nextState = 'Recycling'
           break
         }
 
         if (State.FAILED === result) {
-          nextState = states.RECYCLING
+          nextState = 'Recycling'
           break
         }
 
         break
-      case states.RECYCLING:
+      case 'Recycling':
         break
       default:
         console.log('CLAIMER', 'unhandled state', currentState, JSON.stringify(context))

@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-global.Harvester = class extends EnergyRole {
-  get name() { return 'harvester' }
+class Harvester extends EnergyRole {
+  get name() { return 'Harvester' }
   get maxCreepSize() { return this.bodyPattern.length * 5 }
   get bodyPattern() { return [WORK, CARRY, MOVE] }
 
@@ -20,7 +20,7 @@ global.Harvester = class extends EnergyRole {
             structure.structureType == STRUCTURE_EXTENSION ||
             structure.structureType == STRUCTURE_TOWER) &&
             structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0 &&
-            !_.some(this.creeps, 'target', structure);
+            !_.some(this.creeps, 'target', structure)
         }
       })
     }
@@ -69,3 +69,5 @@ global.Harvester = class extends EnergyRole {
     return
   }
 }
+
+global.Harvester = Harvester

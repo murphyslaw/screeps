@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 class StatsManager {
   reset() {
@@ -34,8 +34,8 @@ class StatsManager {
     Memory.stats.cpu.limit = Game.cpu.limit
     Memory.stats.cpu.used = Game.cpu.getUsed()
 
-    _.forEach(global.roles, function(role, name) {
-      Memory.stats.creeps[name] = role.creeps.length
+    config.roles.forEach(function(name) {
+      Memory.stats.creeps[name] = World.creeps(name).length
     })
   }
 }

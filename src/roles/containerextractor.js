@@ -1,7 +1,7 @@
 'use strict'
 
-global.ContainerExtractor = class extends EnergyRole {
-  get name() { return 'containerextractor' }
+class ContainerExtractor extends EnergyRole {
+  get name() { return 'ContainerExtractor' }
 
   get bodyPattern() {
     return [WORK, WORK, WORK, WORK, WORK, MOVE]
@@ -60,6 +60,8 @@ global.ContainerExtractor = class extends EnergyRole {
       }
     }
 
-    return;
+    return
   }
 }
+
+global.ContainerExtractor = ContainerExtractor

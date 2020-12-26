@@ -17,38 +17,38 @@ class Builder extends Creepy {
     let nextState = context.currentState
 
     switch (currentState) {
-      case states.INITIALIZING:
+      case 'Spawning':
         if (!actor.spawning) {
-          nextState = states.REFILLING
+          nextState = 'Refilling'
           break
         }
 
         break
-      case states.BUILDING:
+      case 'Building':
         if (State.SUCCESS === result) {
-          nextState = states.REFILLING
+          nextState = 'Refilling'
           break
         }
 
         if (State.FAILED === result) {
-          nextState = states.RECYCLING
+          nextState = 'Recycling'
           break
         }
 
         break
-      case states.REFILLING:
+      case 'Refilling':
         if (State.SUCCESS === result) {
-          nextState = states.BUILDING
+          nextState = 'Building'
           break
         }
 
         if (State.FAILED === result) {
-          nextState = states.RECYCLING
+          nextState = 'Recycling'
           break
         }
 
         break
-      case states.RECYCLING:
+      case 'Recycling':
         break
       default:
         console.log('BUILDER', 'unhandled state', currentState, JSON.stringify(context))

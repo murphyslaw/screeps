@@ -1,26 +1,30 @@
-'use strict';
+'use strict'
 
-Object.defineProperties(Creep.prototype, {
+const prototype = Creep.prototype
+
+prototype.update = function() {
+  new global[this.role]().update(this)
+}
+
+Object.defineProperties(prototype, {
   'role': {
     get: function () {
-      return this.memory.role;
+      return this.memory.role
     },
     set: function (value) {
-      this.memory.role = value;
+      this.memory.role = value
 
-      return;
+      return
     },
     configurable: true
   },
 
   'state': {
     get: function () {
-      return this.memory.state;
+      return this.memory.state
     },
     set: function (value) {
-      this.memory.state = value;
-
-      return;
+      this.memory.state = value
     },
     configurable: true
   },
@@ -42,7 +46,7 @@ Object.defineProperties(Creep.prototype, {
         delete this.memory.source
       }
 
-      return;
+      return
     },
     configurable: true
   },
@@ -57,7 +61,7 @@ Object.defineProperties(Creep.prototype, {
         }
       }
 
-      return this._destination;
+      return this._destination
     },
     set: function (value) {
       if (!this.memory._move) {
@@ -101,7 +105,7 @@ Object.defineProperties(Creep.prototype, {
         this._target = Game.getObjectById(this.memory.target)
       }
 
-      return this._target;
+      return this._target
     },
     set: function (value) {
       this._target = value
@@ -133,7 +137,7 @@ Object.defineProperties(Creep.prototype, {
 
   'inTargetRoom': {
     get: function () {
-      return this.room.name == this.targetRoom && !this.pos.isBorderPosition;
+      return this.room.name == this.targetRoom && !this.pos.isBorderPosition
     },
     configurable: true
   },
@@ -175,11 +179,20 @@ Object.defineProperties(Creep.prototype, {
     },
     configurable: true
   }
-});
+})
 
 Creep.prototype.moveToRoom = function(roomName) {
   if (roomName) {
-    return this.moveTo(new RoomPosition(25, 25, roomName))
+    let destination = new RoomPosition(25, 25, roomName)
+
+    if (this.target && this.target.pos.roomName === roomName) {
+      destination = this.target.pos
+    } else if (this.source && this.source.pos.roomName === roomName) {
+      destination = this.source.pos
+    }
+
+    // return new Move(this, destination, { ignoreCreeps: true, maxRooms: 1, ignoreRoads: true }).update()
+    return new Move(this, destination, { maxRooms: 1, ignoreRoads: true }).update()
   }
 }
 

@@ -48,7 +48,7 @@ class World {
       routeCallback(roomName) {
         const room = global.World.getRoom(roomName)
 
-        if (!room.underAttack && (room.isHighway || room.my)) {
+        if (room.isHighway || room.my) {
           return 1
         } else {
           return 2.5
@@ -69,6 +69,10 @@ class World {
   getRoomData(name) { return Memory.rooms[name] }
 
   update() {
+    _.forEach(Game.creeps, function (creep, name) {
+      Game.map.visual.rect(creep.pos, 1, 1, { fill: '#00ff00', opacity: 1 })
+    })
+
     const style = {
       color: '#ffffff',
       fontSize: 5,
@@ -95,6 +99,11 @@ class World {
       room.needsSigner = !room.controller.sign
       if (room.needsSigner) {
         Game.map.visual.text('📜', new RoomPosition(5, 45, room.name), style)
+      }
+
+      // room.needsContainerHarvester = _.some(room.sources, source => !_.some(this.creeps('ContainerHarvester'), creep => creep.source === source))
+      if (room.needsContainerHarvester) {
+        Game.map.visual.text('🛢︎', new RoomPosition(35, 5, room.name), style)
       }
     })
 

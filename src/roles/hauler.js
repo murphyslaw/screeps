@@ -1,7 +1,7 @@
 'use strict'
 
 global.Hauler = class extends EnergyRole {
-  get name() { return 'hauler' }
+  get name() { return 'Hauler' }
 
   get bodyPattern() {
     return [CARRY, MOVE]
@@ -12,7 +12,7 @@ global.Hauler = class extends EnergyRole {
   }
 
   number(room) {
-    let number = room.sources.length
+    let number = 1
 
     if (room.mineral && room.mineral.container) {
       number += 1

@@ -29,8 +29,8 @@ class Collecting extends State {
 
   get resource() {
     switch(this.actor.role) {
-      case 'scorer':
-      case 'scoreharvester':
+      case 'Scorer':
+      case 'ScoreHarvester':
         return RESOURCE_SCORE
       default:
         return RESOURCE_ENERGY

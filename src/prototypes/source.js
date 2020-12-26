@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
 Source.prototype.vacancies = function() {
   const creeps = _.filter(Game.creeps, function (creep) {
@@ -10,7 +10,7 @@ Source.prototype.vacancies = function() {
     return false
   }
 
-  const neededWorkparts = this.energyCapacity / HARVEST_POWER / ENERGY_REGEN_TIME;
+  const neededWorkparts = this.energyCapacity / HARVEST_POWER / ENERGY_REGEN_TIME
   const workpartsCount = _.sum(creeps, function (creep) {
     return creep.getActiveBodyparts(WORK)
   })
@@ -19,17 +19,17 @@ Source.prototype.vacancies = function() {
     return false
   }
 
-  return true;
+  return true
 }
 
 Object.defineProperties(Source.prototype, {
   // number of WORK parts needed to drain the energy source before regeneration
   'neededWorkparts': {
     get: function () {
-      const ticksToRegeneration = (this.ticksToRegeneration || ENERGY_REGEN_TIME);
-      const neededWorkparts = Math.ceil(this.energy / ticksToRegeneration / HARVEST_POWER);
+      const ticksToRegeneration = (this.ticksToRegeneration || ENERGY_REGEN_TIME)
+      const neededWorkparts = Math.ceil(this.energy / ticksToRegeneration / HARVEST_POWER)
 
-      return neededWorkparts;
+      return neededWorkparts
     },
     configurable: true
   },
@@ -39,25 +39,25 @@ Object.defineProperties(Source.prototype, {
       if (!this._freeSpaceCount) {
         if (!this.memory.freeSpaceCount) {
           const freePositions = _.filter(this.pos.adjacentPositions, function (position) {
-            const terrain = this.room.getTerrain();
+            const terrain = this.room.getTerrain()
 
-            return terrain.get(position.x, position.y) != TERRAIN_MASK_WALL;
+            return terrain.get(position.x, position.y) != TERRAIN_MASK_WALL
           }, this)
 
-          this.memory.freeSpaceCount = freePositions.length;
+          this.memory.freeSpaceCount = freePositions.length
         }
 
-        this._freeSpaceCount = this.memory.freeSpaceCount;
+        this._freeSpaceCount = this.memory.freeSpaceCount
       }
 
-      return this._freeSpaceCount;
+      return this._freeSpaceCount
     },
     configurable: true
   },
 
   'memory': {
     get: function () {
-      return this.room.memory.sources[this.id] = this.room.memory.sources[this.id] || {};
+      return this.room.memory.sources[this.id] = this.room.memory.sources[this.id] || {}
     },
     configurable: true
   },
@@ -66,24 +66,24 @@ Object.defineProperties(Source.prototype, {
     get: function () {
       if (!this._container) {
         if (!this.memory.container) {
-          const container = _.find(this.room.containers, container => this.pos.isNearTo(container));
+          const container = _.find(this.room.containers, container => this.pos.isNearTo(container))
 
           if (container) {
-            this.memory.container = container.id;
+            this.memory.container = container.id
           }
         }
 
-        const container = Game.getObjectById(this.memory.container);
+        const container = Game.getObjectById(this.memory.container)
 
         if (container) {
-          this._container = container;
+          this._container = container
         } else {
-          delete this.memory.container;
+          delete this.memory.container
         }
       }
 
-      return this._container;
+      return this._container
     },
     configurable: true
   }
-});
+})

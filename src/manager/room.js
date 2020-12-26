@@ -17,17 +17,17 @@ class RoomManager {
     // })
 
     if (global.config.visuals) {
-      const damagedStructures = room.damagedStructures;
+      const damagedStructures = room.damagedStructures
 
-      this.logger.debug('damaged structures', damagedStructures.length);
+      this.logger.debug('damaged structures', damagedStructures.length)
 
       _.forEach(damagedStructures, function(structure) {
         room.visual.circle(structure.pos,
-          { fill: 'red', radius: 0.55, stroke: 'red' });
-      });
+          { fill: 'red', radius: 0.55, stroke: 'red' })
+      })
     }
 
-    return;
+    return
   }
 
   defense(room) {
@@ -69,7 +69,7 @@ class RoomManager {
 
       if (closestDamagedStructure) {
         tower.repair(closestDamagedStructure)
-        return;
+        return
       }
     })
 

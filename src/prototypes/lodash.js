@@ -1,12 +1,12 @@
-'use strict';
+'use strict'
 
 function clamp(number, lower, upper) {
-  number = number <= upper ? number : upper;
-  number = number >= lower ? number : lower;
+  number = number <= upper ? number : upper
+  number = number >= lower ? number : lower
 
-  return number;
-};
+  return number
+}
 
 _.mixin({
   'clamp': clamp
-});
+})

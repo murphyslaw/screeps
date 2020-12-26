@@ -12,7 +12,7 @@ class Scorer extends Creepy {
   }
   get maxCreepSize() { return MAX_CREEP_SIZE }
 
-  number(room) { return 3 }
+  number(room) { return 5 }
 
   nextState(context) {
     const actor = context.actor
@@ -21,37 +21,37 @@ class Scorer extends Creepy {
     let nextState = context.currentState
 
     switch (currentState) {
-      case states.INITIALIZING:
+      case 'Spawning':
         if (State.SUCCESS === result) {
-          return states.REFILLING
+          return 'Refilling'
         }
 
         break
-      case states.SCORING:
+      case 'Scoring':
         if (State.SUCCESS === result) {
-          return states.REFILLING
+          return 'Refilling'
         }
 
         if (State.FAILED === result) {
-          return states.RECYCLING
+          return 'Recycling'
         }
 
         break
-      case states.REFILLING:
+      case 'Refilling':
         if (actor.inDestinationRoom && actor.ticksToLive < 700) {
-          return states.RECYCLING
+          return 'Recycling'
         }
 
         if (State.SUCCESS === result) {
-          return states.SCORING
+          return 'Scoring'
         }
 
         if (State.FAILED === result) {
-          return states.RECYCLING
+          return 'Recycling'
         }
 
         break
-      case states.RECYCLING:
+      case 'Recycling':
         break
       default:
         console.log('SCORER', 'unhandled state', currentState, JSON.stringify(context))

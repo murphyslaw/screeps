@@ -1,8 +1,8 @@
-'use strict';
+'use strict'
 
-global.EnergyRole = class extends Role {
+class EnergyRole extends Role {
   resource(creep) {
-    return RESOURCE_ENERGY;
+    return RESOURCE_ENERGY
   }
 
   get states() {
@@ -13,28 +13,28 @@ global.EnergyRole = class extends Role {
   }
 
   get startState() {
-    return CREEP_STATE_REFILL;
+    return CREEP_STATE_REFILL
   }
 
   get keepSource() {
-    return false;
+    return false
   }
 
   get keepTarget() {
-    return false;
+    return false
   }
 
   memory(room) {
     return {
       targetRoom: this.findTargetRoom(room),
       sourceRoom: this.findSourceRoom(room)
-    };
+    }
   }
 
   findSourceRoom(room) {
-    const roomName = _.get(_.find(Game.spawns), 'room.name', room.name);
+    const roomName = _.get(_.find(Game.spawns), 'room.name', room.name)
 
-    return roomName;
+    return roomName
   }
 
   assignSourceRoom(creep) {
@@ -44,12 +44,12 @@ global.EnergyRole = class extends Role {
   }
 
   findSource(creep) {
-    let source;
+    let source
 
     // storage
     if (!source) {
       if (creep.room.storage && creep.room.storage.store[this.resource(creep)] > 0) {
-        source = creep.room.storage;
+        source = creep.room.storage
       }
     }
 
@@ -58,30 +58,30 @@ global.EnergyRole = class extends Role {
       source = creep.pos.findClosestByPath(FIND_STRUCTURES, {
         filter: (structure) => {
           return structure.structureType == STRUCTURE_CONTAINER &&
-            structure.store[this.resource(creep)] > 0;
+            structure.store[this.resource(creep)] > 0
         }
-      });
+      })
     }
 
-    return source;
+    return source
   }
 
   assignSource(creep) {
-    const source = this.findSource(creep);
+    const source = this.findSource(creep)
 
     if (source) {
-      creep.sourceRoom = source.pos.roomName;
-      creep.source = source;
+      creep.sourceRoom = source.pos.roomName
+      creep.source = source
     } else {
-      this.sourceNotFound(creep);
+      this.sourceNotFound(creep)
     }
 
-    return;
+    return
   }
 
   sourceNotFound(creep) {
     // start working when no alternative source found
-    this.changeState(creep, CREEP_STATE_WORK, false);
+    this.changeState(creep, CREEP_STATE_WORK, false)
   }
 
   invalidSource(creep, source) {
@@ -95,14 +95,14 @@ global.EnergyRole = class extends Role {
 
   resetSource(creep, force = false) {
     if (force || !this.keepSource) {
-      creep.resetSource();
+      creep.resetSource()
     }
   }
 
   findTargetRoom(room) {
-    const roomName = _.get(_.find(Game.spawns), 'room.name', room.name);
+    const roomName = _.get(_.find(Game.spawns), 'room.name', room.name)
 
-    return roomName;
+    return roomName
   }
 
   assignTargetRoom(creep) {
@@ -112,33 +112,33 @@ global.EnergyRole = class extends Role {
   }
 
   findTarget(creep) {
-    return;
+    return
   }
 
   assignTarget(creep) {
-    const target = this.findTarget(creep);
+    const target = this.findTarget(creep)
 
     if (target) {
-      creep.targetRoom = target.pos.roomName;
-      creep.target = target;
+      creep.targetRoom = target.pos.roomName
+      creep.target = target
     } else {
-      this.targetNotFound(creep);
+      this.targetNotFound(creep)
     }
 
-    return;
+    return
   }
 
   targetNotFound(creep) {
-    return;
+    return
   }
 
   invalidTarget(creep, target) {
-    return false;
+    return false
   }
 
   resetTarget(creep, force = false) {
     if (force || !this.keepTarget) {
-      creep.resetTarget();
+      creep.resetTarget()
     }
   }
 
@@ -166,75 +166,75 @@ global.EnergyRole = class extends Role {
 
     // a working creep needs a target
     if (!creep.target) {
-      this.assignTarget(creep);
+      this.assignTarget(creep)
     }
 
-    const target = creep.target;
+    const target = creep.target
 
     if (target && !this.invalidTarget(creep, target)) {
-      this.targetAction(creep, target);
+      this.targetAction(creep, target)
     } else {
-      this.resetTarget(creep, true);
+      this.resetTarget(creep, true)
     }
 
-    return;
+    return
   }
 
   targetAction(creep, target) {
-    return;
+    return
   }
 
   refill(creep) {
     // a refilling creep with full energy starts working
     if (creep.store.getFreeCapacity() === 0) {
-      this.resetSource(creep);
-      this.changeState(creep, CREEP_STATE_WORK);
+      this.resetSource(creep)
+      this.changeState(creep, CREEP_STATE_WORK)
 
-      return;
+      return
     }
 
     // a refilling creep without a source room needs to find one
     if (!creep.sourceRoom) {
-      this.assignSourceRoom(creep);
+      this.assignSourceRoom(creep)
     }
 
     // a refilling creep in the wrong room needs to reach the source room
     if (!creep.inSourceRoom) {
-      creep.moveToRoom(creep.sourceRoom);
-      return;
+      creep.moveToRoom(creep.sourceRoom)
+      return
     }
 
     // a refilling creep needs an energy source
     if (!creep.source) {
-      this.assignSource(creep);
+      this.assignSource(creep)
     }
 
-    const source = creep.source;
+    const source = creep.source
 
     if (source && !this.invalidSource(creep, source)) {
-      this.sourceAction(creep, source);
+      this.sourceAction(creep, source)
     } else {
-      this.resetSource(creep, true);
+      this.resetSource(creep, true)
     }
 
-    return;
+    return
   }
 
   sourceAction(creep, source) {
     if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(source);
+      creep.moveTo(source)
 
       return
     }
 
     if (creep.withdraw(source, this.resource(creep)) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(source);
+      creep.moveTo(source)
 
       return
     }
 
     if (creep.pickup(source) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(source);
+      creep.moveTo(source)
 
       return
     }
@@ -242,3 +242,5 @@ global.EnergyRole = class extends Role {
     return
   }
 }
+
+global.EnergyRole = EnergyRole

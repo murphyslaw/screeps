@@ -1,37 +1,19 @@
 'use strict'
 
 class Creepy extends Role {
-  get name() { return this.constructor.name.toLowerCase() }
-  get startState() { return states.INITIALIZING }
-  get states() {
-    return {
-      [states.INITIALIZING]: Initializing,
-      [states.IDLE]: Idle,
-      [states.REFILLING]: Refilling,
-      [states.SIGNING]: Signing,
-      [states.DISMANTLING]: Dismantling,
-      [states.DEFENDING]: Defending,
-      [states.HEALING]: Healing,
-      [states.RECYCLING]: Recycling,
-      [states.SCORING]: Scoring,
-      [states.CLAIMING]: Claiming,
-      [states.BUILDING]: Building,
-      [states.REPAIRING]: Repairing,
-      [states.COLLECTING]: Collecting,
-      [states.STORING]: Storing,
-    }
-  }
+  get name() { return this.constructor.name }
+  get startState() { return 'Spawning' }
 
   nextState(context) { throw Error('not implemented') }
 
-  run(actor) {
+  update(actor) {
     let state = actor.state
 
     if (!state) {
       state = actor.state = this.startState
     }
 
-    const stateClass = this.states[state]
+    const stateClass = global[state]
 
     if (stateClass) {
       const stateInstance = new stateClass(state, actor, this)

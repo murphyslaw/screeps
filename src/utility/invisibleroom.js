@@ -65,6 +65,18 @@ class InvisibleRoom {
 
   set needsScoreHarvester(value) {}
 
+  get needsContainerHarvester() {
+    const ttl = CREEP_LIFE_TIME
+
+    if (Game.time - this.memory.needsContainerHarvester > ttl) {
+      delete this.memory.needsContainerHarvester
+    }
+
+    return this.memory.needsContainerHarvester ? true : false
+  }
+
+  set needsContainerHarvester(value) {}
+
   get needsSigner() {
     const ttl = CREEP_LIFE_TIME
 
@@ -88,6 +100,13 @@ class InvisibleRoom {
     const isHighway = (parsed[1] % 10 === 0) || (parsed[2] % 10 === 0)
 
     return isHighway
+  }
+
+  get isHighwayCrossing() {
+    const parsed = /^[WE]([0-9]+)[NS]([0-9]+)$/.exec(this.name)
+    const isHighwayCrossing = (parsed[1] % 10 === 0) && (parsed[2] % 10 === 0)
+
+    return isHighwayCrossing
   }
 
   get flags() {

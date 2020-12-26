@@ -7,7 +7,7 @@ class State {
     this.role = role
     this.nextState = role.nextState
     this.logger = new Logger('State')
-    if (this.actor.role === 'repairer') this.logger.debug('state', 'constructor', this.actor.destination, this.actor.target)
+    if (this.actor.role === 'builder') this.logger.debug('state', 'constructor', this.actor.destination, this.actor.target)
   }
 
   get context() {
@@ -37,21 +37,21 @@ class State {
   findTarget() {}
 
   run() {
-    if (this.actor.role === 'repairer') this.logger.debug('state', 'run', this.actor.pos, this.actor.destination, this.actor.target, this.actor.target && this.actor.target.pos)
+    if (this.actor.role === 'builder') this.logger.debug('state', 'run', this.actor.pos, this.actor.destination, this.actor.target, this.actor.target && this.actor.target.pos)
     let context = this.context
 
     let [stateResult, stepResult] = this.handleTarget()
-    if (this.actor.role === 'repairer') this.logger.debug('state', 'run', 'handleTarget', stateResult, stepResult)
+    if (this.actor.role === 'builder') this.logger.debug('state', 'run', 'handleTarget', stateResult, stepResult)
 
 
     if (State.RUNNING === stateResult && OK === stepResult) {
       [stateResult, stepResult] = this.handleAction()
-      if (this.actor.role === 'repairer') this.logger.debug('state', 'run', 'handleAction', stateResult, stepResult)
+      if (this.actor.role === 'builder') this.logger.debug('state', 'run', 'handleAction', stateResult, stepResult)
     }
 
     if (State.RUNNING === stateResult) {
       [stateResult, stepResult] = this.handleMovement()
-      if (this.actor.role === 'repairer') this.logger.debug('state', 'run', 'handleMovement', stateResult, stepResult)
+      if (this.actor.role === 'builder') this.logger.debug('state', 'run', 'handleMovement', stateResult, stepResult)
     }
 
     context.result = stateResult
@@ -67,7 +67,15 @@ class State {
     }
 
     if (this.actor.room !== room) {
-      this.actor.destination = new RoomPosition(25, 25, room.name)
+      let destination = new RoomPosition(25, 25, room.name)
+      const target = this.actor.target
+
+      if (target && target.pos.roomName === room.name) {
+        destination = target.pos
+      }
+
+      this.actor.destination = destination
+
       return [State.RUNNING, ERR_NOT_IN_RANGE]
     }
 
@@ -117,10 +125,11 @@ class State {
   get validRange() { return 1 }
   get movementOptions() { return {} }
 
+  enter() {}
+
   exit() {
     this.actor.destination = null
     this.actor.target = null
-    this.logger.debug('state', 'exit', this.actor, this.actor.destination, this.actor.target)
   }
 }
 
@@ -128,23 +137,5 @@ class State {
 State.SUCCESS = 0
 State.RUNNING = 1
 State.FAILED = -1
-
-global.states = {
-  INITIALIZING: 0,
-  IDLE: 1,
-  REFILLING: 2,
-  MOVING: 4,
-  SIGNING: 5,
-  DISMANTLING: 6,
-  DEFENDING: 7,
-  HEALING: 8,
-  RECYCLING: 9,
-  SCORING: 10,
-  CLAIMING: 11,
-  BUILDING: 12,
-  REPAIRING: 13,
-  COLLECTING: 14,
-  STORING: 15,
-}
 
 global.State = State

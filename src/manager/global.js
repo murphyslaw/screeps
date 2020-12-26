@@ -7,8 +7,8 @@ class GlobalManager {
 
   notifyVersionChange() {
     if (!Memory.SCRIPT_VERSION || Memory.SCRIPT_VERSION != global.SCRIPT_VERSION) {
-      Memory.SCRIPT_VERSION = global.SCRIPT_VERSION;
-      this.logger.debug('New code uplodated', global.SCRIPT_VERSION);
+      Memory.SCRIPT_VERSION = global.SCRIPT_VERSION
+      this.logger.debug('New code uplodated', global.SCRIPT_VERSION)
     }
   }
 }

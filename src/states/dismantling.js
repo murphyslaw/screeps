@@ -6,9 +6,9 @@ class Dismantling extends State {
   }
 
   findTarget() {
-    const target = this.room.scoreCollector.blocker
+    let scoreCollector = this.room.scoreCollector
 
-    return target
+    return scoreCollector ? scoreCollector.blocker : null
   }
 
   handleAction() {

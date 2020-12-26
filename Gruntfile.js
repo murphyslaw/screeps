@@ -1,29 +1,45 @@
 module.exports = function (grunt) {
-  require('time-grunt')(grunt);
+  require('time-grunt')(grunt)
 
-  const config = require('./.screeps.json');
+  const config = require('./.screeps.json')
 
-  const email = grunt.option('email') || config.email;
-  const password = grunt.option('password') || config.password;
+  const email = grunt.option('email') || config.email
+  const password = grunt.option('password') || config.password
   const ptr = grunt.option('ptr') ? true : config.ptr
-  const season = grunt.option('season') ? true : config.season;
-  const local_directory = grunt.option('local_directory') || config.local_directory;
-  const grafana_api_key = grunt.option('grafana') || config.grafana_api_key;
 
-  grunt.loadNpmTasks('grunt-screeps');
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-file-append');
-  grunt.loadNpmTasks('grunt-rsync');
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-gitinfo');
-  grunt.loadNpmTasks('grunt-http');
-  grunt.loadNpmTasks('lodash');
+  const world = grunt.option('world') || config.world
+  let worldDirectory
+  switch(world) {
+    case 'season':
+      worldDirectory = 'screeps.com___season/'
+      break
+    case 'persistent':
+      worldDirectory = 'screeps.com/'
+      break
+    case 'localhost':
+      worldDirectory = 'localhost___21025/'
+      break
+    default:
+      throw Error.new('unknown world')
+  }
 
-  var currentdate = new Date();
+  const localDirectory = grunt.option('localDirectory') || config.localDirectory
+  const grafanaApiKey = grunt.option('grafana') || config.grafanaApiKey
+
+  grunt.loadNpmTasks('grunt-screeps')
+  grunt.loadNpmTasks('grunt-contrib-clean')
+  grunt.loadNpmTasks('grunt-contrib-copy')
+  grunt.loadNpmTasks('grunt-file-append')
+  grunt.loadNpmTasks('grunt-rsync')
+  grunt.loadNpmTasks('grunt-contrib-watch')
+  grunt.loadNpmTasks('grunt-gitinfo')
+  grunt.loadNpmTasks('grunt-http')
+  grunt.loadNpmTasks('lodash')
+
+  var currentdate = new Date()
 
   // Output the current date.
-  grunt.log.subhead('Task Start: ' + currentdate.toLocaleString());
+  grunt.log.subhead('Task Start: ' + currentdate.toLocaleString())
 
   grunt.initConfig({
     screeps: {
@@ -57,7 +73,7 @@ module.exports = function (grunt) {
           filter: 'isFile',
           rename: function (dest, src) {
             // Change the path name utilize underscores for folders.
-            return dest + src.replace(/\//g, '_');
+            return dest + src.replace(/\//g, '_')
           }
         }],
       }
@@ -87,7 +103,7 @@ module.exports = function (grunt) {
       local: {
         options: {
           src: './dist/',
-          dest: local_directory + (season ? 'screeps.com___season/' : 'screeps.com/') + '<%= gitinfo.local.branch.current.name %>'
+          dest: localDirectory + worldDirectory + '<%= gitinfo.local.branch.current.name %>'
         }
       }
     },
@@ -98,7 +114,7 @@ module.exports = function (grunt) {
           url: 'http://localhost:1337/api/annotations',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + grafana_api_key,
+            'Authorization': 'Bearer ' + grafanaApiKey,
           },
           method: 'POST',
           body: {
@@ -121,7 +137,7 @@ module.exports = function (grunt) {
         },
       },
     }
-  });
+  })
 
   grunt.registerTask('prepare', [
     'gitinfo',
@@ -129,15 +145,15 @@ module.exports = function (grunt) {
     'copy:screeps',
     'file_append:versioning',
     'http'
-  ]);
+  ])
 
   grunt.registerTask('default', [
     'prepare',
     'screeps'
-  ]);
+  ])
 
   grunt.registerTask('local', [
     'prepare',
     'rsync:local'
-  ]);
-};
+  ])
+}

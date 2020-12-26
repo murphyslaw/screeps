@@ -1,6 +1,6 @@
 'use strict'
 
-class Idle extends State {
+class Idling extends State {
   handleTarget() { return [State.RUNNING, OK] }
 
   handleAction() {
@@ -17,7 +17,7 @@ class Idle extends State {
         return [State.FAILED, actionResult]
 
       default:
-        console.log('IDLE', 'unhandled action result', actionResult)
+        console.log('IDLING', 'unhandled action result', actionResult)
         return [State.FAILED, actionResult]
     }
   }
@@ -25,4 +25,4 @@ class Idle extends State {
   handleMovement() { return [State.RUNNING, OK] }
 }
 
-global.Idle = Idle
+global.Idling = Idling

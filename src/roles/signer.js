@@ -16,25 +16,25 @@ class Signer extends Creepy {
     let nextState = context.currentState
 
     switch (currentState) {
-      case states.INITIALIZING:
+      case 'Spawning':
         if (!actor.spawning) {
-          nextState = states.SIGNING
+          nextState = 'Signing'
         }
 
         break
-      case states.SIGNING:
+      case 'Signing':
         if (State.SUCCESS === result) {
-          nextState = states.RECYCLING
+          nextState = 'Recycling'
           break
         }
 
         if (State.FAILED === result) {
-          nextState = states.RECYCLING
+          nextState = 'Recycling'
           break
         }
 
         break
-      case states.RECYCLING:
+      case 'Recycling':
         break
       default:
         console.log('SIGNER', 'unhandled state', currentState, JSON.stringify(context))

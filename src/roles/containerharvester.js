@@ -1,11 +1,9 @@
 'use strict'
 
 global.ContainerHarvester = class extends EnergyRole {
-  get name() { return 'containerharvester' }
+  get name() { return 'ContainerHarvester' }
 
-  get bodyPattern() {
-    return [WORK, WORK, WORK, WORK, WORK, MOVE]
-  }
+  get bodyPattern() { return [WORK, WORK, WORK, WORK, WORK, MOVE] }
 
   get states() {
     return {

@@ -11,6 +11,10 @@ class Dismantler extends Creepy {
     ]
   }
   get maxCreepSize() { return MAX_CREEP_SIZE }
+  get maxSpawnTime() {
+    // TODO: calculate distance to target dynamically
+    return (this.maxCreepSize * CREEP_SPAWN_TIME) + 215
+  }
 
   number(room) { return 1 }
 
@@ -21,15 +25,15 @@ class Dismantler extends Creepy {
     let nextState = context.currentState
 
     switch (state) {
-      case states.INITIALIZING:
+      case 'Spawning':
         if (State.SUCCESS === result) {
-          nextState = states.DISMANTLING
+          nextState = 'Dismantling'
         }
 
         break
-      case states.DISMANTLING:
+      case 'Dismantling':
         break
-      case states.RECYCLING:
+      case 'Recycling':
         break
       default:
         console.log('DISMANTLER', 'unhandled state', state, JSON.stringify(context))

@@ -43,7 +43,7 @@ class Storing extends State {
 
   get resource() {
     switch (this.actor.role) {
-      case 'scoreharvester':
+      case 'ScoreHarvester':
         return RESOURCE_SCORE
       default:
         return RESOURCE_ENERGY

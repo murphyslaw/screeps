@@ -1,6 +1,6 @@
 'use strict'
 
-global.Initializing = class extends State {
+class Spawning extends State {
   handleTarget() { return [State.RUNNING, OK] }
 
   handleAction() {
@@ -11,3 +11,5 @@ global.Initializing = class extends State {
 
   handleMovement() { return [State.RUNNING, OK] }
 }
+
+global.Spawning = Spawning

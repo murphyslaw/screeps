@@ -1,7 +1,7 @@
 'use strict'
 
-global.Supplier = class extends EnergyRole {
-  get name() { return 'supplier' }
+class Supplier extends EnergyRole {
+  get name() { return 'Supplier' }
   get bodyPattern() { return [CARRY, MOVE] }
   get maxCreepSize() { return this.bodyPattern.length * 10 }
 
@@ -19,7 +19,7 @@ global.Supplier = class extends EnergyRole {
           return (structure.structureType == STRUCTURE_SPAWN ||
             structure.structureType == STRUCTURE_EXTENSION ||
             structure.structureType == STRUCTURE_TOWER) &&
-            structure.store.getFreeCapacity(this.resource(creep)) > 0;
+            structure.store.getFreeCapacity(this.resource(creep)) > 0
         }
       })
     }
@@ -57,3 +57,5 @@ global.Supplier = class extends EnergyRole {
     return
   }
 }
+
+global.Supplier = Supplier

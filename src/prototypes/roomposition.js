@@ -23,7 +23,7 @@ RoomPosition.prototype.neighbors = function (range = 1) {
 Object.defineProperties(RoomPosition.prototype, {
   'isBorderPosition': {
     get: function () {
-      return _.some([this.x, this.y], pos => pos === 0 || pos === 49);
+      return _.some([this.x, this.y], pos => pos === 0 || pos === 49)
     },
     configurable: true
   },
@@ -34,4 +34,4 @@ Object.defineProperties(RoomPosition.prototype, {
     },
     configurable: true
   },
-});
+})

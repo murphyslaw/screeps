@@ -3,7 +3,7 @@
 class MonumentPathFinder {
   find(scoreCollector) {
     const room = scoreCollector.room
-    const start = new RoomPosition(38, 26, room.name)
+    const start = new RoomPosition(37, 25, room.name)
     const goal = scoreCollector.pos
 
     const options = {
@@ -42,9 +42,6 @@ class MonumentPathFinder {
         costMatrix.set(creep.pos.x, creep.pos.y, Infinity)
       }
     })
-
-    // handle special case to work together with joethebarber
-    costMatrix.set(36, 24, Infinity)
   }
 }
 

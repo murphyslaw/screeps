@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 
-global.Upgrader = class extends EnergyRole {
-  get name() { return 'upgrader' }
+class Upgrader extends EnergyRole {
+  get name() { return 'Upgrader' }
   get bodyPattern() { return [WORK, CARRY, MOVE] }
   get maxCreepSize() { return this.bodyPattern.length * 6}
 
@@ -71,3 +71,5 @@ global.Upgrader = class extends EnergyRole {
     return
   }
 }
+
+global.Upgrader = Upgrader

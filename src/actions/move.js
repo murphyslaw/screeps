@@ -1,6 +1,6 @@
 'use strict'
 
-global.Move = class extends Action {
+class Move extends Action {
   constructor(actor, destination, options) {
     super()
 
@@ -10,17 +10,9 @@ global.Move = class extends Action {
 
   }
 
-  get visualizeOptions() {
-    return {
-      opacity: 1,
-    }
-  }
-
   update() {
     if (this.options.path) {
       const path = this.findPath(this.actor.pos, this.destination)
-
-      // this.actor.room.visual.poly(_.filter(path, 'roomName', this.actor.room.name), this.visualizeOptions)
 
       return this.actor.moveByPath(path)
     }
@@ -58,6 +50,10 @@ global.Move = class extends Action {
           }
         })
 
+        room.find(FIND_MY_CREEPS).forEach(function (creep) {
+          costMatrix.set(creep.pos.x, creep.pos.y, Infinity)
+        })
+
         return costMatrix
       }
     }
@@ -67,3 +63,5 @@ global.Move = class extends Action {
     return path
   }
 }
+
+global.Move = Move

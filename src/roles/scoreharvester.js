@@ -17,38 +17,38 @@ class ScoreHarvester extends Creepy {
     let nextState = context.currentState
 
     switch (currentState) {
-      case states.INITIALIZING:
+      case 'Spawning':
         if (!actor.spawning) {
-          nextState = states.COLLECTING
+          nextState = 'Collecting'
           break
         }
 
         break
-      case states.COLLECTING:
+      case 'Collecting':
         if (State.SUCCESS === result) {
-          nextState = states.STORING
+          nextState = 'Storing'
           break
         }
 
         if (State.FAILED === result) {
-          nextState = states.RECYCLING
+          nextState = 'Recycling'
           break
         }
 
         break
-      case states.STORING:
+      case 'Storing':
         if (State.SUCCESS === result) {
-          nextState = states.COLLECTING
+          nextState = 'Collecting'
           break
         }
 
         if (State.FAILED === result) {
-          nextState = states.RECYCLING
+          nextState = 'Recycling'
           break
         }
 
         break
-      case states.RECYCLING:
+      case 'Recycling':
         break
       default:
         console.log('SCOREHARVESTER', 'unhandled state', currentState, JSON.stringify(context))

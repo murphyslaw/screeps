@@ -17,23 +17,23 @@ class Defender extends Creepy {
     let nextState = context.currentState
 
     switch (currentState) {
-      case states.INITIALIZING:
+      case 'Spawning':
         if (State.SUCCESS === result) {
-          nextState = states.DEFENDING
+          nextState = 'Defending'
         }
 
         break
-      case states.DEFENDING:
+      case 'Defending':
         if (State.SUCCESS === result) {
-          nextState = states.RECYCLING
+          nextState = 'Recycling'
         }
 
         if (State.FAILED === result) {
-          nextState = states.RECYCLING
+          nextState = 'Recycling'
         }
 
         break
-      case states.RECYCLING:
+      case 'Recycling':
         break
       default:
         console.log('DEFENDER', 'unhandled state', currentState, JSON.stringify(context))

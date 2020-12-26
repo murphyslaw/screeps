@@ -2,9 +2,10 @@
 
 class CreepManager {
   spawn(room) {
-    let spawned = false;
+    let spawned = false
 
-    _.forEach(global.roles, function (role) {
+    config.roles.forEach(function (name) {
+      const role = new global[name]()
       if (!spawned && role.wantsToSpawn(room)) {
         let actionResult = role.spawn(room)
 
@@ -16,20 +17,18 @@ class CreepManager {
   run() {
     const scout = Game.time % 20
 
-    for (const name in Game.creeps) {
-      const creep = Game.creeps[name]
-
+    _.forEach(Game.creeps, function(creep, name) {
       try {
-        global.roles[creep.role].run(creep)
+        creep.update()
 
         // scout
         if (scout) {
           Memory.rooms[creep.room.name] = Memory.rooms[creep.room.name] || {}
         }
-      } catch(error) {
+      } catch (error) {
         console.log(error.stack, creep, creep.role, creep.pos)
       }
-    }
+    })
   }
 }
 

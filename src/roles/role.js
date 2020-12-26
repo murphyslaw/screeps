@@ -53,13 +53,13 @@ global.Role = class {
     creep.state = state
 
     if (rerun) {
-      this.run(creep)
+      this.update(creep)
     }
 
     return
   }
 
-  run(creep) {
+  update(creep) {
     let state = creep.state
 
     if (!state) {

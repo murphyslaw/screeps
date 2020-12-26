@@ -61,6 +61,16 @@ Object.defineProperties(prototype, {
     configurable: true
   },
 
+  'isHighwayCrossing': {
+    get: function () {
+      const parsed = /^[WE]([0-9]+)[NS]([0-9]+)$/.exec(this.name)
+      const isHighwayCrossing = (parsed[1] % 10 === 0) && (parsed[2] % 10 === 0)
+
+      return isHighwayCrossing
+    },
+    configurable: true
+  },
+
   'neighbors': {
     get: function () {
       return _.values(Game.map.describeExits(this.name))
@@ -104,6 +114,16 @@ Object.defineProperties(prototype, {
     },
     set: function (value) {
       return this.memory.needsScoreHarvester = value ? Game.time : 0
+    },
+    configurable: true
+  },
+
+  'needsContainerHarvester': {
+    get: function () {
+      return this.memory.needsContainerHarvester ? true : false
+    },
+    set: function (value) {
+      return this.memory.needsContainerHarvester = value ? Game.time : 0
     },
     configurable: true
   },
@@ -356,7 +376,7 @@ Object.defineProperties(prototype, {
 
   'scoreCollector': {
     get: function () {
-      if (!this.isHighway) return null
+      if (!this.isHighwayCrossing) return null
 
       if (!this._scoreCollector) {
         if (!this.memory.scoreCollector) {
