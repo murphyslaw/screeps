@@ -2,22 +2,15 @@
 
 Source.prototype.vacancies = function() {
   const creeps = _.filter(Game.creeps, function (creep) {
-    return creep.getActiveBodyparts(WORK) > 0 &&
-      creep.source == this
+    return creep.getActiveBodyparts(WORK) > 0 && creep.target == this
   }, this)
 
-  if (creeps.length >= this.freeSpaceCount) {
-    return false
-  }
+  if (creeps.length >= this.freeSpaceCount) return false
 
   const neededWorkparts = this.energyCapacity / HARVEST_POWER / ENERGY_REGEN_TIME
-  const workpartsCount = _.sum(creeps, function (creep) {
-    return creep.getActiveBodyparts(WORK)
-  })
+  const workpartsCount = _.sum(creeps, creep => creep.getActiveBodyparts(WORK))
 
-  if (workpartsCount >= neededWorkparts) {
-    return false
-  }
+  if (workpartsCount >= neededWorkparts) return false
 
   return true
 }

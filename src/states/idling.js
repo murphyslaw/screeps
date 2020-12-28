@@ -1,28 +1,41 @@
 'use strict'
 
 class Idling extends State {
-  handleTarget() { return [State.RUNNING, OK] }
-
   handleAction() {
-    if (Game.time % 5 === 0) return [State.SUCCESS, OK]
+    if (Game.time % 5 === 0) return State.SUCCESS
 
-    const actionResult = new Say(this.actor, '💤').update()
+    let actionResult
+
+    actionResult = new Say(this.actor, '💤').update()
 
     switch (actionResult) {
       case OK:
       case ERR_BUSY:
-        return [State.RUNNING, actionResult]
+        return State.RUNNING
 
       case ERR_NOT_OWNER:
-        return [State.FAILED, actionResult]
-
-      default:
-        console.log('IDLING', 'unhandled action result', actionResult)
-        return [State.FAILED, actionResult]
+        return State.FAILED
     }
+
+    actionResult = new RandomMove(this.actor).update()
+
+    switch (actionResult) {
+      case OK:
+      case ERR_BUSY:
+      case ERR_NOT_IN_RANGE:
+      case ERR_TIRED:
+        return State.RUNNING
+
+      case ERR_INVALID_ARGS:
+      case ERR_NOT_OWNER:
+      case ERR_NO_BODYPART:
+        return State.FAILED
+    }
+
+    return State.RUNNING
   }
 
-  handleMovement() { return [State.RUNNING, OK] }
+  handleMovement() { return State.RUNNING }
 }
 
 global.Idling = Idling

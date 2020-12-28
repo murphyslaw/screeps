@@ -15,16 +15,9 @@ class CreepManager {
   }
 
   run() {
-    const scout = Game.time % 20
-
     _.forEach(Game.creeps, function(creep, name) {
       try {
         creep.update()
-
-        // scout
-        if (scout) {
-          Memory.rooms[creep.room.name] = Memory.rooms[creep.room.name] || {}
-        }
       } catch (error) {
         console.log(error.stack, creep, creep.role, creep.pos)
       }

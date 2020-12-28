@@ -66,6 +66,7 @@ class World {
 
     return Game.rooms[name] || new InvisibleRoom(name)
   }
+
   getRoomData(name) { return Memory.rooms[name] }
 
   update() {
@@ -96,7 +97,7 @@ class World {
     })
 
     this.myRooms.forEach(function (room) {
-      room.needsSigner = !room.controller.sign
+      room.needsSigner = !room.controller.sign || room.controller.sign.text !== Signing.text
       if (room.needsSigner) {
         Game.map.visual.text('📜', new RoomPosition(5, 45, room.name), style)
       }

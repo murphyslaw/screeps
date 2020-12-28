@@ -4,6 +4,11 @@ const prototype = Creep.prototype
 
 prototype.update = function() {
   new global[this.role]().update(this)
+
+  // scout
+  if (Game.time % 25) {
+    Memory.rooms[this.room.name] = Memory.rooms[this.room.name] || {}
+  }
 }
 
 Object.defineProperties(prototype, {

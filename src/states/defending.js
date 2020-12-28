@@ -18,19 +18,19 @@ global.Defending = class extends State {
       case OK:
       case ERR_BUSY:
       case ERR_NOT_IN_RANGE:
-        return [State.RUNNING, actionResult]
+        return State.RUNNING
 
       case ERR_INVALID_TARGET:
         this.actor.target = null
-        return [State.RUNNING, actionResult]
+        return State.RUNNING
 
       case ERR_NO_BODYPART:
       case ERR_NOT_OWNER:
-        return [State.FAILED, actionResult]
+        return State.FAILED
 
       default:
         console.log('DEFENDING', 'unhandled action result', actionResult)
-        return [State.FAILED, actionResult]
+        return State.FAILED
     }
   }
 }

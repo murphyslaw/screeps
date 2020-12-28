@@ -20,19 +20,19 @@ global.Signing = class extends State {
 
     switch (actionResult) {
       case OK:
-        return [State.SUCCESS, actionResult]
+        return State.SUCCESS
 
       case ERR_BUSY:
       case ERR_NOT_IN_RANGE:
-        return [State.RUNNING, actionResult]
+        return State.RUNNING
 
       case ERR_INVALID_TARGET:
         this.actor.target = null
-        return [State.RUNNING, actionResult]
+        return State.RUNNING
 
       default:
         console.log('SIGNING', 'unhandled action result', actionResult)
-        return [State.FAILED, actionResult]
+        return State.FAILED
     }
   }
 }

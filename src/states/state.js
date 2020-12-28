@@ -7,7 +7,6 @@ class State {
     this.role = role
     this.nextState = role.nextState
     this.logger = new Logger('State')
-    if (this.actor.role === 'builder') this.logger.debug('state', 'constructor', this.actor.destination, this.actor.target)
   }
 
   get context() {
@@ -23,103 +22,126 @@ class State {
     return World.getRoom(roomName)
   }
 
+  findRoom() {}
+
   get target() {
     let target
 
     target = this.actor.target
-    target = this.validateTarget(target)
+    target = this.validTarget(target) ? target : null
     target = target || this.findTarget()
 
     return target
   }
 
-  validateTarget(target) { return target }
+  validTarget(target) { return true }
   findTarget() {}
 
-  run() {
-    if (this.actor.role === 'builder') this.logger.debug('state', 'run', this.actor.pos, this.actor.destination, this.actor.target, this.actor.target && this.actor.target.pos)
-    let context = this.context
+  get destination() {
+    let destination
 
-    let [stateResult, stepResult] = this.handleTarget()
-    if (this.actor.role === 'builder') this.logger.debug('state', 'run', 'handleTarget', stateResult, stepResult)
+    destination = this.targetBasedDestination(this.actor.target)
+    destination = destination || this.findDestination()
 
-
-    if (State.RUNNING === stateResult && OK === stepResult) {
-      [stateResult, stepResult] = this.handleAction()
-      if (this.actor.role === 'builder') this.logger.debug('state', 'run', 'handleAction', stateResult, stepResult)
-    }
-
-    if (State.RUNNING === stateResult) {
-      [stateResult, stepResult] = this.handleMovement()
-      if (this.actor.role === 'builder') this.logger.debug('state', 'run', 'handleMovement', stateResult, stepResult)
-    }
-
-    context.result = stateResult
-
-    return this.nextState(context)
+    return destination
   }
 
-  handleTarget() {
+  findDestination() {
+    let destination
+
+    destination = this.targetBasedDestination(this.target)
+
+    return destination
+  }
+
+  targetBasedDestination(target) {
+    return target
+  }
+
+  findDestinationRoomPosition(room) {
+    let destination
+
+    // use the targets position if possible as a more precise goal in the destination room
+    const target = this.actor.target
+    if (target && target.pos.roomName === room.name) {
+      destination = this.targetBasedDestination(target)
+    } else {
+      destination = new RoomPosition(25, 25, room.name)
+    }
+
+    return destination
+  }
+
+  run() {
+    let context = this.context
     const room = this.room
 
     if (!room) {
-      return [State.FAILED, ERR_INVALID_TARGET]
+      context.result = State.FAILED
+      return this.nextState(context)
     }
 
     if (this.actor.room !== room) {
-      let destination = new RoomPosition(25, 25, room.name)
-      const target = this.actor.target
+      this.actor.destination = this.findDestinationRoomPosition(room)
 
-      if (target && target.pos.roomName === room.name) {
-        destination = target.pos
-      }
-
-      this.actor.destination = destination
-
-      return [State.RUNNING, ERR_NOT_IN_RANGE]
+      context.result = this.handleMovement()
+      return this.nextState(context)
     }
 
     const target = this.target
 
     if (!target) {
+      // try to find another room in the next tick
       this.actor.destination = null
-      return [State.RUNNING, ERR_INVALID_TARGET]
+
+      context.result = State.RUNNING
+      return this.nextState(context)
     }
 
-    this.actor.destination = target
-    this.actor.target = target
+    if (this.actor.target !== target) {
+      this.actor.target = target
+      this.actor.destination = null
+    }
 
-    return [State.RUNNING, OK]
+    context.result = this.handleAction()
+
+    if (State.RUNNING !== context.result) {
+      return this.nextState(context)
+    }
+
+    this.actor.destination = this.destination
+    context.result = this.handleMovement()
+    return this.nextState(context)
   }
 
   handleAction() { throw Error('not implemented') }
 
   handleMovement() {
-    if (!this.actor.destination) return [State.RUNNING, ERR_INVALID_TARGET]
+    const destination = this.destination
 
-    if (!this.actor.pos.inRangeTo(this.actor.destination, this.validRange)) {
-      const actionResult = new Move(this.actor, this.actor.destination, this.movementOptions).update()
+    if (!this.actor.pos.inRangeTo(destination, this.validRange)) {
+      const actionResult = new Move(this.actor, destination, this.movementOptions).update()
 
       switch (actionResult) {
         case OK:
         case ERR_BUSY:
         case ERR_TIRED:
-          return [State.RUNNING, actionResult]
+          return State.RUNNING
 
         case ERR_NO_PATH:
         case ERR_INVALID_TARGET:
-          this.actor.destination = null
           this.actor.target = null
-          return [State.RUNNING, actionResult]
+          this.actor.destination = null
+          return State.RUNNING
 
         case ERR_NO_BODYPART:
         case ERR_NOT_OWNER:
         default:
-          return [State.FAILED, actionResult]
+          return State.FAILED
       }
     }
 
-    return [State.RUNNING, OK]
+    return State.RUNNING
   }
 
   get validRange() { return 1 }
@@ -128,8 +150,8 @@ class State {
   enter() {}
 
   exit() {
-    this.actor.destination = null
     this.actor.target = null
+    this.actor.destination = null
   }
 }
 

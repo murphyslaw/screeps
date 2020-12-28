@@ -23,7 +23,7 @@ prototype.findWithPriorities = function(type, priorities, filter) {
   let structures = this.find(type)
   structures = _.filter(structures, function(structure) {
     return priorities.includes(structure.structureType) &&
-      filter ? filter.call(this, structure) : true
+    filter ? filter.call(this, structure) : true
   }, this)
 
   const groups = _.groupBy(structures, 'structureType')
@@ -238,6 +238,19 @@ Object.defineProperties(prototype, {
     configurable: true
   },
 
+  'controllerContainer': {
+    get: function () {
+      if (!this._controllerContainer) {
+        const controllerContainer = _.find(this.containers, container => container === this.controller.container)
+
+        this._controllerContainer = controllerContainer
+      }
+
+      return this._controllerContainer
+    },
+    configurable: true
+  },
+
   'scoreContainers': {
     get: function () {
       if (!this._scoreContainers) {
@@ -271,6 +284,28 @@ Object.defineProperties(prototype, {
       }
 
       return this._spawns
+    },
+    configurable: true
+  },
+
+  'extensions': {
+    get: function() {
+      if (!this._extensions) {
+        this._extensions = this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_EXTENSION } })
+      }
+
+      return this._extensions
+    },
+    configurable: true
+  },
+
+  'towers': {
+    get: function() {
+      if (!this._towers) {
+        this._towers = this.find(FIND_STRUCTURES, { filter: { structureType: STRUCTURE_TOWER } })
+      }
+
+      return this._towers
     },
     configurable: true
   },

@@ -43,6 +43,7 @@ class Storing extends State {
 
   get resource() {
     switch (this.actor.role) {
+      case 'Scorer':
       case 'ScoreHarvester':
         return RESOURCE_SCORE
       default:
@@ -56,25 +57,25 @@ class Storing extends State {
     switch (actionResult) {
       case OK:
       case ERR_NOT_ENOUGH_RESOURCES:
-        return [State.SUCCESS, actionResult]
+        return State.SUCCESS
 
       case ERR_BUSY:
       case ERR_NOT_IN_RANGE:
-        return [State.RUNNING, actionResult]
+        return State.RUNNING
 
       case ERR_FULL:
       case ERR_INVALID_TARGET:
         this.actor.target = null
-        return [State.RUNNING, actionResult]
+        return State.RUNNING
 
       case ERR_INVALID_ARGS:
       case ERR_NO_BODYPART:
       case ERR_NOT_OWNER:
-        return [State.FAILED, actionResult]
+        return State.FAILED
 
       default:
         console.log('STORING', 'unhandled action result', actionResult)
-        return [State.FAILED, actionResult]
+        return State.FAILED
     }
   }
 }

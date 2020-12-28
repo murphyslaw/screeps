@@ -7,7 +7,7 @@ class Repairer extends Creepy {
   number(room) {
     const needsRepairer = _.some(World.territory, 'needsRepairer')
 
-    return needsRepairer ? 2 : 0
+    return needsRepairer ? 1 : 0
   }
 
   nextState(context) {

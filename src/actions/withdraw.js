@@ -1,6 +1,6 @@
 'use strict'
 
-global.Withdraw = class extends Action {
+class Withdraw extends Action {
   constructor(actor, target, resource) {
     super()
 
@@ -13,3 +13,5 @@ global.Withdraw = class extends Action {
     return this.actor.withdraw(this.target, this.resource)
   }
 }
+
+global.Withdraw = Withdraw

@@ -1,72 +1,65 @@
 'use strict'
 
-class Harvester extends EnergyRole {
-  get name() { return 'Harvester' }
-  get maxCreepSize() { return this.bodyPattern.length * 5 }
+class Harvester extends Creepy {
   get bodyPattern() { return [WORK, CARRY, MOVE] }
+  get maxCreepSize() { return this.bodyPattern.length * 5 }
 
-  number(room) { return 1 }
-
-  findTargetRoom(room) { return 'W18N29' }
-
-  findTarget(creep) {
-    let targets = []
-
-    // spawns, extensions and towers without full energy
-    if (!targets.length && creep.store[RESOURCE_ENERGY] > 0) {
-      targets = creep.room.find(FIND_STRUCTURES, {
-        filter: (structure) => {
-          return (structure.structureType == STRUCTURE_SPAWN ||
-            structure.structureType == STRUCTURE_EXTENSION ||
-            structure.structureType == STRUCTURE_TOWER) &&
-            structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0 &&
-            !_.some(this.creeps, 'target', structure)
-        }
+  number(room) {
+    const slots = _.sum(World.myRooms, function(room) {
+      return _.sum(room.sources, function(source) {
+        return source.container ? 0 : source.freeSpaceCount
       })
-    }
+    })
 
-    // containers and storage without full energy
-    if (!targets.length) {
-      targets = creep.room.find(FIND_STRUCTURES, {
-        filter: (structure) => {
-          return (structure.structureType == STRUCTURE_CONTAINER ||
-            structure.structureType == STRUCTURE_STORAGE) &&
-            structure.store.getFreeCapacity() > 0
+    return slots
+  }
+
+  nextState(context) {
+    const actor = context.actor
+    const result = context.result
+    const currentState = context.currentState
+    let nextState = context.currentState
+
+    switch (currentState) {
+      case 'Spawning':
+        if (!actor.spawning) {
+          nextState = 'Harvesting'
+          break
         }
-      })
+
+        break
+      case 'Harvesting':
+        if (State.SUCCESS === result) {
+          nextState = 'Distributing'
+          break
+        }
+
+        if (State.FAILED === result) {
+          nextState = 'Recycling'
+          break
+        }
+
+        break
+      case 'Distributing':
+        if (State.SUCCESS === result) {
+          nextState = 'Harvesting'
+          break
+        }
+
+        if (State.FAILED === result) {
+          nextState = 'Recycling'
+          break
+        }
+
+        break
+      case 'Recycling':
+        break
+      default:
+        console.log('HARVESTER', 'unhandled state', currentState, JSON.stringify(context))
+        break
     }
 
-    const target = targets.length > 1 ? creep.pos.findClosestByRange(targets) : targets[0]
-
-    return target
-  }
-
-  findSourceRoom(room) {
-    return 'W18N29'
-  }
-
-  findSource(creep) {
-    const sources = creep.room.sources
-
-    // for (const source of sources) {
-    //   if (source && source.vacancies()) {
-    //     return source
-    //   }
-    // }
-
-    return sources[0]
-  }
-
-  invalidTarget(creep, target) {
-    return target.store && 0 === target.store.getFreeCapacity(this.resource(creep))
-  }
-
-  targetAction(creep, target) {
-    if (ERR_NOT_IN_RANGE === creep.transfer(target, this.resource(creep))) {
-      creep.moveTo(target)
-    }
-
-    return
+    return nextState
   }
 }
 

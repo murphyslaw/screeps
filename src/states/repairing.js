@@ -7,8 +7,10 @@ class Repairing extends State {
     return room ? room.name : null
   }
 
-  validateTarget(target) {
-    return target && target.hits < target.hitsMax ? target : null
+  validTarget(target) {
+    if (!target) return false
+
+    return target.hits < target.hitsMax
   }
 
   findTarget() {
@@ -24,22 +26,22 @@ class Repairing extends State {
       case OK:
       case ERR_BUSY:
       case ERR_NOT_IN_RANGE:
-        return [State.RUNNING, actionResult]
+        return State.RUNNING
 
       case ERR_NOT_ENOUGH_RESOURCES:
-        return [State.SUCCESS, actionResult]
+        return State.SUCCESS
 
       case ERR_INVALID_TARGET:
         this.actor.target = null
-        return [State.RUNNING, actionResult]
+        return State.RUNNING
 
       case ERR_NOT_OWNER:
       case ERR_NO_BODYPART:
-        return [State.FAILED, actionResult]
+        return State.FAILED
 
       default:
         console.log('REPAIRING', 'unhandled action result', actionResult)
-        return [State.FAILED, actionResult]
+        return State.FAILED
     }
   }
 

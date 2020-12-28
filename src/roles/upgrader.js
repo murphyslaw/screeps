@@ -1,74 +1,66 @@
 'use strict'
 
-class Upgrader extends EnergyRole {
-  get name() { return 'Upgrader' }
+class Upgrader extends Creepy {
   get bodyPattern() { return [WORK, CARRY, MOVE] }
-  get maxCreepSize() { return this.bodyPattern.length * 6}
+  get maxCreepSize() { return this.bodyPattern.length * 6 }
 
-  number(room) { return World.myRooms.length + 1 }
-
-  findSourceRoom(room) {
-    room = _.min(World.myRooms, function(myRoom) {
-      let count = myRoom.creeps('upgrader').length
-
-      // don't count the searching creep
-      if (room === myRoom) count -= 1
-
-      return count
+  number(room) {
+    const controllerContainerUsedCapacity = _.sum(World.myRooms, function(room) {
+      const controllerContainer = room.controller.container;
+      return controllerContainer ? controllerContainer.store.getUsedCapacity(RESOURCE_ENERGY) : 0
     })
 
-    return room.name
+    const number = Math.max(Math.floor(controllerContainerUsedCapacity / 400), World.myRooms.length + 1)
+
+    return number
   }
 
-  findSource(creep) {
-    let source
+  nextState(context) {
+    const actor = context.actor
+    const result = context.result
+    const currentState = context.currentState
+    let nextState = context.currentState
 
-    // controller container
-    if (!source) {
-      const container = _.get(creep.room, 'controller.container')
+    switch (currentState) {
+      case 'Spawning':
+        if (!actor.spawning) {
+          nextState = 'Refilling'
+          break
+        }
 
-      if (container && container.store[this.resource(creep)] > 0) {
-        source = container
-      }
+        break
+      case 'Refilling':
+        if (State.SUCCESS === result) {
+          nextState = 'Upgrading'
+          break
+        }
+
+        if (State.FAILED === result) {
+          nextState = 'Recycling'
+          break
+        }
+
+        break
+      case 'Upgrading':
+        if (State.SUCCESS === result) {
+          nextState = 'Refilling'
+          break
+        }
+
+        if (State.FAILED === result) {
+          nextState = 'Recycling'
+          break
+        }
+
+        break
+      case 'Recycling':
+        break
+      default:
+        console.log(this.name.toUpperCase(), 'unhandled state', currentState, JSON.stringify(context))
+        break
     }
 
-    // storage
-    if (!source) {
-      const storage = creep.room.storage
-
-      if (storage && storage.store[this.resource(creep)] > 0)
-      source = creep.room.storage
-    }
-
-    // energy source
-    if (!source) {
-      source = creep.pos.findClosestByPath(creep.room.sources)
-    }
-
-    return source
-  }
-
-  findTargetRoom(room) {
-    room = _.min(World.myRooms, function (myRoom) {
-      let count = myRoom.creeps('upgrader').length
-
-      // don't count the searching creep
-      if (room === myRoom) count -= 1
-
-      return count
-    })
-
-    return room.name
-  }
-
-  findTarget(creep) { return creep.room.controller }
-
-  targetAction(creep, target) {
-    if (creep.upgradeController(target) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(target)
-    }
-
-    return
+    return nextState
   }
 }
 

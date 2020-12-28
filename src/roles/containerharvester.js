@@ -1,51 +1,47 @@
 'use strict'
 
-global.ContainerHarvester = class extends EnergyRole {
-  get name() { return 'ContainerHarvester' }
-
+class ContainerHarvester extends Creepy {
   get bodyPattern() { return [WORK, WORK, WORK, WORK, WORK, MOVE] }
 
-  get states() {
-    return {
-      [global.CREEP_STATE_REFILL]: this.refill
-    }
-  }
-
-  get keepSource() {
-    return true
-  }
-
-  get keepTarget() {
-    return true
-  }
-
   number(room) {
-    return room.sourceContainers.length
+    return _.sum(World.myRooms, room => room.sourceContainers.length)
   }
 
-  findSource(creep) {
-    const sources = _.filter(creep.room.sources, function(source) {
-      return !_.some(this.creeps, 'source', source)
-    }, this)
+  nextState(context) {
+    const actor = context.actor
+    const result = context.result
+    const currentState = context.currentState
+    let nextState = context.currentState
 
-    return creep.pos.findClosestByPath(sources)
-  }
+    switch (currentState) {
+      case 'Spawning':
+        if (!actor.spawning) {
+          nextState = 'Harvesting'
+          break
+        }
 
-  sourceNotFound(creep) {
-    return
-  }
+        break
+      case 'Harvesting':
+        if (State.SUCCESS === result) {
+          nextState = 'Harvesting'
+          break
+        }
 
-  sourceAction(creep, source) {
-    const container = source.container
+        if (State.FAILED === result) {
+          nextState = 'Recycling'
+          break
+        }
 
-    if (container) {
-      if (creep.pos.isEqualTo(container)) {
-        creep.harvest(source)
-      } else {
-        creep.moveTo(container)
-      }
+        break
+      case 'Recycling':
+        break
+      default:
+        console.log('CONTAINERHARVESTER', 'unhandled state', currentState, JSON.stringify(context))
+        break
     }
 
-    return
+    return nextState
   }
 }
+
+global.ContainerHarvester = ContainerHarvester

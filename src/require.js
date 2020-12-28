@@ -25,6 +25,7 @@ require('prototypes_scorecollector')
 // actions
 require('actions_action')
 require('actions_move')
+require('actions_randommove')
 require('actions_signcontroller')
 require('actions_recycle')
 require('actions_dismantle')
@@ -37,6 +38,9 @@ require('actions_build')
 require('actions_repair')
 require('actions_say')
 require('actions_transfer')
+require('actions_harvest')
+require('actions_upgradecontroller')
+require('actions_pickup')
 
 // states
 require('states_state')
@@ -54,6 +58,9 @@ require('states_building')
 require('states_repairing')
 require('states_collecting')
 require('states_storing')
+require('states_harvesting')
+require('states_distributing')
+require('states_upgrading')
 
 // roles
 require('roles_role')

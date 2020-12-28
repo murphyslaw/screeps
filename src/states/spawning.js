@@ -1,15 +1,17 @@
 'use strict'
 
 class Spawning extends State {
-  handleTarget() { return [State.RUNNING, OK] }
-
-  handleAction() {
-    if (!this.actor.spawning) { return [State.SUCCESS, OK] }
-
-    return [State.RUNNING, OK]
+  findRoom() {
+    return this.actor.room.name
   }
 
-  handleMovement() { return [State.RUNNING, OK] }
+  handleAction() {
+    if (!this.actor.spawning) { return State.SUCCESS }
+
+    return State.RUNNING
+  }
+
+  handleMovement() { return State.RUNNING }
 }
 
 global.Spawning = Spawning
