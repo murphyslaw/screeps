@@ -101,11 +101,6 @@ class World {
       if (room.needsSigner) {
         Game.map.visual.text('📜', new RoomPosition(5, 45, room.name), style)
       }
-
-      // room.needsContainerHarvester = _.some(room.sources, source => !_.some(this.creeps('ContainerHarvester'), creep => creep.source === source))
-      if (room.needsContainerHarvester) {
-        Game.map.visual.text('🛢︎', new RoomPosition(35, 5, room.name), style)
-      }
     })
 
     this.territory.forEach(function(room) {

@@ -27,7 +27,9 @@ class RemoteHarvesting extends State {
     const sources = _.filter(room.sources, target => this.validator.isValid(target))
     targets.push(...sources)
 
-    return actor.pos.findClosestByRange(targets)
+    const target = room !== actor.room ? targets[0] : actor.pos.findClosestByRange(targets)
+
+    return target
   }
 
   handleAction() {

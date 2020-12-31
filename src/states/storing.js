@@ -12,13 +12,16 @@ class Storing extends State {
   }
 
   findTarget(room) {
+    const actor = this.actor
+
     const targetTypes = [
       FIND_STORAGE,
     ]
 
     const targets = this.targetFinder.find(room, targetTypes)
+    const target = room !== actor.room ? targets[0] : actor.pos.findClosestByRange(targets)
 
-    return this.actor.pos.findClosestByRange(targets)
+    return target
   }
 
   handleAction() {

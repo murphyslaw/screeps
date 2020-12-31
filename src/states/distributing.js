@@ -36,11 +36,15 @@ class Distributing extends State {
   }
 
   findTarget(room) {
+    const role = this.role
+    const actor = this.actor
+    const state = this.state
+
     let targetTypes = []
 
     switch (true) {
-      case !_.isUndefined(this.role.findTargetTypes):
-        targetTypes = this.role.findTargetTypes(this.state)
+      case !_.isUndefined(role.findTargetTypes):
+        targetTypes = role.findTargetTypes(state)
 
         break
 
@@ -63,8 +67,9 @@ class Distributing extends State {
     }
 
     const targets = this.targetFinder.find(room, targetTypes)
+    const target = room !== actor.room ? targets[0] : actor.pos.findClosestByRange(targets)
 
-    return this.actor.pos.findClosestByRange(targets)
+    return target
   }
 
   handleAction() {

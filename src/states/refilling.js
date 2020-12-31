@@ -45,11 +45,13 @@ class Refilling extends State {
   }
 
   findTarget(room) {
+    const role = this.role
+    const actor = this.actor
     let targetTypes = []
 
     switch(true) {
-      case !_.isUndefined(this.role.findTargetTypes):
-        targetTypes = this.role.findTargetTypes(this.state)
+      case !_.isUndefined(role.findTargetTypes):
+        targetTypes = role.findTargetTypes(this.state)
 
         break
 
@@ -73,8 +75,9 @@ class Refilling extends State {
     }
 
     const targets = this.targetFinder.find(room, targetTypes)
+    const target = room !== actor.room ? targets[0] : actor.pos.findClosestByRange(targets)
 
-    return this.actor.pos.findClosestByRange(targets)
+    return target
   }
 
   handleAction() {

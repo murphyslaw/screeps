@@ -37,6 +37,9 @@ class Hauler extends Creepy {
             FIND_TOWERS,
           ],
           [
+            FIND_CONTROLLER_CONTAINER,
+          ],
+          [
             FIND_STORAGE,
           ],
         ]

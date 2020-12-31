@@ -129,16 +129,6 @@ Object.defineProperties(prototype, {
     configurable: true
   },
 
-  'needsContainerHarvester': {
-    get: function () {
-      return this.memory.needsContainerHarvester ? true : false
-    },
-    set: function (value) {
-      return this.memory.needsContainerHarvester = value ? Game.time : 0
-    },
-    configurable: true
-  },
-
   'needsClaimer': {
     get: function () {
       return this.claimFlag ? true : false

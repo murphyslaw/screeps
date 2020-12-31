@@ -10,7 +10,12 @@ global.Defending = class extends State {
   }
 
   findTarget(room) {
-    return this.actor.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
+    const actor = this.actor
+
+    const targets = room.find(FIND_HOSTILE_CREEPS)
+    const target = room !== actor.room ? targets[0] : actor.pos.findClosestByRange(targets)
+
+    return target
   }
 
   handleAction() {

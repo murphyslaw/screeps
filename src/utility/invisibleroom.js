@@ -65,18 +65,6 @@ class InvisibleRoom {
 
   set needsScoreHarvester(value) {}
 
-  get needsContainerHarvester() {
-    const ttl = CREEP_LIFE_TIME
-
-    if (Game.time - this.memory.needsContainerHarvester > ttl) {
-      delete this.memory.needsContainerHarvester
-    }
-
-    return this.memory.needsContainerHarvester ? true : false
-  }
-
-  set needsContainerHarvester(value) {}
-
   get needsSigner() {
     const ttl = CREEP_LIFE_TIME
 

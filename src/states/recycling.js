@@ -17,7 +17,8 @@ global.Recycling = class extends State {
     const actor = this.actor
     const target = actor.target
 
-    const actionResult = new Recycle(actor, target).update()
+    // const actionResult = new Recycle(actor, target).update()
+    const actionResult = ERR_NOT_IN_RANGE
 
     switch (actionResult) {
       case OK:

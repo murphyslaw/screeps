@@ -38,7 +38,7 @@ class EmptyingTargetValidator {
     }
 
     if (validTarget && exclusive) {
-      validTarget = !_.some(Game.creeps, 'target', target)
+      validTarget = !_.some(World.creeps(actor.role), 'memory.target', target.id)
     }
 
     return validTarget

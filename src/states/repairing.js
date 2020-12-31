@@ -13,9 +13,11 @@ class Repairing extends State {
 
   findTarget(room) {
     const actor = this.actor
-    const targets = room.damagedStructures
 
-    return actor.pos.findClosestByRange(targets)
+    const targets = room.damagedStructures
+    const target = room !== actor.room ? _.sample(targets) : actor.pos.findClosestByRange(targets)
+
+    return target
   }
 
   handleAction() {

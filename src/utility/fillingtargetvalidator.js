@@ -50,6 +50,12 @@ class FillingTargetValidator {
         exclusive = false
         break
 
+      case target instanceof StructureContainer:
+        targetUsedCapacity = target.store.getUsedCapacity(resource)
+          filling = true
+          exclusive = true
+          break
+
       case !_.isUndefined(target.store):
         targetUsedCapacity = target.store.getUsedCapacity(resource)
         filling = true
@@ -68,7 +74,7 @@ class FillingTargetValidator {
     }
 
     if (validTarget && exclusive) {
-      validTarget = !_.some(Game.creeps, 'target', target)
+      validTarget = !_.some(World.creeps(actor.role), 'memory.target', target.id)
     }
 
     return validTarget

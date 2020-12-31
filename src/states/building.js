@@ -18,7 +18,10 @@ global.Building = class extends State {
   }
 
   findTarget(room) {
-    const target = this.actor.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES)
+    const actor = this.actor
+
+    const targets = room.find(FIND_MY_CONSTRUCTION_SITES)
+    const target = room !== actor.room ? targets[0] : actor.pos.findClosestByRange(targets)
 
     return target
   }

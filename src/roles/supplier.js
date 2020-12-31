@@ -5,7 +5,7 @@ class Supplier extends Creepy {
   get maxCreepSize() { return this.bodyPattern.length * 5 }
 
   number(room) {
-    return room.storage && room.controllerContainer ? 1 : 0
+    return room.storage && room.controllerContainer ? 0 : 0
   }
 
   findTargetTypes(state) {

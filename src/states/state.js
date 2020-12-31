@@ -72,7 +72,7 @@ class State {
       return this.nextState(context)
     }
 
-    if (actor.room !== room) {
+    if (actor.room !== room && room.invisible) {
       this.changeTarget(actor, null, this.findDestinationRoomPosition(room))
 
       context.result = this.handleMovement()
@@ -82,7 +82,7 @@ class State {
     const target = this.target
 
     if (!target) {
-      this.changeTarget(actor, target)
+      this.changeTarget(actor, null)
 
       context.result = State.RUNNING
       return this.nextState(context)
@@ -111,7 +111,7 @@ class State {
 
   handleMovement() {
     const actor = this.actor
-    const destination = actor.destination
+    const destination = actor.destination || actor.pos
 
     if (!actor.pos.inRangeTo(destination, this.validRange)) {
       const actionResult = new Move(actor, destination, this.movementOptions).update()
@@ -152,7 +152,7 @@ class State {
       return this.nextState(context)
     }
 
-    if (actor.room !== room) {
+    if (actor.room !== room && room.invisible) {
       this.changeTarget(actor, null, this.findDestinationRoomPosition(room))
 
       context.result = this.handleMovement()
