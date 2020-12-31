@@ -1,43 +1,69 @@
 'use strict'
 
-global.RemoteHarvester = class extends EnergyRole {
-  get name() { return 'RemoteHarvester' }
+class RemoteHarvester extends Creepy {
   get bodyPattern() { return [WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE] }
-  get maxCreepSize() { return this.bodyPattern.length * 4 }
-  get keepSource() { return true }
-  get keepTarget() { return true }
+  get maxCreepSize() { return this.bodyPattern.length * 2 }
 
-  number(room) { return _.keys(World.remoteRooms).length }
+  number(room) {
+    if (room.level < 4) return 0
 
-  findSourceRoom(room) {
-    const remoteRooms = World.remoteRooms
+    const rooms = World.remoteRooms
+    let number = 0
 
-    const creeps = this.creeps
-
-    const sourceRoom = _.find(remoteRooms, function(room) {
-      return !_.some(creeps, creep => creep.sourceRoom === room.name)
+    number += _.sum(rooms, function(room) {
+      return _.filter(room.sources, source => !source.container).length
     })
 
-    return sourceRoom && sourceRoom.name
+    return number
   }
 
-  findSource(creep) {
-    return creep.pos.findClosestByPath(creep.room.sources)
-  }
+  nextState(context) {
+    const actor = context.actor
+    const result = context.result
+    const currentState = context.currentState
+    let nextState = context.currentState
 
-  findTarget(creep) {
-    return creep.room.storage
-  }
+    switch (currentState) {
+      case 'Spawning':
+        if (!actor.spawning) {
+          nextState = 'RemoteHarvesting'
+          break
+        }
 
-  invalidTarget(creep, target) {
-    return target.store && target.store.getFreeCapacity(this.resource(creep)) == 0
-  }
+        break
+      case 'RemoteHarvesting':
+        if (State.SUCCESS === result) {
+          nextState = 'Distributing'
+          break
+        }
 
-  targetAction(creep, target) {
-    if (creep.transfer(target, this.resource(creep)) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(target)
+        if (State.FAILED === result) {
+          nextState = 'Recycling'
+          break
+        }
+
+        break
+      case 'Distributing':
+        if (State.SUCCESS === result) {
+          nextState = 'RemoteHarvesting'
+          break
+        }
+
+        if (State.FAILED === result) {
+          nextState = 'Recycling'
+          break
+        }
+
+        break
+      case 'Recycling':
+        break
+      default:
+        console.log('REMOTEHARVESTER', 'unhandled state', currentState, JSON.stringify(context))
+        break
     }
 
-    return
+    return nextState
   }
 }
+
+global.RemoteHarvester = RemoteHarvester

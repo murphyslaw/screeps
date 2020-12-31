@@ -21,18 +21,37 @@ global.config = {
     'Harvester',
     'ContainerHarvester',
     'Hauler',
-    // 'Defender',
-    // 'DefenseRepairer',
+    'Defender',
+    'DefenseRepairer',
     'Repairer',
     'Builder',
     'Upgrader',
-    // 'Supplier',
-    // 'ScoreHarvester',
-    // 'RemoteHarvester',
+    'Supplier',
+    'ScoreHarvester',
+    'RemoteHarvester',
+    'RemoteHauler',
     // 'ContainerExtractor',
+    // 'Scorer',
     'Signer',
     // 'Dismantler',
-    // 'Scorer',
-    // 'Claimer',
+    'Claimer',
   ],
 }
+
+global.FIND_CONTAINERS = 124
+global.FIND_STORAGE = 125
+global.FIND_CONTROLLER_CONTAINER = 126
+global.FIND_SOURCE_CONTAINERS = 127
+global.FIND_EXTENSIONS = 128
+global.FIND_TOWERS = 129
+
+global.DIRECTIONS = [
+  TOP,
+  TOP_RIGHT,
+  RIGHT,
+  BOTTOM_RIGHT,
+  BOTTOM,
+  BOTTOM_LEFT,
+  LEFT,
+  TOP_LEFT,
+]

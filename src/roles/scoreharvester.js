@@ -3,6 +3,7 @@
 class ScoreHarvester extends Creepy {
   get bodyPattern() { return [CARRY, MOVE] }
   get maxCreepSize() { return this.bodyPattern.length * 6 }
+  get resource() { return RESOURCE_SCORE }
 
   number(room) {
     const needsScoreHarvester = _.some(World.territory, 'needsScoreHarvester')

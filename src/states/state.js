@@ -1,13 +1,17 @@
 'use strict'
 
 class State {
-  constructor(state, actor, role) {
+  constructor(state, role) {
     this.state = state
-    this.actor = actor
     this.role = role
+    this.actor = role.actor
     this.nextState = role.nextState
     this.logger = new Logger('State')
   }
+
+  get icon() { return '➰' }
+  get validator() { return new NullValidator() }
+  get targetFinder() { return new TargetFinder(this.validator) }
 
   get context() {
     return { actor: this.actor, currentState: this.state }
@@ -22,41 +26,27 @@ class State {
     return World.getRoom(roomName)
   }
 
-  findRoom() {}
+  findRoom() { return this.actor.room.name }
 
   get target() {
     let target
 
     target = this.actor.target
-    target = this.validTarget(target) ? target : null
-    target = target || this.findTarget()
+    target = this.validator.isValid(target) ? target : null
+    target = target || this.findTarget(this.room)
 
     return target
   }
 
-  validTarget(target) { return true }
-  findTarget() {}
+  findTarget(room) { return this.actor }
 
   get destination() {
-    let destination
+    let target = this.actor.target || this.target
 
-    destination = this.targetBasedDestination(this.actor.target)
-    destination = destination || this.findDestination()
-
-    return destination
+    return this.targetBasedDestination(target)
   }
 
-  findDestination() {
-    let destination
-
-    destination = this.targetBasedDestination(this.target)
-
-    return destination
-  }
-
-  targetBasedDestination(target) {
-    return target
-  }
+  targetBasedDestination(target) { return target }
 
   findDestinationRoomPosition(room) {
     let destination
@@ -75,14 +65,15 @@ class State {
   run() {
     let context = this.context
     const room = this.room
+    const actor = this.actor
 
     if (!room) {
       context.result = State.FAILED
       return this.nextState(context)
     }
 
-    if (this.actor.room !== room) {
-      this.actor.destination = this.findDestinationRoomPosition(room)
+    if (actor.room !== room) {
+      this.changeTarget(actor, null, this.findDestinationRoomPosition(room))
 
       context.result = this.handleMovement()
       return this.nextState(context)
@@ -91,16 +82,14 @@ class State {
     const target = this.target
 
     if (!target) {
-      // try to find another room in the next tick
-      this.actor.destination = null
+      this.changeTarget(actor, target)
 
       context.result = State.RUNNING
       return this.nextState(context)
     }
 
-    if (this.actor.target !== target) {
-      this.actor.target = target
-      this.actor.destination = null
+    if (actor.target !== target) {
+      this.changeTarget(actor, target)
     }
 
     context.result = this.handleAction()
@@ -109,18 +98,23 @@ class State {
       return this.nextState(context)
     }
 
-    this.actor.destination = this.destination
     context.result = this.handleMovement()
     return this.nextState(context)
+  }
+
+  changeTarget(actor, target, destination) {
+    actor.target = target
+    actor.destination = destination || this.targetBasedDestination(target)
   }
 
   handleAction() { throw Error('not implemented') }
 
   handleMovement() {
-    const destination = this.destination
+    const actor = this.actor
+    const destination = actor.destination
 
-    if (!this.actor.pos.inRangeTo(destination, this.validRange)) {
-      const actionResult = new Move(this.actor, destination, this.movementOptions).update()
+    if (!actor.pos.inRangeTo(destination, this.validRange)) {
+      const actionResult = new Move(actor, destination, this.movementOptions).update()
 
       switch (actionResult) {
         case OK:
@@ -130,8 +124,7 @@ class State {
 
         case ERR_NO_PATH:
         case ERR_INVALID_TARGET:
-          this.actor.target = null
-          this.actor.destination = null
+          this.changeTarget(actor, null)
           return State.RUNNING
 
         case ERR_NO_BODYPART:
@@ -147,11 +140,44 @@ class State {
   get validRange() { return 1 }
   get movementOptions() { return {} }
 
-  enter() {}
+  enter() {
+    let context = this.context
+    const room = this.room
+    const actor = this.actor
+
+    new Say(actor, this.icon).update()
+
+    if (!room) {
+      context.result = State.FAILED
+      return this.nextState(context)
+    }
+
+    if (actor.room !== room) {
+      this.changeTarget(actor, null, this.findDestinationRoomPosition(room))
+
+      context.result = this.handleMovement()
+      return this.nextState(context)
+    }
+
+    const target = this.target
+
+    if (!target) {
+      this.changeTarget(actor, null)
+
+      context.result = State.RUNNING
+      return this.nextState(context)
+    }
+
+    if (actor.target !== target) {
+      this.changeTarget(actor, target)
+    }
+
+    context.result = this.handleMovement()
+    return this.nextState(context)
+  }
 
   exit() {
-    this.actor.target = null
-    this.actor.destination = null
+    this.changeTarget(this.actor, null)
   }
 }
 

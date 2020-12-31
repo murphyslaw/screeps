@@ -2,12 +2,12 @@
 
 class Builder extends Creepy {
   get bodyPattern() { return [WORK, CARRY, MOVE] }
-  get maxCreepSize() { return this.bodyPattern.length * 12 }
+  get maxCreepSize() { return this.bodyPattern.length * 6 }
 
   number(room) {
-    const needsBuilder = _.some(World.territory, 'needsBuilder')
+    const number = _.filter(World.territory, 'needsBuilder').length
 
-    return needsBuilder ? 2 : 0
+    return number
   }
 
   nextState(context) {

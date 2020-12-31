@@ -8,18 +8,11 @@ class RandomMove extends Action {
   }
 
   update() {
-    const directions = [
-      TOP,
-      TOP_RIGHT,
-      RIGHT,
-      BOTTOM_RIGHT,
-      BOTTOM,
-      BOTTOM_LEFT,
-      LEFT,
-      TOP_LEFT,
-    ]
+    return this.actor.move(this.randomDirection)
+  }
 
-    return this.actor.move(_.sample(directions))
+  get randomDirection() {
+    return _.sample(global.DIRECTIONS)
   }
 }
 

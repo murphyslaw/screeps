@@ -133,6 +133,54 @@ class InvisibleRoom {
     return []
   }
 
+  get minerals() {
+    return _.map(this.memory.minerals, (source, id) => new InvisibleMineral(this, id))
+  }
+
+  mineralContainers() {
+    const mineralContainers = _.reduce(this.minerals, function (containers, mineral) {
+      const container = mineral.container
+
+      if (container) {
+        containers.push(container)
+      }
+
+      return containers
+    }, [])
+
+    return mineralContainers
+  }
+
+  get sources() {
+    return _.map(this.memory.sources, (source, id) => new InvisibleSource(this, id))
+  }
+
+  get sourceContainers() {
+    if (!this._sourceContainers) {
+      const sourceContainers = _.reduce(this.sources, function (containers, source) {
+        const container = source.container
+
+        if (container) {
+          containers.push(container)
+        }
+
+        return containers
+      }, [])
+
+      this._sourceContainers = sourceContainers
+    }
+
+    return this._sourceContainers
+  }
+
+  get sourceContainerCount() {
+    return this.sourceContainers.length
+  }
+
+  get sourceCount() {
+    return _.keys(this.memory.sources).length
+  }
+
   toString() {
     return '[iroom ' + this.name + ']'
   }

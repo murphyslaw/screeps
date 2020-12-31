@@ -19,7 +19,7 @@ class World {
 
   get remoteRooms() {
     return _.filter(this.neighbors, function(room) {
-      return !this.includes(room)
+      return !this.includes(room) && !room.isHighway
     }, this.myRooms)
   }
 

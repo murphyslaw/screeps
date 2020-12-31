@@ -2,12 +2,22 @@
 
 global.Building = class extends State {
   findRoom() {
-    const room = _.find(World.territory, 'needsBuilder')
+    // prioritize current room
+    const rooms = World.territory
+    const currentRoom = this.actor.room
+    const index = rooms.indexOf(currentRoom)
+
+    if (index > 0) {
+      rooms.splice(index, 1)
+      rooms.unshift(currentRoom)
+    }
+
+    const room = _.find(rooms, 'needsBuilder')
 
     return room ? room.name : null
   }
 
-  findTarget() {
+  findTarget(room) {
     const target = this.actor.pos.findClosestByRange(FIND_MY_CONSTRUCTION_SITES)
 
     return target

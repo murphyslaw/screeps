@@ -1,18 +1,23 @@
 'use strict'
 
 global.Recycling = class extends State {
+  get icon() { return '💀' }
+
   findRoom() {
     const spawnRooms = World.spawnRooms
 
     return spawnRooms.length ? spawnRooms[0].name : null
   }
 
-  findTarget() {
-    return this.room.spawns[0]
+  findTarget(room) {
+    return room.spawns[0]
   }
 
   handleAction() {
-    const actionResult = new Recycle(this.actor, this.target).update()
+    const actor = this.actor
+    const target = actor.target
+
+    const actionResult = new Recycle(actor, target).update()
 
     switch (actionResult) {
       case OK:

@@ -1,58 +1,32 @@
 'use strict'
 
 class Storing extends State {
+  get icon() { return '🚚' }
+  get validator() { return new EmptyingTargetValidator(this.role) }
+
   findRoom() {
-    // prioritize current room
-    const rooms = World.myRooms
-    const currentRoom = this.actor.room
-    const index = rooms.indexOf(currentRoom)
+    const rooms = this.actor.room.prioritize(World.myRooms)
+    const room = _.find(rooms, room => this.validator.isValid(room.storage))
 
-    if (index > 0) {
-      rooms.splice(index, 1)
-      rooms.unshift(currentRoom)
-    }
-
-    const room = _.find(rooms, function (room) {
-      const targets = room.findWithPriorities(
-        FIND_STRUCTURES,
-        this.structurePriorities,
-        structure => structure.store.getFreeCapacity(this.resource) > 0
-      )
-
-      return targets.length > 0
-    }, this)
-
-    return room.name
+    return room ? room.name : null
   }
 
-  get structurePriorities() {
-    return [
-      STRUCTURE_STORAGE,
+  findTarget(room) {
+    const targetTypes = [
+      FIND_STORAGE,
     ]
-  }
 
-  findTarget() {
-    const targets = this.room.findWithPriorities(
-      FIND_STRUCTURES,
-      this.structurePriorities,
-      structure => structure.store.getFreeCapacity(this.resource) > 0
-    )
+    const targets = this.targetFinder.find(room, targetTypes)
 
-    return targets[0]
-  }
-
-  get resource() {
-    switch (this.actor.role) {
-      case 'Scorer':
-      case 'ScoreHarvester':
-        return RESOURCE_SCORE
-      default:
-        return RESOURCE_ENERGY
-    }
+    return this.actor.pos.findClosestByRange(targets)
   }
 
   handleAction() {
-    const actionResult = new Transfer(this.actor, this.target, this.resource).update()
+    const actor = this.actor
+    const target = actor.target
+    const resource = this.role.resource
+
+    const actionResult = new Transfer(actor, target, resource).update()
 
     switch (actionResult) {
       case OK:
@@ -65,7 +39,7 @@ class Storing extends State {
 
       case ERR_FULL:
       case ERR_INVALID_TARGET:
-        this.actor.target = null
+        actor.target = null
         return State.RUNNING
 
       case ERR_INVALID_ARGS:

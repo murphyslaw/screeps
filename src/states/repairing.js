@@ -1,26 +1,28 @@
 'use strict'
 
 class Repairing extends State {
+  get icon() { return '🛠' }
+  get validator() { return new DamagedTargetValidator(this.role) }
+
   findRoom() {
-    const room = _.sample(_.filter(World.territory, 'needsRepairer'))
+    const rooms = this.actor.room.prioritize(World.territory)
+    const room = _.find(rooms, 'needsRepairer')
 
     return room ? room.name : null
   }
 
-  validTarget(target) {
-    if (!target) return false
+  findTarget(room) {
+    const actor = this.actor
+    const targets = room.damagedStructures
 
-    return target.hits < target.hitsMax
-  }
-
-  findTarget() {
-    const target = this.actor.pos.findClosestByRange(this.room.damagedStructures)
-
-    return target
+    return actor.pos.findClosestByRange(targets)
   }
 
   handleAction() {
-    let actionResult = new Repair(this.actor, this.target).update()
+    const actor = this.actor
+    const target = actor.target
+
+    let actionResult = new Repair(actor, target).update()
 
     switch (actionResult) {
       case OK:
@@ -32,7 +34,7 @@ class Repairing extends State {
         return State.SUCCESS
 
       case ERR_INVALID_TARGET:
-        this.actor.target = null
+        this.changeTarget(actor, null)
         return State.RUNNING
 
       case ERR_NOT_OWNER:

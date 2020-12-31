@@ -1,46 +1,28 @@
 'use strict'
 
 class Collecting extends State {
+  get icon() { return '🏆' }
+  get validator() { return new FillingTargetValidator(this.role) }
+
   findRoom() {
-    // prioritize current room
-    const rooms = World.territory
-    const currentRoom = this.actor.room
-    const index = rooms.indexOf(currentRoom)
-
-    if (index > 0) {
-      rooms.splice(index, 1)
-      rooms.unshift(currentRoom)
-    }
-
+    const rooms = this.actor.room.prioritize(World.territory)
     const room = _.find(rooms, 'needsScoreHarvester')
 
     return room ? room.name : null
   }
 
-  validTarget(target) {
-    if (!target) return false
-
-    return target.store.getUsedCapacity(this.resource) > 0
-  }
-
-  findTarget() {
-    const scoreContainers = this.room.scoreContainers
+  findTarget(room) {
+    const scoreContainers = room.scoreContainers
 
     return scoreContainers.length ? scoreContainers[0] : null
   }
 
-  get resource() {
-    switch(this.actor.role) {
-      case 'Scorer':
-      case 'ScoreHarvester':
-        return RESOURCE_SCORE
-      default:
-        return RESOURCE_ENERGY
-    }
-  }
-
   handleAction() {
-    const actionResult = new Withdraw(this.actor, this.target, this.resource).update()
+    const actor = this.actor
+    const target = actor.target
+    const resource = this.role.resource
+
+    const actionResult = new Withdraw(actor, target, resource).update()
 
     switch (actionResult) {
       case OK:
@@ -53,7 +35,7 @@ class Collecting extends State {
 
       case ERR_NOT_ENOUGH_RESOURCES:
       case ERR_INVALID_TARGET:
-        this.actor.target = null
+        this.changeState(actor, null)
         return State.RUNNING
 
       case ERR_INVALID_ARGS:

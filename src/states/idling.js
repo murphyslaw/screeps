@@ -1,23 +1,16 @@
 'use strict'
 
 class Idling extends State {
+  get icon() { return '💤' }
+
   handleAction() {
     if (Game.time % 5 === 0) return State.SUCCESS
 
-    let actionResult
+    return State.RUNNING
+  }
 
-    actionResult = new Say(this.actor, '💤').update()
-
-    switch (actionResult) {
-      case OK:
-      case ERR_BUSY:
-        return State.RUNNING
-
-      case ERR_NOT_OWNER:
-        return State.FAILED
-    }
-
-    actionResult = new RandomMove(this.actor).update()
+  handleMovement() {
+    const actionResult = new RandomMove(this.actor).update()
 
     switch (actionResult) {
       case OK:
@@ -34,8 +27,6 @@ class Idling extends State {
 
     return State.RUNNING
   }
-
-  handleMovement() { return State.RUNNING }
 }
 
 global.Idling = Idling

@@ -1,60 +1,84 @@
 'use strict'
 
-class Supplier extends EnergyRole {
-  get name() { return 'Supplier' }
+class Supplier extends Creepy {
   get bodyPattern() { return [CARRY, MOVE] }
-  get maxCreepSize() { return this.bodyPattern.length * 10 }
+  get maxCreepSize() { return this.bodyPattern.length * 5 }
 
   number(room) {
-    return room.storage ? 1 : 0
+    return room.storage && room.controllerContainer ? 1 : 0
   }
 
-  findTarget(creep) {
-    let target
+  findTargetTypes(state) {
+    switch (state) {
+      case 'Refilling': {
+        return [
+          FIND_STORAGE,
+        ]
+      }
 
-    // spawns, extensions and towers without full energy
-    if (!target) {
-      target = creep.pos.findClosestByPath(FIND_STRUCTURES, {
-        filter: (structure) => {
-          return (structure.structureType == STRUCTURE_SPAWN ||
-            structure.structureType == STRUCTURE_EXTENSION ||
-            structure.structureType == STRUCTURE_TOWER) &&
-            structure.store.getFreeCapacity(this.resource(creep)) > 0
-        }
-      })
-    }
-
-    // controller container
-    if (!target) {
-      target = creep.room.controller.container
-    }
-
-    return target
-  }
-
-  invalidTarget(creep, target) {
-    return target.store.getFreeCapacity(this.resource(creep)) == 0
-  }
-
-  findSource(creep) {
-    let source
-
-    // storage
-    if (!source) {
-      if (creep.room.storage && creep.room.storage.store[this.resource(creep)] > 0) {
-        source = creep.room.storage
+      case 'Distributing': {
+        return [
+          [
+            FIND_MY_SPAWNS,
+            FIND_EXTENSIONS,
+            FIND_TOWERS,
+          ],
+          [
+            FIND_CONTROLLER_CONTAINER,
+          ],
+        ]
       }
     }
 
-    return source
+    return []
   }
 
-  targetAction(creep, target) {
-    if (creep.transfer(target, this.resource(creep)) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(target)
+  nextState(context) {
+    const actor = context.actor
+    const result = context.result
+    const currentState = context.currentState
+    let nextState = context.currentState
+
+    switch (currentState) {
+      case 'Spawning':
+        if (!actor.spawning) {
+          nextState = 'Refilling'
+          break
+        }
+
+        break
+      case 'Refilling':
+        if (State.SUCCESS === result) {
+          nextState = 'Distributing'
+          break
+        }
+
+        if (State.FAILED === result) {
+          nextState = 'Recycling'
+          break
+        }
+
+        break
+      case 'Distributing':
+        if (State.SUCCESS === result) {
+          nextState = 'Refilling'
+          break
+        }
+
+        if (State.FAILED === result) {
+          nextState = 'Recycling'
+          break
+        }
+
+        break
+      case 'Recycling':
+        break
+      default:
+        console.log('SUPPLIER', 'unhandled state', currentState, JSON.stringify(context))
+        break
     }
 
-    return
+    return nextState
   }
 }
 

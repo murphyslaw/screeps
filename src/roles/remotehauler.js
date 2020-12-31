@@ -1,43 +1,35 @@
 'use strict'
 
-class Upgrader extends Creepy {
-  get bodyPattern() { return [WORK, CARRY, MOVE] }
-  get maxCreepSize() { return this.bodyPattern.length * 5 }
+class RemoteHauler extends Creepy {
+  get bodyPattern() { return [CARRY, MOVE] }
+  get maxCreepSize() { return this.bodyPattern.length * 6 }
 
   number(room) {
-    const controllerContainerUsedCapacity = _.sum(World.myRooms, function(room) {
-      const controllerContainer = room.controller.container;
-      return controllerContainer ? controllerContainer.store.getUsedCapacity(RESOURCE_ENERGY) : 0
-    })
+    let rooms = World.remoteRooms
+    let number = 0
 
-    const number = Math.max(Math.floor(controllerContainerUsedCapacity / 1000), World.myRooms.length)
+    number += _.sum(rooms, room => room.sourceContainers.length)
+    number += _.sum(rooms, room => room.mineralContainers.length)
 
     return number
   }
 
   findTargetTypes(state) {
-    switch (state) {
+    switch(state) {
       case 'Refilling': {
         return [
-          [
-            FIND_CONTROLLER_CONTAINER,
-          ],
-          [
-            FIND_DROPPED_RESOURCES,
-            FIND_TOMBSTONES,
-            FIND_RUINS,
-            FIND_STORAGE,
-            FIND_CONTAINERS,
-          ],
-          [
-            FIND_SOURCES_ACTIVE,
-          ],
+          FIND_DROPPED_RESOURCES,
+          FIND_TOMBSTONES,
+          FIND_RUINS,
+          FIND_CONTAINERS,
         ]
       }
     }
 
     return []
   }
+
+  get resource() { return RESOURCE_ENERGY }
 
   nextState(context) {
     const actor = context.actor
@@ -55,7 +47,7 @@ class Upgrader extends Creepy {
         break
       case 'Refilling':
         if (State.SUCCESS === result) {
-          nextState = 'Upgrading'
+          nextState = 'Storing'
           break
         }
 
@@ -65,7 +57,7 @@ class Upgrader extends Creepy {
         }
 
         break
-      case 'Upgrading':
+      case 'Storing':
         if (State.SUCCESS === result) {
           nextState = 'Refilling'
           break
@@ -80,7 +72,7 @@ class Upgrader extends Creepy {
       case 'Recycling':
         break
       default:
-        console.log(this.name.toUpperCase(), 'unhandled state', currentState, JSON.stringify(context))
+        console.log('REMOTEHAULER', 'unhandled state', currentState, JSON.stringify(context))
         break
     }
 
@@ -88,4 +80,4 @@ class Upgrader extends Creepy {
   }
 }
 
-global.Upgrader = Upgrader
+global.RemoteHauler = RemoteHauler

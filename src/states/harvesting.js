@@ -1,65 +1,64 @@
 'use strict'
 
 class Harvesting extends State {
+  get icon() { return '🛢︎' }
+  get validator() { return new FillingTargetValidator(this.role) }
+
   findRoom() {
-    // prioritize target
-    const target = this.actor.target
+    const actor = this.actor
+
+    // prioritize current target
+    const target = actor.target
     if (target) return target.room.name
 
-    // prioritize current room
-    const rooms = World.myRooms
-    const currentRoom = this.actor.room
-    const index = rooms.indexOf(currentRoom)
+    const rooms = actor.room.prioritize(World.territory)
 
-    if (index > 0) {
-      rooms.splice(index, 1)
-      rooms.unshift(currentRoom)
-    }
-
-    if ('ContainerHarvester' === this.actor.role) {
+    if ('ContainerHarvester' === actor.role) {
       const room = _.find(rooms, function(room) {
-        return _.some(room.sources, function (source) {
+        return _.some(room.sources, function(source) {
           return source.container &&
-            !_.some(World.creeps('ContainerHarvester'), 'target', source)
+            !_.some(World.creeps('ContainerHarvester'), 'memory.target', source.id)
         })
       })
 
-      return room ? room.name : null
+      return room && room.name
     }
 
     const room = _.find(rooms, function(room) {
-      return _.some(room.sources, source => source.vacancies())
+      return _.some(room.sources, source => this.validator.isValid(source))
     })
 
-    return room ? room.name : null
+    return room && room.name
   }
 
-  validTarget(target) {
-    return target && target.energy > 0
-  }
+  findTarget(room) {
+    const actor = this.actor
 
-  findTarget() {
-    if ('ContainerHarvester' === this.actor.role) {
-      const source = _.find(this.room.sources, function(source) {
+    if ('ContainerHarvester' === actor.role) {
+      const source = _.find(room.sources, function(source) {
         return source.container &&
-          !_.some(World.creeps('ContainerHarvester'), 'target', source)
+          !_.some(World.creeps('ContainerHarvester'), 'memory.target', source.id)
       })
 
       return source
     }
 
-    const sources = this.room.sources
-    const source = _.find(sources, source => source.vacancies()) || sources[0]
+    const sources = room.sources
+    const source = _.find(sources, source => this.validator.isValid(source))
 
     return source
   }
 
   handleAction() {
-    const actionResult = new Harvest(this.actor, this.target).update()
+    const actor = this.actor
+    const target = actor.target
+    const resource = this.role.resource
+
+    const actionResult = new Harvest(actor, target).update()
 
     switch (actionResult) {
       case OK:
-        if (0 === this.actor.store.getFreeCapacity(this.resource)) {
+        if (0 === actor.store.getFreeCapacity(resource)) {
           return State.SUCCESS
         } else {
           return State.RUNNING
@@ -72,7 +71,7 @@ class Harvesting extends State {
 
       case ERR_NOT_ENOUGH_RESOURCES:
       case ERR_INVALID_TARGET:
-        this.actor.target = null
+        this.changeTarget(actor, null)
         return State.RUNNING
 
       case ERR_NOT_FOUND:
@@ -90,10 +89,10 @@ class Harvesting extends State {
     if (!target) return target
 
     if ('ContainerHarvester' === this.actor.role) {
-      return target.container.pos
+      return target.container
     }
 
-    return target.pos
+    return target
   }
 
   validRange() {

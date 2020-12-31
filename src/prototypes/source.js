@@ -1,20 +1,5 @@
 'use strict'
 
-Source.prototype.vacancies = function() {
-  const creeps = _.filter(Game.creeps, function (creep) {
-    return creep.getActiveBodyparts(WORK) > 0 && creep.target == this
-  }, this)
-
-  if (creeps.length >= this.freeSpaceCount) return false
-
-  const neededWorkparts = this.energyCapacity / HARVEST_POWER / ENERGY_REGEN_TIME
-  const workpartsCount = _.sum(creeps, creep => creep.getActiveBodyparts(WORK))
-
-  if (workpartsCount >= neededWorkparts) return false
-
-  return true
-}
-
 Object.defineProperties(Source.prototype, {
   // number of WORK parts needed to drain the energy source before regeneration
   'neededWorkparts': {

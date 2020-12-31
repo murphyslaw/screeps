@@ -4,7 +4,8 @@ class ContainerHarvester extends Creepy {
   get bodyPattern() { return [WORK, WORK, WORK, WORK, WORK, MOVE] }
 
   number(room) {
-    return _.sum(World.myRooms, room => room.sourceContainers.length)
+    const number = _.sum(World.territory, room => room.sourceContainers.length)
+    return number
   }
 
   nextState(context) {

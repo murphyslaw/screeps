@@ -3,11 +3,16 @@
 const prototype = Creep.prototype
 
 prototype.update = function() {
-  new global[this.role]().update(this)
+  new global[this.role](this).update()
 
   // scout
   if (Game.time % 25) {
-    Memory.rooms[this.room.name] = Memory.rooms[this.room.name] || {}
+    const room = this.room
+    const roomName = room.name
+
+    Memory.rooms[roomName] = Memory.rooms[roomName] || {}
+    _.map(room.sources, source => source.container)
+    _.map(room.minerals, mineral => mineral.container)
   }
 }
 

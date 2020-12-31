@@ -5,8 +5,10 @@ global.Healing = class extends State {
     return this.actor.room
   }
 
-  findTarget() {
-    return this.actor
+  findTarget(room) {
+    const actor = this.actor
+
+    return actor
   }
 
   handleAction() {

@@ -6,9 +6,18 @@ class RoomManager {
   }
 
   visuals(room) {
+    const visual = room.visual
+
     if ('W20N30' === room.name && room.scoreCollector) {
       room.scoreCollector.visualize()
     }
+
+    room.creeps().forEach(function (creep) {
+      if (creep.target) {
+        visual.circle(creep.target.pos,
+          { fill: 'blue', radius: .2, opacity: 1 })
+      }
+    }, this)
 
     // World.creeps('repairer').forEach(function (creep) {
     //   const visual = new RoomVisual(creep.room.name)
@@ -38,6 +47,7 @@ class RoomManager {
     _.forEach(towers, function(tower) {
       const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
         filter: function(creep) {
+          // return tower.pos.getRangeTo(creep) < 10
           return creep.getActiveBodyparts(ATTACK) > 0 ||
             creep.getActiveBodyparts(RANGED_ATTACK) > 0 ||
             creep.getActiveBodyparts(WORK) > 0 ||
@@ -63,7 +73,8 @@ class RoomManager {
 
       const closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
         filter: function (structure) {
-          return (structure.hits / structure.hitsMax * 100) < 0.1
+          return (structure.hits / structure.hitsMax * 100) < .01 &&
+            STRUCTURE_RAMPART === structure.structureType
         }
       })
 

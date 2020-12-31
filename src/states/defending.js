@@ -1,13 +1,15 @@
 'use strict'
 
 global.Defending = class extends State {
+  get icon() { return '🛡️' }
+
   findRoom() {
     const room = _.find(World.territory, 'underAttack')
 
     return room ? room.name : null
   }
 
-  findTarget() {
+  findTarget(room) {
     return this.actor.pos.findClosestByRange(FIND_HOSTILE_CREEPS)
   }
 

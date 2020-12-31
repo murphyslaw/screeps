@@ -1,6 +1,8 @@
 'use strict'
 
 class Upgrading extends State {
+  get icon() { return '➕' }
+
   findRoom() {
     const room = _.min(World.myRooms, function (myRoom) {
       let count = myRoom.creeps('Upgrader').length
@@ -14,17 +16,20 @@ class Upgrading extends State {
     return room.name
   }
 
-  findTarget() {
-    return this.room.controller
+  findTarget(room) {
+    return room.controller
   }
 
   handleAction() {
-    let actionResult = new UpgradeController(this.actor, this.target).update()
+    const actor = this.actor
+    const target = actor.target
+
+    let actionResult = new UpgradeController(actor, target).update()
 
     switch (actionResult) {
       case OK:
       case ERR_NOT_ENOUGH_RESOURCES:
-        if (0 === this.actor.store.getUsedCapacity(RESOURCE_ENERGY)) {
+        if (0 === actor.store.getUsedCapacity(RESOURCE_ENERGY)) {
           return State.SUCCESS
         } else {
           return State.RUNNING
@@ -35,7 +40,7 @@ class Upgrading extends State {
         return State.RUNNING
 
       case ERR_INVALID_TARGET:
-        this.actor.target = null
+        actor.target = null
         return State.RUNNING
 
       case ERR_NO_BODYPART:

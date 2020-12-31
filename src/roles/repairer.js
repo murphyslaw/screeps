@@ -5,9 +5,9 @@ class Repairer extends Creepy {
   get maxCreepSize() { return this.bodyPattern.length * 5 }
 
   number(room) {
-    const needsRepairer = _.some(World.territory, 'needsRepairer')
+    const number = _.filter(World.territory, 'needsRepairer').length
 
-    return needsRepairer ? 1 : 0
+    return number
   }
 
   nextState(context) {

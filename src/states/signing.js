@@ -1,14 +1,16 @@
 'use strict'
 
 global.Signing = class extends State {
+  get icon() { return '📜' }
+
   findRoom() {
     const room = _.find(World.myRooms, 'needsSigner')
 
     return room ? room.name : null
   }
 
-  findTarget() {
-    const controller = this.room.controller
+  findTarget(room) {
+    const controller = room.controller
 
     if (controller && Signing.text !== controller.sign) return controller
 

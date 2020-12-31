@@ -1,39 +1,28 @@
 'use strict'
 
 class Distributing extends State {
+  get icon() { return '🚚' }
+  get validator() { return new EmptyingTargetValidator(this.role) }
+
   findRoom() {
-    // prioritize current room
-    const rooms = World.territory
-    const currentRoom = this.actor.room
-    const index = rooms.indexOf(currentRoom)
+    const actor = this.actor
+    const rooms = actor.room.prioritize(World.myRooms)
 
-    if (index > 0) {
-      rooms.splice(index, 1)
-      rooms.unshift(currentRoom)
+    let room = _.find(rooms, function (room) {
+      const targets = room.findWithPriorities(
+        FIND_STRUCTURES,
+        this.structurePriorities,
+        structure => this.validator.isValid(structure)
+      )
+
+      return targets.length > 0
+    }, this)
+
+    if (!room) {
+      room = actor.room
     }
 
-    const room = rooms[0]
-
-    return room ? room.name : null
-  }
-
-  validTarget(target, exclusive = false) {
-    if (!target) return false
-
-    let validTarget = false
-    let targetFreeCapacity = 0
-
-    if (target.store) {
-      targetFreeCapacity = target.store.getFreeCapacity(this.resource)
-    }
-
-    validTarget = targetFreeCapacity > 0
-
-    if (validTarget && exclusive) {
-      validTarget = !_.some(Game.creeps, 'target', target)
-    }
-
-    return validTarget
+    return room.name
   }
 
   get structurePriorities() {
@@ -46,56 +35,49 @@ class Distributing extends State {
     ]
   }
 
-  findTarget() {
-    let targets = []
+  findTarget(room) {
+    let targetTypes = []
 
-    if (!targets.length) {
-      const spawns = _.filter(this.room.spawns, target => this.validTarget(target))
-      targets.push(...spawns)
+    switch (true) {
+      case !_.isUndefined(this.role.findTargetTypes):
+        targetTypes = this.role.findTargetTypes(this.state)
 
-      const extensions = _.filter(this.room.extensions, target => this.validTarget(target))
-      targets.push(...extensions)
+        break
+
+      default:
+        targetTypes = [
+          [
+            FIND_MY_SPAWNS,
+            FIND_EXTENSIONS,
+            FIND_TOWERS,
+          ],
+          [
+            FIND_CONTROLLER_CONTAINER,
+          ],
+          [
+            FIND_STORAGE,
+          ],
+        ]
+
+        break
     }
 
-    if (!targets.length) {
-      const towers = _.filter(this.room.towers, target => this.validTarget(target))
-      targets.push(...towers)
-    }
-
-    if (!targets.length) {
-      let target
-
-      target = this.room.controllerContainer
-      if (target && this.validTarget(target)) {
-        targets.push(target)
-      }
-
-      target = this.room.storage
-      if (target && this.validTarget(target)) {
-        targets.push(target)
-      }
-    }
+    const targets = this.targetFinder.find(room, targetTypes)
 
     return this.actor.pos.findClosestByRange(targets)
   }
 
-  get resource() {
-    switch(this.actor.role) {
-      case 'Scorer':
-      case 'ScoreHarvester':
-        return RESOURCE_SCORE
-      default:
-        return RESOURCE_ENERGY
-    }
-  }
-
   handleAction() {
-    const actionResult = new Transfer(this.actor, this.target, this.resource).update()
+    const actor = this.actor
+    const target = actor.target
+    const resource = this.role.resource
+
+    const actionResult = new Transfer(actor, target, resource).update()
 
     switch (actionResult) {
       case OK:
         // only change state if all carried resources are transferred
-        if (this.target.store.getFreeCapacity(this.resource) >= this.actor.store.getUsedCapacity(this.resource)) {
+        if (this.target.store.getFreeCapacity(resource) >= actor.store.getUsedCapacity(resource)) {
           // this.actor.moveTo(13, 34)
           return State.SUCCESS
         }
@@ -115,7 +97,7 @@ class Distributing extends State {
         return State.SUCCESS
 
       case ERR_INVALID_TARGET:
-        this.actor.target = null
+        actor.target = null
         return State.RUNNING
 
       case ERR_INVALID_ARGS:

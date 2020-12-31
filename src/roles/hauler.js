@@ -5,15 +5,45 @@ class Hauler extends Creepy {
   get maxCreepSize() { return this.bodyPattern.length * 6 }
 
   number(room) {
-    if (!room.sourceContainers.length) return 0
+    let rooms = World.myRooms
+    let number = 0
 
-    let number = room.sourceContainers.length
-
-    if (room.mineral && room.mineral.container) {
-      number += 1
-    }
+    number += _.sum(rooms, room => room.sourceContainers.length)
+    number += _.sum(rooms, room => room.mineralContainers.length)
 
     return number
+  }
+
+  findTargetTypes(state) {
+    switch (state) {
+      case 'Refilling': {
+        return [
+          [
+            FIND_DROPPED_RESOURCES,
+            FIND_TOMBSTONES,
+            FIND_RUINS,
+          ],
+          [
+            FIND_SOURCE_CONTAINERS,
+          ],
+        ]
+      }
+
+      case 'Distributing': {
+        return [
+          [
+            FIND_MY_SPAWNS,
+            FIND_EXTENSIONS,
+            FIND_TOWERS,
+          ],
+          [
+            FIND_STORAGE,
+          ],
+        ]
+      }
+    }
+
+    return []
   }
 
   nextState(context) {

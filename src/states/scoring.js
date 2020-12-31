@@ -5,8 +5,8 @@ global.Scoring = class extends State {
     return 'W10N30'
   }
 
-  findTarget() {
-    return this.room.scoreCollector
+  findTarget(room) {
+    return room.scoreCollector
   }
 
   handleAction() {

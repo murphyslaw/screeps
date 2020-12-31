@@ -5,8 +5,8 @@ class Dismantling extends State {
     return 'W20N30'
   }
 
-  findTarget() {
-    let scoreCollector = this.room.scoreCollector
+  findTarget(room) {
+    let scoreCollector = room.scoreCollector
 
     return scoreCollector ? scoreCollector.blocker : null
   }

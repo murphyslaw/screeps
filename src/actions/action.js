@@ -1,5 +1,7 @@
 'use strict'
 
-global.Action = class {
+class Action {
   update() { throw Error('not implemented') }
 }
+
+global.Action = Action

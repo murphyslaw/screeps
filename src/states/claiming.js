@@ -5,8 +5,8 @@ global.Claiming = class extends State {
     return _.find(World.territory, 'needsClaimer').name
   }
 
-  findTarget() {
-    const controller = this.room.controller
+  findTarget(room) {
+    const controller = room.controller
 
     if (controller && !controller.owner && !controller.reservation) return controller
 

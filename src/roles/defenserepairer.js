@@ -1,50 +1,72 @@
 'use strict'
 
-global.DefenseRepairer = class extends EnergyRole {
-  get name() { return 'DefenseRepairer' }
-
-  get maxCreepSize() {
-    return this.bodyPattern.length * 5
-  }
-
-  get bodyPattern() {
-    return [WORK, CARRY, MOVE]
-  }
+class DefenseRepairer extends Creepy {
+  get bodyPattern() { return [WORK, CARRY, MOVE] }
+  get maxCreepSize() { return this.bodyPattern.length * 5 }
 
   number(room) {
     return 1
   }
 
-  findTarget(creep) {
-    let damagedDefenses = creep.room.damagedDefenses
+  nextState(context) {
+    const actor = context.actor
+    const result = context.result
+    const currentState = context.currentState
+    let nextState = context.currentState
 
-    const towers = _.filter(damagedDefenses, function(structure) {
-      return structure.structureType == STRUCTURE_TOWER &&
-        !_.some(this.creeps, 'target', structure)
-    })
+    switch (currentState) {
+      case 'Spawning':
+        if (!actor.spawning) {
+          nextState = 'Refilling'
+          break
+        }
 
-    if (towers.length) {
-      towers = towers.sort((a, b) => a.hits - b.hits)
+        break
+      case 'Idling':
+        if (State.SUCCESS === result) {
+          nextState = 'DefenseRepairing'
+          break
+        }
 
-      return towers[0]
+        if (State.FAILED === result) {
+          nextState = 'Recycling'
+          break
+        }
+
+        break
+      case 'DefenseRepairing':
+        if (State.SUCCESS === result) {
+          nextState = 'Refilling'
+          break
+        }
+
+        if (State.FAILED === result) {
+          nextState = 'Idling'
+          break
+        }
+
+        break
+      case 'Refilling':
+        if (State.SUCCESS === result) {
+          nextState = 'DefenseRepairing'
+          break
+        }
+
+        if (State.FAILED === result) {
+          nextState = 'Recycling'
+          break
+        }
+
+        break
+      case 'Recycling':
+        break
+      default:
+        console.log('DEFENSEREPAIRER', 'unhandled state', currentState, JSON.stringify(context))
+        break
     }
 
-    let structures = []
-
-    if (!structures.length) {
-      structures = _.filter(damagedDefenses, function (structure) {
-        return !_.some(this.creeps, 'target', structure)
-      }, this)
-    }
-
-    structures = structures.sort((a, b) => a.hits - b.hits)
-
-    return structures[0]
-  }
-
-  targetAction(creep, target) {
-    if (creep.repair(target) == ERR_NOT_IN_RANGE) {
-      creep.moveTo(target)
-    }
+    return nextState
   }
 }
+
+global.DefenseRepairer = DefenseRepairer

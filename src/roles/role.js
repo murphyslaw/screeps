@@ -5,8 +5,9 @@ global.CREEP_STATE_REFILL = 2
 global.CREEP_STATE_WORK = 3
 global.CREEP_STATE_RECYCLE = 9
 
-global.Role = class {
-  constructor() {
+class Role {
+  constructor(actor) {
+    this.actor = actor
     this.logger = new Logger('Role')
   }
 
@@ -53,13 +54,14 @@ global.Role = class {
     creep.state = state
 
     if (rerun) {
-      this.update(creep)
+      this.update()
     }
 
     return
   }
 
-  update(creep) {
+  update() {
+    let creep = this.actor
     let state = creep.state
 
     if (!state) {
@@ -131,4 +133,4 @@ global.Role = class {
   }
 }
 
-module.exports = Role
+global.Role = Role

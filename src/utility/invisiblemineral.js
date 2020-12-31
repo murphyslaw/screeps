@@ -1,6 +1,6 @@
 'use strict'
 
-class InvisibleSource {
+class InvisibleMineral {
   constructor(room, id) {
     this.room = room
     this.id = id
@@ -11,7 +11,7 @@ class InvisibleSource {
   }
 
   get memory() {
-    return this.room.memory.sources[this.id] = this.room.memory.sources[this.id] || {}
+    return this.room.memory.minerals[this.id] = this.room.memory.minerals[this.id] || {}
   }
 
   get container() {
@@ -25,8 +25,8 @@ class InvisibleSource {
   }
 
   toString() {
-    return '[isource ' + this.id + ']'
+    return '[imineral ' + this.id + ']'
   }
 }
 
-global.InvisibleSource = InvisibleSource
+global.InvisibleMineral = InvisibleMineral

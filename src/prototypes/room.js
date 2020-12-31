@@ -36,6 +36,17 @@ prototype.findWithPriorities = function(type, priorities, filter) {
   return targets
 }
 
+prototype.prioritize = function(rooms) {
+  const index = rooms.indexOf(this)
+
+  if (index > 0) {
+    rooms.splice(index, 1)
+    rooms.unshift(this)
+  }
+
+  return rooms
+}
+
 Object.defineProperties(prototype, {
   'invisible': {
     get: function () {
@@ -238,6 +249,13 @@ Object.defineProperties(prototype, {
     configurable: true
   },
 
+  'sourceContainerCount': {
+    get: function () {
+      return this.sourceContainers.length
+    },
+    configurable: true
+  },
+
   'controllerContainer': {
     get: function () {
       if (!this._controllerContainer) {
@@ -340,6 +358,13 @@ Object.defineProperties(prototype, {
     configurable: true
   },
 
+  'sourceCount': {
+    get: function () {
+      return _.keys(this.memory.sources).length
+    },
+    configurable: true
+  },
+
   'extractors': {
     get: function () {
       if (!this._extractors) {
@@ -373,7 +398,7 @@ Object.defineProperties(prototype, {
     configurable: true
   },
 
-  'mineral': {
+  'minerals': {
     get: function () {
       if (!this._minerals) {
         if (!this.memory.minerals) {
@@ -387,7 +412,7 @@ Object.defineProperties(prototype, {
         this._minerals = _.keys(this.memory.minerals).map(id => Game.getObjectById(id))
       }
 
-      return this._minerals[0]
+      return this._minerals
     },
     configurable: true
   },
@@ -450,6 +475,13 @@ Object.defineProperties(prototype, {
   'isTerritory': {
     get: function () {
       return World.territory.includes(this.name)
+    },
+    configurable: true
+  },
+
+  'level': {
+    get: function () {
+      return this.controller && this.controller.level
     },
     configurable: true
   }

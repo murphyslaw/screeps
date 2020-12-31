@@ -5,6 +5,12 @@ class Spawning extends State {
     return this.actor.room.name
   }
 
+  findTarget(room) {
+    const actor = this.actor
+
+    return actor
+  }
+
   handleAction() {
     if (!this.actor.spawning) { return State.SUCCESS }
 

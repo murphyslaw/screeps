@@ -11,6 +11,7 @@ class Scorer extends Creepy {
     ]
   }
   get maxCreepSize() { return MAX_CREEP_SIZE }
+  get resource() { return RESOURCE_SCORE }
 
   number(room) { return 5 }
 
