@@ -1,6 +1,6 @@
 'use strict'
 
-class RemoteHarvester extends Creepy {
+class RemoteHarvester extends Role {
   get bodyPattern() { return [WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE] }
   get maxCreepSize() { return this.bodyPattern.length * 2 }
 

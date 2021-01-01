@@ -1,6 +1,6 @@
 'use strict'
 
-class Claimer extends Creepy {
+class Claimer extends Role {
   get bodyPattern() { return [CLAIM, MOVE] }
 
   number(room) {

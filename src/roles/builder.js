@@ -1,6 +1,6 @@
 'use strict'
 
-class Builder extends Creepy {
+class Builder extends Role {
   get bodyPattern() { return [WORK, CARRY, MOVE] }
   get maxCreepSize() { return this.bodyPattern.length * 6 }
 

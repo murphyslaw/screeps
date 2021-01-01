@@ -1,6 +1,6 @@
 'use strict'
 
-class Harvester extends Creepy {
+class Harvester extends Role {
   get bodyPattern() { return [WORK, CARRY, MOVE] }
   get maxCreepSize() { return this.bodyPattern.length * 5 }
 

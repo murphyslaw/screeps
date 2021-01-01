@@ -1,6 +1,6 @@
 'use strict'
 
-class Dismantler extends Creepy {
+class Dismantler extends Role {
   get bodyPattern() {
     return [
       WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK,

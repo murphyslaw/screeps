@@ -1,6 +1,6 @@
 'use strict'
 
-class Repairer extends Creepy {
+class Repairer extends Role {
   get bodyPattern() { return [WORK, CARRY, MOVE] }
   get maxCreepSize() { return this.bodyPattern.length * 5 }
 

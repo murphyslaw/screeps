@@ -75,8 +75,6 @@ require('states_extracting')
 
 // roles
 require('roles_role')
-require('roles_energyrole')
-require('roles_creepy')
 require('roles_builder')
 require('roles_containerextractor')
 require('roles_containerharvester')

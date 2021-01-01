@@ -1,6 +1,6 @@
 'use strict'
 
-class Scorer extends Creepy {
+class Scorer extends Role {
   get bodyPattern() {
     return [
       CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE,

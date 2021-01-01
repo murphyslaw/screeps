@@ -1,6 +1,6 @@
 'use strict'
 
-class Signer extends Creepy {
+class Signer extends Role {
   get bodyPattern() { return [MOVE] }
 
   number(room) {

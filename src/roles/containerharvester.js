@@ -1,6 +1,6 @@
 'use strict'
 
-class ContainerHarvester extends Creepy {
+class ContainerHarvester extends Role {
   get bodyPattern() { return [WORK, WORK, WORK, WORK, WORK, MOVE] }
 
   number(room) {

@@ -1,6 +1,6 @@
 'use strict'
 
-class RemoteHauler extends Creepy {
+class RemoteHauler extends Role {
   get bodyPattern() { return [CARRY, MOVE] }
   get maxCreepSize() { return this.bodyPattern.length * 6 }
 
