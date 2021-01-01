@@ -9,7 +9,7 @@ class Hauler extends Creepy {
     let number = 0
 
     number += _.sum(rooms, room => room.sourceContainers.length)
-    number += _.sum(rooms, room => room.mineralContainers.length)
+    number += _.sum(rooms, room => room.extractors.length)
 
     return number
   }
@@ -50,7 +50,7 @@ class Hauler extends Creepy {
   }
 
   nextState(context) {
-    const actor = context.actor
+    const actor = this.actor
     const result = context.result
     const currentState = context.currentState
     let nextState = context.currentState

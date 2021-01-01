@@ -12,10 +12,7 @@ class State {
   get icon() { return '➰' }
   get validator() { return new NullValidator() }
   get targetFinder() { return new TargetFinder(this.validator) }
-
-  get context() {
-    return { actor: this.actor, currentState: this.state }
-  }
+  get context() { return { currentState: this.state } }
 
   get room() {
     let roomName
@@ -41,9 +38,10 @@ class State {
   findTarget(room) { return this.actor }
 
   get destination() {
-    let target = this.actor.target || this.target
+    const target = this.actor.target || this.target
+    const destination = this.targetBasedDestination(target)
 
-    return this.targetBasedDestination(target)
+    return destination
   }
 
   targetBasedDestination(target) { return target }
@@ -53,7 +51,7 @@ class State {
 
     // use the targets position if possible as a more precise goal in the destination room
     const target = this.actor.target
-    if (target && target.pos.roomName === room.name) {
+    if (target && target.room.name === room.name) {
       destination = this.targetBasedDestination(target)
     } else {
       destination = new RoomPosition(25, 25, room.name)
@@ -92,10 +90,14 @@ class State {
       this.changeTarget(actor, target)
     }
 
-    context.result = this.handleAction()
+    // execute the state action only if the actor
+    // already transitioned
+    if (actor.state === this.state) {
+      context.result = this.handleAction()
 
-    if (State.RUNNING !== context.result) {
-      return this.nextState(context)
+      if (State.RUNNING !== context.result) {
+        return this.nextState(context)
+      }
     }
 
     context.result = this.handleMovement()
@@ -141,39 +143,9 @@ class State {
   get movementOptions() { return {} }
 
   enter() {
-    let context = this.context
-    const room = this.room
-    const actor = this.actor
+    new Say(this.actor, this.icon).update()
 
-    new Say(actor, this.icon).update()
-
-    if (!room) {
-      context.result = State.FAILED
-      return this.nextState(context)
-    }
-
-    if (actor.room !== room && room.invisible) {
-      this.changeTarget(actor, null, this.findDestinationRoomPosition(room))
-
-      context.result = this.handleMovement()
-      return this.nextState(context)
-    }
-
-    const target = this.target
-
-    if (!target) {
-      this.changeTarget(actor, null)
-
-      context.result = State.RUNNING
-      return this.nextState(context)
-    }
-
-    if (actor.target !== target) {
-      this.changeTarget(actor, target)
-    }
-
-    context.result = this.handleMovement()
-    return this.nextState(context)
+    return this.run()
   }
 
   exit() {

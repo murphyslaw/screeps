@@ -19,7 +19,7 @@ class Dismantler extends Creepy {
   number(room) { return 1 }
 
   nextState(context) {
-    const actor = context.actor
+    const actor = this.actor
     const result = context.result
     const state = context.currentState
     let nextState = context.currentState

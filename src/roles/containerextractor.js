@@ -1,25 +1,7 @@
 'use strict'
 
-class ContainerExtractor extends EnergyRole {
-  get name() { return 'ContainerExtractor' }
-
-  get bodyPattern() {
-    return [WORK, WORK, WORK, WORK, WORK, MOVE]
-  }
-
-  get states() {
-    return {
-      [global.CREEP_STATE_REFILL]: this.refill
-    }
-  }
-
-  get keepSource() {
-    return true
-  }
-
-  get keepTarget() {
-    return true
-  }
+class ContainerExtractor extends Creepy {
+  get bodyPattern() { return [WORK, WORK, WORK, WORK, WORK, MOVE] }
 
   number(room) {
     const mineral = room.mineral
@@ -28,39 +10,45 @@ class ContainerExtractor extends EnergyRole {
     if (!mineral.container) { return 0 }
     if (!mineral.extractor) { return 0 }
     if (mineral.ticksToRegeneration) { return 0 }
-    if (_.some(this.creeps, 'source', mineral)) { return 0 }
+    if (_.some(World.creeps('ContainerExtractor'), 'memory.source', mineral.id)) { return 0 }
 
     return 1
   }
 
-  findSource(creep) {
-    const mineral = creep.room.mineral
+  nextState(context) {
+    const actor = this.actor
+    const result = context.result
+    const currentState = context.currentState
+    let nextState = context.currentState
 
-    if (!mineral) { return }
-    if (!mineral.container) { return }
-    if (!mineral.extractor) { return }
-    if (mineral.ticksToRegeneration) { return }
-    if (_.some(this.creeps, 'source', mineral)) { return }
+    switch (currentState) {
+      case 'Spawning':
+        if (!actor.spawning) {
+          nextState = 'Extracting'
+          break
+        }
 
-    return mineral
-  }
+        break
+      case 'Extracting':
+        if (State.SUCCESS === result) {
+          nextState = 'Extracting'
+          break
+        }
 
-  sourceNotFound(creep) {
-    return
-  }
+        if (State.FAILED === result) {
+          nextState = 'Recycling'
+          break
+        }
 
-  sourceAction(creep, source) {
-    const container = source.container
-
-    if (container && !source.extractor.cooldown) {
-      if (creep.pos.isEqualTo(container)) {
-        creep.harvest(source)
-      } else {
-        creep.moveTo(container)
-      }
+        break
+      case 'Recycling':
+        break
+      default:
+        console.log('CONTAINEREXTRACTOR', 'unhandled state', currentState, JSON.stringify(context))
+        break
     }
 
-    return
+    return nextState
   }
 }
 

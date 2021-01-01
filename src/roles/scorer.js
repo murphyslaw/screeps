@@ -16,7 +16,7 @@ class Scorer extends Creepy {
   number(room) { return 5 }
 
   nextState(context) {
-    const actor = context.actor
+    const actor = this.actor
     const result = context.result
     const currentState = context.currentState
     let nextState = context.currentState

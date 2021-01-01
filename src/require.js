@@ -71,6 +71,7 @@ require('states_distributing')
 require('states_upgrading')
 require('states_remoteharvesting')
 require('states_defenserepairing')
+require('states_extracting')
 
 // roles
 require('roles_role')
