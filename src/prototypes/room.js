@@ -13,7 +13,7 @@ prototype.creeps = function(role) {
   ]
 
   if (role) {
-    conditions.push(creep => creep.role === role)
+    conditions.push(creep => creep.role.name === role)
   }
 
   return _.filter(Game.creeps, creep => _.every(conditions, cond => cond.call(this, creep)))

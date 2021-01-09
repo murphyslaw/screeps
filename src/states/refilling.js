@@ -128,7 +128,7 @@ class Refilling extends State {
         return State.FAILED
 
       default:
-        console.log('REFILLING', 'unhandled action result', actionResult, actor.role)
+        console.log('REFILLING', 'unhandled action result', actionResult, actor.role.name)
         return State.FAILED
     }
   }

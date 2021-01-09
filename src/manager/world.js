@@ -35,7 +35,7 @@ class World {
     let conditions = []
 
     if (role) {
-      conditions.push(creep => creep.role === role && creep !== without)
+      conditions.push(creep => creep.role.name === role && creep !== without)
     }
 
     return _.filter(Game.creeps, creep => _.every(conditions, cond => cond.call(this, creep)))

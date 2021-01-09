@@ -22,7 +22,7 @@ class CreepManager {
       try {
         creep.update()
       } catch (error) {
-        console.log(error.stack, creep, creep.role, creep.pos)
+        console.log(error.stack, creep, creep.role.name, creep.pos)
       }
     })
   }

@@ -3,7 +3,7 @@
 const prototype = Creep.prototype
 
 prototype.update = function() {
-  new global[this.role](this).update()
+  this.role.update()
 
   // scout
   if (Game.time % 25) {
@@ -19,10 +19,22 @@ prototype.update = function() {
 Object.defineProperties(prototype, {
   'role': {
     get: function () {
-      return this.memory.role
+      if (!this._role) {
+        this._role = new global[this.memory.role](this)
+      }
+
+      return this._role
     },
     set: function (value) {
-      this.memory.role = value
+      switch(true) {
+        case _.isString(value):
+          this.memory.role = value
+          break
+
+        case _.isObject(value):
+          this.memory.role = value.name
+          break
+      }
 
       return
     },

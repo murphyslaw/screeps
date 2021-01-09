@@ -13,7 +13,7 @@ class Harvesting extends State {
 
     const rooms = actor.room.prioritize(World.territory)
 
-    if ('ContainerHarvester' === actor.role) {
+    if ('ContainerHarvester' === actor.role.name) {
       const room = _.find(rooms, function(room) {
         return _.some(room.sources, function(source) {
           return source.container &&
@@ -34,7 +34,7 @@ class Harvesting extends State {
   findTarget(room) {
     const actor = this.actor
 
-    if ('ContainerHarvester' === actor.role) {
+    if ('ContainerHarvester' === actor.role.name) {
       const source = _.find(room.sources, function(source) {
         return source.container &&
           !_.some(World.creeps('ContainerHarvester'), 'memory.target', source.id)
@@ -88,7 +88,7 @@ class Harvesting extends State {
   targetBasedDestination(target) {
     if (!target) return target
 
-    if ('ContainerHarvester' === this.actor.role) {
+    if ('ContainerHarvester' === this.actor.role.name) {
       return target.container
     }
 
@@ -96,7 +96,7 @@ class Harvesting extends State {
   }
 
   validRange() {
-    if ('ContainerHarvester' === this.actor.role) {
+    if ('ContainerHarvester' === this.actor.role.name) {
       return 0
     }
 
