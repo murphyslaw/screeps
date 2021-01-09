@@ -14,7 +14,6 @@ module.exports.loop = function() {
 
     if(room.my) {
       roomManager.defense(room)
-      creepManager.spawn(room)
       creepManager.run()
 
       statsManager.exportRoomStats(room)

@@ -1,16 +1,36 @@
 'use strict'
 
-global.Scoring = class extends State {
+class Scoring extends State {
+  get icon() { return '🏆' }
+
   findRoom() {
-    return 'W10N30'
+    const room = World.getRoom('E20N30')
+
+    return room
   }
 
   findTarget(room) {
-    return room.scoreCollector
+    const actor = this.actor
+    const targetFinder = this.targetFinder
+    const targetTypes = this.targetTypes
+
+    const targets = targetFinder.find(room, targetTypes)
+    const target = room !== actor.room ? _.first(targets) : actor.pos.findClosestByRange(targets)
+
+    return target
+  }
+
+  get targetTypes() {
+    return [
+      FIND_SCORE_COLLECTORS,
+    ]
   }
 
   handleAction() {
-    const actionResult = new Score(this.actor, this.target).update()
+    const actor = this.actor
+    const target = this.actor.target
+
+    const actionResult = new Score(actor, target).execute()
 
     switch (actionResult) {
       case OK:
@@ -22,7 +42,6 @@ global.Scoring = class extends State {
 
       case ERR_FULL:
       case ERR_INVALID_TARGET:
-        this.actor.target = null
         return State.RUNNING
 
       case ERR_NOT_ENOUGH_RESOURCES:
@@ -35,6 +54,6 @@ global.Scoring = class extends State {
         return State.FAILED
     }
   }
-
-  get movementOptions() { return { path: true } }
 }
+
+global.Scoring = Scoring

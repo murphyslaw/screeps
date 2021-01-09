@@ -8,7 +8,7 @@ class UpgradeController extends Action {
     this.target = target
   }
 
-  update() {
+  execute() {
     return this.actor.upgradeController(this.target)
   }
 }

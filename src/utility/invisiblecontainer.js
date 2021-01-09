@@ -6,8 +6,8 @@ class InvisibleContainer {
     this.id = id
   }
 
-  get invisible() {
-    return true
+  get visible() {
+    return false
   }
 
   toString() {

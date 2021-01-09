@@ -48,9 +48,16 @@ prototype.prioritize = function(rooms) {
 }
 
 Object.defineProperties(prototype, {
-  'invisible': {
+  'visible': {
     get: function () {
-      return false
+      return true
+    },
+    configurable: true
+  },
+
+  'center': {
+    get: function () {
+      return new RoomPosition(25, 25, this.name)
     },
     configurable: true
   },
@@ -101,10 +108,15 @@ Object.defineProperties(prototype, {
 
   'needsSigner': {
     get: function () {
-      return this.memory.needsSigner ? true : false
-    },
-    set: function (value) {
-      return this.memory.needsSigner = value ? Game.time : 0
+      const controller = this.controller
+
+      if (!controller) return false
+      if (!controller.my && !controller.reserved) return false
+
+      const sign = controller.sign
+      const needsSigner = !sign || sign.text !== Signing.text
+
+      return needsSigner
     },
     configurable: true
   },
@@ -136,6 +148,23 @@ Object.defineProperties(prototype, {
     configurable: true
   },
 
+  'needsReserver': {
+    get: function () {
+      const controller = this.controller
+
+      if (!controller) return false
+
+      let needsReserver
+      const reservation = controller.reservation
+
+      needsReserver = controller.reserved && reservation.ticksToEnd < 1000
+      needsReserver = needsReserver || (!reservation && this.reserveFlag)
+
+      return needsReserver
+    },
+    configurable: true
+  },
+
   'flags': {
     get: function() {
       return _.filter(Game.flags, flag => this.name === flag.pos.roomName)
@@ -146,6 +175,15 @@ Object.defineProperties(prototype, {
   'claimFlag': {
     get: function() {
       const flag = Game.flags.claim
+
+      return (flag && this.name === flag.pos.roomName) ? flag : null
+    },
+    configurable: true
+  },
+
+  'reserveFlag': {
+    get: function() {
+      const flag = Game.flags.reserve
 
       return (flag && this.name === flag.pos.roomName) ? flag : null
     },
@@ -199,6 +237,25 @@ Object.defineProperties(prototype, {
       }
 
       return this._damagedDefenses
+    },
+    configurable: true
+  },
+
+  'defenses': {
+    get: function() {
+      if (!this._defenses) {
+        const structures = this.find(FIND_STRUCTURES, {
+          filter: function(structure) {
+            return structure.structureType == STRUCTURE_RAMPART ||
+              structure.structureType == STRUCTURE_WALL ||
+              structure.structureType == STRUCTURE_TOWER
+          }
+        })
+
+        this._defenses = structures
+      }
+
+      return this._defenses
     },
     configurable: true
   },

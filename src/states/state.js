@@ -1,80 +1,58 @@
 'use strict'
 
 class State {
-  constructor(state, role) {
-    this.state = state
+  constructor(role) {
     this.role = role
     this.actor = role.actor
-    this.nextState = role.nextState
+    this.name = this.constructor.name
+    this.targetFinder = new TargetFinder(this.validator)
+    this.context = { currentState: this.name }
     this.logger = new Logger('State')
   }
 
-  get icon() { return '➰' }
+  get icon() { return '❓' }
   get validator() { return new NullValidator() }
-  get targetFinder() { return new TargetFinder(this.validator) }
-  get context() { return { currentState: this.state } }
 
   get room() {
-    let roomName
+    const roomName = this.actor.destination && this.actor.destination.roomName
+    const room = roomName && World.getRoom(roomName) || this.findRoom()
 
-    roomName = this.actor.destination && this.actor.destination.roomName
-    roomName = roomName || this.findRoom()
-
-    return World.getRoom(roomName)
+    return room
   }
 
-  findRoom() { return this.actor.room.name }
+  findRoom() { return this.actor.room }
 
   get target() {
+    const actor = this.actor
+    const room = this.room
+    const validator = this.validator
     let target
 
-    target = this.actor.target
-    target = this.validator.isValid(target) ? target : null
-    target = target || this.findTarget(this.room)
+    target = actor.target
+    target = validator.isValid(target) ? target : null
+    target = target || this.findTarget(room)
 
     return target
   }
 
   findTarget(room) { return this.actor }
 
-  get destination() {
-    const target = this.actor.target || this.target
-    const destination = this.targetBasedDestination(target)
-
-    return destination
-  }
-
   targetBasedDestination(target) { return target }
 
-  findDestinationRoomPosition(room) {
-    let destination
-
-    // use the targets position if possible as a more precise goal in the destination room
-    const target = this.actor.target
-    if (target && target.room.name === room.name) {
-      destination = this.targetBasedDestination(target)
-    } else {
-      destination = new RoomPosition(25, 25, room.name)
-    }
-
-    return destination
-  }
-
-  run() {
-    let context = this.context
+  update() {
     const room = this.room
     const actor = this.actor
+    let result
 
     if (!room) {
-      context.result = State.FAILED
-      return this.nextState(context)
+      return State.FAILED
     }
 
-    if (actor.room !== room && room.invisible) {
-      this.changeTarget(actor, null, this.findDestinationRoomPosition(room))
+    if (room !== actor.room && !room.visible) {
+      this.changeTarget(actor, null, room.center)
 
-      context.result = this.handleMovement()
-      return this.nextState(context)
+      result = this.handleMovement()
+      return result
     }
 
     const target = this.target
@@ -82,26 +60,21 @@ class State {
     if (!target) {
       this.changeTarget(actor, null)
 
-      context.result = State.RUNNING
-      return this.nextState(context)
+      return State.RUNNING
     }
 
     if (actor.target !== target) {
       this.changeTarget(actor, target)
     }
 
-    // execute the state action only if the actor
-    // already transitioned
-    if (actor.state === this.state) {
-      context.result = this.handleAction()
+    result = this.handleAction()
 
-      if (State.RUNNING !== context.result) {
-        return this.nextState(context)
-      }
+    if (State.RUNNING !== result) {
+      return result
     }
 
-    context.result = this.handleMovement()
-    return this.nextState(context)
+    result = this.handleMovement()
+    return result
   }
 
   changeTarget(actor, target, destination) {
@@ -113,10 +86,12 @@ class State {
 
   handleMovement() {
     const actor = this.actor
-    const destination = actor.destination || actor.pos
+    const destination = actor.destination
+    const options = this.movementOptions
+    const range = this.validRange
 
-    if (!actor.pos.inRangeTo(destination, this.validRange)) {
-      const actionResult = new Move(actor, destination, this.movementOptions).update()
+    if (destination && !actor.pos.inRangeTo(destination, range)) {
+      const actionResult = new Move(actor, destination, options).execute()
 
       switch (actionResult) {
         case OK:
@@ -143,9 +118,7 @@ class State {
   get movementOptions() { return {} }
 
   enter() {
-    new Say(this.actor, this.icon).update()
-
-    return this.run()
+    new Say(this.actor, this.icon).execute()
   }
 
   exit() {

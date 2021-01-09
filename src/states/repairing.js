@@ -5,17 +5,24 @@ class Repairing extends State {
   get validator() { return new DamagedTargetValidator(this.role) }
 
   findRoom() {
-    const rooms = this.actor.room.prioritize(World.territory)
-    const room = _.find(rooms, 'needsRepairer')
+    const room = _.sample(_.filter(World.territory, 'needsRepairer'))
 
-    return room ? room.name : null
+    return room
+  }
+
+  get targetTypes() {
+    const targetTypes = [
+      FIND_UTILITY_STRUCTURES,
+    ]
+
+    return targetTypes
   }
 
   findTarget(room) {
     const actor = this.actor
 
-    const targets = room.damagedStructures
-    const target = room !== actor.room ? _.sample(targets) : actor.pos.findClosestByRange(targets)
+    const targets = this.targetFinder.find(room, this.targetTypes)
+    const target = room !== actor.room ? targets[0] : actor.pos.findClosestByRange(targets)
 
     return target
   }
@@ -24,7 +31,7 @@ class Repairing extends State {
     const actor = this.actor
     const target = actor.target
 
-    let actionResult = new Repair(actor, target).update()
+    let actionResult = new Repair(actor, target).execute()
 
     switch (actionResult) {
       case OK:

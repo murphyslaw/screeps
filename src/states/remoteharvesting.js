@@ -6,30 +6,31 @@ class RemoteHarvesting extends State {
 
   findRoom() {
     const rooms = this.actor.room.prioritize(World.remoteRooms)
-    const creeps = World.creeps('RemoteHarvester')
 
     const room = _.find(rooms, function (room) {
-      const harvestingCreeps = _.filter(creeps, function(creep) {
-        return (creep.destination && creep.destination.roomName === room.name) ||
-          (creep.target && creep.target.room.name === room.name)
-      })
+      const targets = this.targetFinder.find(room, this.targetTypes)
 
-      return harvestingCreeps.length < room.sourceCount
-    })
+      return targets.length > 0
+    }, this)
 
-    return room && room.name
+    return room
   }
 
   findTarget(room) {
-    let actor = this.actor
-    let targets = []
+    const actor = this.actor
 
-    const sources = _.filter(room.sources, target => this.validator.isValid(target))
-    targets.push(...sources)
-
+    const targets = this.targetFinder.find(room, this.targetTypes)
     const target = room !== actor.room ? targets[0] : actor.pos.findClosestByRange(targets)
 
     return target
+  }
+
+  get targetTypes() {
+    const targetTypes = [
+      FIND_SOURCES_ACTIVE,
+    ]
+
+    return targetTypes
   }
 
   handleAction() {
@@ -37,7 +38,7 @@ class RemoteHarvesting extends State {
     const target = actor.target
     const resource = this.role.resource
 
-    const actionResult = new Harvest(actor, target).update()
+    const actionResult = new Harvest(actor, target).execute()
 
     switch (actionResult) {
       case OK:

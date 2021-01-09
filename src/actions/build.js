@@ -8,7 +8,7 @@ class Build extends Action {
     this.target = target
   }
 
-  update() {
+  execute() {
     return this.actor.build(this.target)
   }
 }

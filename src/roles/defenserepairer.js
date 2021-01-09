@@ -3,69 +3,29 @@
 class DefenseRepairer extends Role {
   get bodyPattern() { return [WORK, CARRY, MOVE] }
   get maxCreepSize() { return this.bodyPattern.length * 5 }
+  get number() { return 1 }
 
-  number(room) {
-    return 1
-  }
-
-  nextState(context) {
-    const actor = this.actor
-    const result = context.result
-    const currentState = context.currentState
-    let nextState = context.currentState
-
-    switch (currentState) {
-      case 'Spawning':
-        if (!actor.spawning) {
-          nextState = 'Refilling'
-          break
-        }
-
-        break
-      case 'Idling':
-        if (State.SUCCESS === result) {
-          nextState = 'DefenseRepairing'
-          break
-        }
-
-        if (State.FAILED === result) {
-          nextState = 'Recycling'
-          break
-        }
-
-        break
-      case 'DefenseRepairing':
-        if (State.SUCCESS === result) {
-          nextState = 'Refilling'
-          break
-        }
-
-        if (State.FAILED === result) {
-          nextState = 'Idling'
-          break
-        }
-
-        break
-      case 'Refilling':
-        if (State.SUCCESS === result) {
-          nextState = 'DefenseRepairing'
-          break
-        }
-
-        if (State.FAILED === result) {
-          nextState = 'Recycling'
-          break
-        }
-
-        break
-      case 'Recycling':
-        break
-      default:
-        console.log('DEFENSEREPAIRER', 'unhandled state', currentState, JSON.stringify(context))
-        break
+  get transitions() {
+    const transitions = {
+      'Spawning': {
+        [State.SUCCESS]: 'Refilling',
+      },
+      'Refilling': {
+        [State.SUCCESS]: 'DefenseRepairing',
+        [State.FAILED]: 'Recycling',
+      },
+      'DefenseRepairing': {
+        [State.SUCCESS]: 'Refilling',
+        [State.FAILED]: 'Idling',
+      },
+      'Idling': {
+        [State.SUCCESS]: 'DefenseRepairing',
+        [State.FAILED]: 'Recycling',
+      },
+      'Recycling': {}
     }
 
-    return nextState
+    return transitions
   }
 }
 

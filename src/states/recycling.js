@@ -1,12 +1,13 @@
 'use strict'
 
-global.Recycling = class extends State {
+class Recycling extends State {
   get icon() { return '💀' }
 
   findRoom() {
-    const spawnRooms = World.spawnRooms
+    const rooms = World.spawnRooms
+    const room = rooms[0]
 
-    return spawnRooms.length ? spawnRooms[0].name : null
+    return room
   }
 
   findTarget(room) {
@@ -17,7 +18,7 @@ global.Recycling = class extends State {
     const actor = this.actor
     const target = actor.target
 
-    const actionResult = new Recycle(actor, target).update()
+    const actionResult = new Recycle(actor, target).execute()
     // const actionResult = ERR_NOT_IN_RANGE
 
     switch (actionResult) {
@@ -39,3 +40,5 @@ global.Recycling = class extends State {
     }
   }
 }
+
+global.Recycling = Recycling

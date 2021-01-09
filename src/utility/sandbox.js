@@ -7,7 +7,6 @@ class Sandbox {
     } catch(error) {
       console.log('SANDBOX', error.stack)
     }
-
   }
 }
 

@@ -8,7 +8,7 @@ class Harvest extends Action {
     this.target = target
   }
 
-  update() {
+  execute() {
     return this.actor.harvest(this.target)
   }
 }

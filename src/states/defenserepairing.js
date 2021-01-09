@@ -5,43 +5,38 @@ class DefenseRepairing extends State {
   get validator() { return new DamagedTargetValidator(this.role) }
 
   findRoom() {
-    const room = this.actor.room
+    const actor = this.actor
+    const rooms = actor.room.prioritize(World.territory)
 
-    return room && room.name
+    const room = _.find(rooms, function (room) {
+      const targets = this.targetFinder.find(room, this.targetTypes)
+
+      return targets.length > 0
+    }, this)
+
+    return room
+  }
+
+  get targetTypes() {
+    const targetTypes = [
+      FIND_DEFENSES,
+    ]
+
+    return targetTypes
   }
 
   findTarget(room) {
-    let damagedDefenses = room.damagedDefenses
+    const targets = this.targetFinder.find(room, this.targetTypes)
+    const target = _.first(targets.sort((a, b) => a.hits - b.hits))
 
-    const towers = _.filter(damagedDefenses, function (structure) {
-      return structure.structureType == STRUCTURE_TOWER &&
-        !_.some(Game.creeps, 'target', structure)
-    })
-
-    if (towers.length) {
-      towers = towers.sort((a, b) => a.hits - b.hits)
-
-      return towers[0]
-    }
-
-    let structures = []
-
-    if (!structures.length) {
-      structures = _.filter(damagedDefenses, function (structure) {
-        return !_.some(Game.creeps, 'target', structure)
-      }, this)
-    }
-
-    structures = structures.sort((a, b) => a.hits - b.hits)
-
-    return structures[0]
+    return target
   }
 
   handleAction() {
     const actor = this.actor
     const target = actor.target
 
-    let actionResult = new Repair(actor, target).update()
+    let actionResult = new Repair(actor, target).execute()
 
     switch (actionResult) {
       case OK:

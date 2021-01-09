@@ -8,7 +8,7 @@ global.Dismantle = class extends global.Action {
     this.target = target
   }
 
-  update() {
+  execute() {
     // new RoomVisual('W20N30').circle(this.target.pos, {
     //   fill: '#0000ff',
     //   opacity: 1,

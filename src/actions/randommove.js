@@ -7,7 +7,7 @@ class RandomMove extends Action {
     this.actor = actor
   }
 
-  update() {
+  execute() {
     return this.actor.move(this.randomDirection)
   }
 

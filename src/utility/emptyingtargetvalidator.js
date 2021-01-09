@@ -28,6 +28,10 @@ class EmptyingTargetValidator {
         emptying = false
         exclusive = false
         break
+
+      case target instanceof RoomPosition:
+        validTarget = true
+        break
     }
 
     if (emptying) {
@@ -38,7 +42,7 @@ class EmptyingTargetValidator {
     }
 
     if (validTarget && exclusive) {
-      validTarget = !_.some(World.creeps(actor.role), 'memory.target', target.id)
+      validTarget = !_.some(World.creeps(actor.role, actor), 'memory.target', target.id)
     }
 
     return validTarget

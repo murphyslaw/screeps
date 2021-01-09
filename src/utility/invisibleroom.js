@@ -5,8 +5,8 @@ class InvisibleRoom {
     this.name = name
   }
 
-  get invisible() {
-    return true
+  get visible() {
+    return false
   }
 
   get my() {
@@ -83,6 +83,12 @@ class InvisibleRoom {
     return (flag && this.name === flag.pos.roomName) ? true : false
   }
 
+  get needsReserver() {
+    const flag = Game.flags.reserve
+
+    return (flag && this.name === flag.pos.roomName) ? true : false
+  }
+
   get isHighway() {
     const parsed = /^[WE]([0-9]+)[NS]([0-9]+)$/.exec(this.name)
     const isHighway = (parsed[1] % 10 === 0) || (parsed[2] % 10 === 0)
@@ -117,6 +123,10 @@ class InvisibleRoom {
     return []
   }
 
+  get defenses() {
+    return []
+  }
+
   get scoreContainers() {
     return []
   }
@@ -125,7 +135,11 @@ class InvisibleRoom {
     return _.map(this.memory.minerals, (source, id) => new InvisibleMineral(this, id))
   }
 
-  mineralContainers() {
+  find() {
+    return []
+  }
+
+  get mineralContainers() {
     const mineralContainers = _.reduce(this.minerals, function (containers, mineral) {
       const container = mineral.container
 
@@ -167,6 +181,10 @@ class InvisibleRoom {
 
   get sourceCount() {
     return _.keys(this.memory.sources).length
+  }
+
+  get center() {
+    return new RoomPosition(25, 25, this.name)
   }
 
   toString() {

@@ -9,7 +9,7 @@ class SignController extends Action {
     this.text = text
   }
 
-  update() {
+  execute() {
     return this.actor.signController(this.target, this.text)
   }
 }

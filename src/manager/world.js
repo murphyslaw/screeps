@@ -31,11 +31,11 @@ class World {
     return _.map(Game.spawns, spawn => this.getRoom(spawn.room.name))
   }
 
-  creeps(role) {
+  creeps(role, without = null) {
     let conditions = []
 
     if (role) {
-      conditions.push(creep => creep.role === role)
+      conditions.push(creep => creep.role === role && creep !== without)
     }
 
     return _.filter(Game.creeps, creep => _.every(conditions, cond => cond.call(this, creep)))
@@ -97,7 +97,6 @@ class World {
     })
 
     this.myRooms.forEach(function (room) {
-      room.needsSigner = !room.controller.sign || room.controller.sign.text !== Signing.text
       if (room.needsSigner) {
         Game.map.visual.text('📜', new RoomPosition(5, 45, room.name), style)
       }
@@ -113,7 +112,9 @@ class World {
       if (room.needsRepairer) {
         Game.map.visual.text('🛠', new RoomPosition(15, 5, room.name), style)
       }
+    })
 
+    this.visibleRooms.forEach(function (room) {
       room.needsScoreHarvester = room.scoreContainers.length > 0
       if (room.needsScoreHarvester) {
         Game.map.visual.text('🏆', new RoomPosition(5, 5, room.name), style)

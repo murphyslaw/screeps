@@ -1,13 +1,14 @@
 'use strict'
 
 class CreepManager {
-  spawn(room) {
+  spawn() {
     let spawned = false
 
     config.roles.forEach(function (name) {
       const role = new global[name]()
-      if (!spawned && role.wantsToSpawn(room)) {
-        let actionResult = role.spawn(room)
+
+      if (!spawned && role.wantsToSpawn()) {
+        let actionResult = role.spawn()
 
         actionResult === OK ? spawned = true : spawned = false
       }
@@ -15,6 +16,8 @@ class CreepManager {
   }
 
   run() {
+    this.spawn()
+
     _.forEach(Game.creeps, function(creep, name) {
       try {
         creep.update()

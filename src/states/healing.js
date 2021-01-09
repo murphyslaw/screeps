@@ -1,6 +1,6 @@
 'use strict'
 
-global.Healing = class extends State {
+class Healing extends State {
   findRoom() {
     return this.actor.room
   }
@@ -14,7 +14,7 @@ global.Healing = class extends State {
   handleAction() {
     let result = State.SUCCESS
 
-    const actionResult = new Heal(this.actor, this.target).update()
+    const actionResult = new Heal(this.actor, this.target).execute()
 
     switch (actionResult) {
       case OK:
@@ -32,3 +32,5 @@ global.Healing = class extends State {
     return result
   }
 }
+
+global.Healing = Healing

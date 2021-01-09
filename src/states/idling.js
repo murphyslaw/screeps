@@ -6,11 +6,13 @@ class Idling extends State {
   handleAction() {
     if (Game.time % 5 === 0) return State.SUCCESS
 
+    new Say(this.actor, '💤').execute()
+
     return State.RUNNING
   }
 
   handleMovement() {
-    const actionResult = new RandomMove(this.actor).update()
+    const actionResult = new RandomMove(this.actor).execute()
 
     switch (actionResult) {
       case OK:

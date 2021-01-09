@@ -36,7 +36,15 @@ class FillingTargetValidator {
         exclusive = false
         break
 
+      case target instanceof StructureContainer:
+        targetUsedCapacity = target.store.getUsedCapacity(resource)
+        filling = false
+        exclusive = _.includes(World.remoteRooms, target.room)
+        break
+
       case target instanceof Resource:
+        if (resource !== target.resourceType) return false
+
         targetUsedCapacity = target.amount
         filling = false
         exclusive = true
@@ -50,17 +58,14 @@ class FillingTargetValidator {
         exclusive = false
         break
 
-      case target instanceof StructureContainer:
-        targetUsedCapacity = target.store.getUsedCapacity(resource)
-          filling = true
-          exclusive = true
-          break
-
       case !_.isUndefined(target.store):
         targetUsedCapacity = target.store.getUsedCapacity(resource)
         filling = true
         exclusive = false
         break
+
+      case target instanceof RoomPosition:
+        validTarget = true
 
       default:
         break
@@ -74,7 +79,7 @@ class FillingTargetValidator {
     }
 
     if (validTarget && exclusive) {
-      validTarget = !_.some(World.creeps(actor.role), 'memory.target', target.id)
+      validTarget = !_.some(World.creeps(actor.role, actor), 'memory.target', target.id)
     }
 
     return validTarget

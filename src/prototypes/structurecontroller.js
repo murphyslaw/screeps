@@ -35,5 +35,15 @@ Object.defineProperties(StructureController.prototype, {
       return this._container
     },
     configurable: true
+  },
+
+  'reserved': {
+    get: function () {
+      const reservation = this.reservation
+      const reserved = reservation && MY_USERNAME === reservation.username
+
+      return reserved ? true : false
+    },
+    configurable: true
   }
 })

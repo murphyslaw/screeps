@@ -8,7 +8,7 @@ class Say extends Action {
     this.message = message
   }
 
-  update() {
+  execute() {
     return this.actor.say(this.message)
   }
 }

@@ -9,7 +9,7 @@ class Harvesting extends State {
 
     // prioritize current target
     const target = actor.target
-    if (target) return target.room.name
+    if (this.validator.isValid(target)) return target.room.name
 
     const rooms = actor.room.prioritize(World.territory)
 
@@ -21,14 +21,14 @@ class Harvesting extends State {
         })
       })
 
-      return room && room.name
+      return room
     }
 
     const room = _.find(rooms, function(room) {
       return _.some(room.sources, source => this.validator.isValid(source))
     })
 
-    return room && room.name
+    return room
   }
 
   findTarget(room) {
@@ -54,7 +54,7 @@ class Harvesting extends State {
     const target = actor.target
     const resource = this.role.resource
 
-    const actionResult = new Harvest(actor, target).update()
+    const actionResult = new Harvest(actor, target).execute()
 
     switch (actionResult) {
       case OK:

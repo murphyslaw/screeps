@@ -9,8 +9,14 @@ class Transfer extends Action {
     this.resourceType = resourceType
   }
 
-  update() {
-    return this.actor.transfer(this.target, this.resourceType)
+  execute() {
+    const actor = this.actor
+    const target = this.target
+    const resourceType = this.resourceType
+
+    const actionResult = actor.transfer(target, resourceType)
+
+    return actionResult
   }
 }
 

@@ -8,7 +8,7 @@ class Recycle extends Action {
     this.spawn = spawn
   }
 
-  update() {
+  execute() {
     return this.spawn.recycleCreep(this.actor)
   }
 }

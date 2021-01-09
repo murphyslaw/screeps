@@ -29,12 +29,12 @@ Object.defineProperties(prototype, {
     configurable: true
   },
 
-  'state': {
+  'currentState': {
     get: function () {
-      return this.memory.state
+      return this.memory.currentState
     },
     set: function (value) {
-      this.memory.state = value
+      this.memory.currentState = value
     },
     configurable: true
   },
@@ -147,7 +147,7 @@ Object.defineProperties(prototype, {
 
   'inTargetRoom': {
     get: function () {
-      return this.room.name == this.targetRoom && !this.pos.isBorderPosition
+      return this.room.name == this.target.room.name && !this.pos.isBorderPosition
     },
     configurable: true
   },
@@ -190,21 +190,6 @@ Object.defineProperties(prototype, {
     configurable: true
   }
 })
-
-Creep.prototype.moveToRoom = function(roomName) {
-  if (roomName) {
-    let destination = new RoomPosition(25, 25, roomName)
-
-    if (this.target && this.target.pos.roomName === roomName) {
-      destination = this.target.pos
-    } else if (this.source && this.source.pos.roomName === roomName) {
-      destination = this.source.pos
-    }
-
-    // return new Move(this, destination, { ignoreCreeps: true, maxRooms: 1, ignoreRoads: true }).update()
-    return new Move(this, destination, { maxRooms: 1, ignoreRoads: true }).update()
-  }
-}
 
 Creep.prototype.resetTarget = function() {
   this.targetRoom = null

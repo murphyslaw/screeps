@@ -1,16 +1,16 @@
 'use strict'
 
 class Upgrader extends Role {
-  get bodyPattern() { return [WORK, CARRY, MOVE] }
-  get maxCreepSize() { return this.bodyPattern.length * 5 }
+  get bodyPattern() { return [WORK, WORK, CARRY, CARRY, MOVE] }
+  get maxCreepSize() { return this.bodyPattern.length * 6 }
 
-  number(room) {
+  get number() {
     const controllerContainerUsedCapacity = _.sum(World.myRooms, function(room) {
       const controllerContainer = room.controller.container;
       return controllerContainer ? controllerContainer.store.getUsedCapacity(RESOURCE_ENERGY) : 0
     })
 
-    const number = Math.max(Math.floor(controllerContainerUsedCapacity / 1000), World.myRooms.length)
+    const number = Math.max(Math.floor(controllerContainerUsedCapacity / 500), World.myRooms.length)
 
     return number
   }
@@ -27,9 +27,9 @@ class Upgrader extends Role {
             FIND_TOMBSTONES,
             FIND_RUINS,
             FIND_STORAGE,
-            FIND_CONTAINERS,
           ],
           [
+            FIND_CONTAINERS,
             FIND_SOURCES_ACTIVE,
           ],
         ]
@@ -39,52 +39,23 @@ class Upgrader extends Role {
     return []
   }
 
-  nextState(context) {
-    const actor = this.actor
-    const result = context.result
-    const currentState = context.currentState
-    let nextState = context.currentState
-
-    switch (currentState) {
-      case 'Spawning':
-        if (!actor.spawning) {
-          nextState = 'Refilling'
-          break
-        }
-
-        break
-      case 'Refilling':
-        if (State.SUCCESS === result) {
-          nextState = 'Upgrading'
-          break
-        }
-
-        if (State.FAILED === result) {
-          nextState = 'Recycling'
-          break
-        }
-
-        break
-      case 'Upgrading':
-        if (State.SUCCESS === result) {
-          nextState = 'Refilling'
-          break
-        }
-
-        if (State.FAILED === result) {
-          nextState = 'Recycling'
-          break
-        }
-
-        break
-      case 'Recycling':
-        break
-      default:
-        console.log(this.name.toUpperCase(), 'unhandled state', currentState, JSON.stringify(context))
-        break
+  get transitions() {
+    const transitions = {
+      'Spawning': {
+        [State.SUCCESS]: 'Refilling',
+      },
+      'Refilling': {
+        [State.SUCCESS]: 'Upgrading',
+        [State.FAILED]: 'Recycling',
+      },
+      'Upgrading': {
+        [State.SUCCESS]: 'Refilling',
+        [State.FAILED]: 'Recycling',
+      },
+      'Recycling': {},
     }
 
-    return nextState
+    return transitions
   }
 }
 

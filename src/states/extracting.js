@@ -15,12 +15,13 @@ class Extracting extends State {
 
     const room = _.find(rooms, function(room) {
       return _.some(room.minerals, function(mineral) {
-        return mineral.container &&
+        return !mineral.ticksToRegeneration &&
+          mineral.container &&
           !_.some(World.creeps('ContainerExtractor'), 'memory.target', mineral.id)
       })
     })
 
-    return room && room.name
+    return room
   }
 
   findTarget(room) {
@@ -36,7 +37,7 @@ class Extracting extends State {
     const actor = this.actor
     const target = actor.target
 
-    const actionResult = new Harvest(actor, target).update()
+    const actionResult = new Harvest(actor, target).execute()
 
     switch (actionResult) {
       case OK:

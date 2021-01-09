@@ -8,7 +8,7 @@ class Repair extends Action {
     this.target = target
   }
 
-  update() {
+  execute() {
     return this.actor.repair(this.target)
   }
 }

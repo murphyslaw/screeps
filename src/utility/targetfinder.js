@@ -22,6 +22,9 @@ class TargetFinder {
   }
 
   findByTargetTypes(room, targetTypes) {
+    // TODO: this was an emergency fix...not sure if it is the best place
+    if (!room.isHighway && room.underAttack) return []
+
     const results = _.reduce(targetTypes, function(results, targetType) {
       switch (targetType) {
         case FIND_CONTAINERS:
@@ -30,6 +33,10 @@ class TargetFinder {
 
         case FIND_SOURCE_CONTAINERS:
           results.push(...room.sourceContainers)
+          break
+
+        case FIND_MINERAL_CONTAINERS:
+          results.push(...room.mineralContainers)
           break
 
         case FIND_CONTROLLER_CONTAINER:
@@ -48,15 +55,26 @@ class TargetFinder {
           results.push(room.storage)
           break
 
+        case FIND_DEFENSES:
+          results.push(...room.defenses)
+          break
+
+        case FIND_UTILITY_STRUCTURES:
+          results.push(...room.damagedStructures)
+          break
+
         case FIND_SOURCES_ACTIVE:
           if (!results.length) {
-            results.push(room.find(FIND_SOURCES_ACTIVE))
+            results.push(...room.sources)
           }
 
           break
 
         default:
-          results.push(...room.find(targetType))
+          if (room.visible) {
+            results.push(...room.find(targetType))
+          }
+
           break
       }
 

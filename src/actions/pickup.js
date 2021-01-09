@@ -8,7 +8,7 @@ class Pickup extends Action {
     this.target = target
   }
 
-  update() {
+  execute() {
     return this.actor.pickup(this.target)
   }
 }

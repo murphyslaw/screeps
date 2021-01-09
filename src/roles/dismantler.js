@@ -16,31 +16,18 @@ class Dismantler extends Role {
     return (this.maxCreepSize * CREEP_SPAWN_TIME) + 215
   }
 
-  number(room) { return 1 }
+  get number() { return 1 }
 
-  nextState(context) {
-    const actor = this.actor
-    const result = context.result
-    const state = context.currentState
-    let nextState = context.currentState
-
-    switch (state) {
-      case 'Spawning':
-        if (State.SUCCESS === result) {
-          nextState = 'Dismantling'
-        }
-
-        break
-      case 'Dismantling':
-        break
-      case 'Recycling':
-        break
-      default:
-        console.log('DISMANTLER', 'unhandled state', state, JSON.stringify(context))
-        break
+  get transitions() {
+    const transitions = {
+      'Spawning': {
+        [State.SUCCESS]: 'Dismantling',
+      },
+      'Dismantling': {},
+      'Recycling': {},
     }
 
-    return nextState
+    return transitions
   }
 }
 

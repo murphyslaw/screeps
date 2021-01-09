@@ -5,53 +5,39 @@ class Refilling extends State {
   get validator() { return new FillingTargetValidator(this.role) }
 
   findRoom() {
-    switch(this.actor.role) {
-      case 'RemoteHauler': {
-        const rooms = World.remoteRooms
-        const room = _.find(rooms, room => _.some(room.sourceContainers, container => this.validator.isValid(container)))
-        return room ? room.name : null
-      }
+    const rooms = this.rooms
+    const targetFinder = this.targetFinder
+    const targetTypes = this.targetTypes
 
-      default: {
-        const actor = this.actor
-        const rooms = actor.room.prioritize(World.territory)
+    const room = _.find(rooms, function (room) {
+      const targets = targetFinder.find(room, targetTypes)
 
-        const room = _.find(rooms, function (room) {
-          let targets = []
+      return targets.length > 0
+    }, this)
 
-          targets = room.findWithPriorities(
-            FIND_STRUCTURES,
-            this.structurePriorities,
-            structure => this.validator.isValid(structure)
-          )
-
-          return targets.length > 0
-        }, this)
-
-        if (!room) {
-          room = actor.room
-        }
-
-        return room.name
-      }
-    }
+    return room
   }
 
-  get structurePriorities() {
-    return [
-      STRUCTURE_STORAGE,
-      STRUCTURE_CONTAINER,
-    ]
-  }
-
-  findTarget(room) {
-    const role = this.role
+  get rooms() {
     const actor = this.actor
+    const role = this.role
+
+    let rooms
+    rooms = !_.isUndefined(role.rooms) && role.rooms
+    rooms = rooms || actor.room.prioritize(World.territory)
+
+    return rooms
+  }
+
+  get targetTypes() {
+    const role = this.role
+    const name = this.name
+
     let targetTypes = []
 
-    switch(true) {
+    switch (true) {
       case !_.isUndefined(role.findTargetTypes):
-        targetTypes = role.findTargetTypes(this.state)
+        targetTypes = role.findTargetTypes(name)
 
         break
 
@@ -64,18 +50,26 @@ class Refilling extends State {
           ],
           [
             FIND_STORAGE,
-            FIND_CONTAINERS,
           ],
           [
+            FIND_CONTAINERS,
             FIND_SOURCES_ACTIVE,
-          ]
+          ],
         ]
 
         break
     }
 
-    const targets = this.targetFinder.find(room, targetTypes)
-    const target = room !== actor.room ? targets[0] : actor.pos.findClosestByRange(targets)
+    return targetTypes
+  }
+
+  findTarget(room) {
+    const actor = this.actor
+    const targetFinder = this.targetFinder
+    const targetTypes = this.targetTypes
+
+    const targets = targetFinder.find(room, targetTypes)
+    const target = room !== actor.room ? _.first(targets) : actor.pos.findClosestByRange(targets)
 
     return target
   }
@@ -83,24 +77,34 @@ class Refilling extends State {
   handleAction() {
     const actor = this.actor
     const target = actor.target
-    const resource = this.role.resource
     let actionResult
     let targetResources = 0
 
-    if (target.store) {
-      actionResult = new Withdraw(actor, target, resource).update()
-      targetResources = target.store.getUsedCapacity(resource)
-    } else if (target instanceof Resource) {
-      actionResult = new Pickup(actor, target).update()
-      targetResources = target.amount
-    } else if (target instanceof Source) {
-      actionResult = new Harvest(actor, target).update()
-      targetResources = HARVEST_POWER * actor.getActiveBodyparts(WORK)
+    switch(true) {
+      case target instanceof Resource:
+        actionResult = new Pickup(actor, target).execute()
+        targetResources = target.amount
+        break
+
+      case target instanceof Source:
+        actionResult = new Harvest(actor, target).execute()
+        targetResources = HARVEST_POWER * actor.getActiveBodyparts(WORK)
+        break
+
+      case !_.isUndefined(target.store):
+        const role = this.role
+        const storedResourceTypes = target.store.resources
+        const resourceType = role.resource || _.first(storedResourceTypes)
+
+        actionResult = new Withdraw(actor, target, resourceType).execute()
+        targetResources = target.store.getUsedCapacity(resourceType)
+
+        break
     }
 
     switch (actionResult) {
       case OK:
-        if (targetResources >= actor.store.getFreeCapacity(resource)) {
+        if (targetResources >= actor.store.getFreeCapacity()) {
           return State.SUCCESS
         }
 
@@ -124,7 +128,7 @@ class Refilling extends State {
         return State.FAILED
 
       default:
-        console.log('REFILLING', 'unhandled action result', actionResult)
+        console.log('REFILLING', 'unhandled action result', actionResult, actor.role)
         return State.FAILED
     }
   }

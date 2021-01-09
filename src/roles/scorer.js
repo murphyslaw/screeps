@@ -1,65 +1,54 @@
 'use strict'
 
 class Scorer extends Role {
-  get bodyPattern() {
-    return [
-      CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE,
-      CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE,
-      CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE,
-      CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE,
-      CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE,
-    ]
-  }
+  get bodyPattern() { return [CARRY, MOVE] }
   get maxCreepSize() { return MAX_CREEP_SIZE }
   get resource() { return RESOURCE_SCORE }
 
-  number(room) { return 5 }
+  get number() {
+    const number = _.some(World.myRooms, room => room.storage && room.storage.store[RESOURCE_SCORE] > 1000) ? 1 : 0
 
-  nextState(context) {
-    const actor = this.actor
-    const result = context.result
-    const currentState = context.currentState
-    let nextState = context.currentState
+    return number
+  }
 
-    switch (currentState) {
-      case 'Spawning':
-        if (State.SUCCESS === result) {
-          return 'Refilling'
-        }
-
-        break
-      case 'Scoring':
-        if (State.SUCCESS === result) {
-          return 'Refilling'
-        }
-
-        if (State.FAILED === result) {
-          return 'Recycling'
-        }
-
-        break
-      case 'Refilling':
-        if (actor.inDestinationRoom && actor.ticksToLive < 700) {
-          return 'Recycling'
-        }
-
-        if (State.SUCCESS === result) {
-          return 'Scoring'
-        }
-
-        if (State.FAILED === result) {
-          return 'Recycling'
-        }
-
-        break
-      case 'Recycling':
-        break
-      default:
-        console.log('SCORER', 'unhandled state', currentState, JSON.stringify(context))
-        break
+  findTargetTypes(state) {
+    switch (state) {
+      case 'Refilling': {
+        return [
+          FIND_STORAGE,
+        ]
+      }
     }
 
-    return nextState
+    return []
+  }
+
+  get transitions() {
+    const transitions = {
+      'Spawning': {
+        [State.SUCCESS]: 'Refilling',
+      },
+      'Refilling': {
+        [State.SUCCESS]: 'Scoring',
+        [State.RUNNING]: () => this.actor.target && this.actor.inTargetRoom && this.actor.ticksToLive < 200 ? 'Recycling' : 'Refilling',
+        [State.FAILED]: 'Recycling',
+      },
+      'Scoring': {
+        [State.SUCCESS]: () => this.actor.room.scoreContainers.length ? 'Collecting' : 'Refilling',
+        [State.FAILED]: 'Idling',
+      },
+      'Collecting': {
+        [State.SUCCESS]: 'Scoring',
+        [State.FAILED]: 'Idling',
+      },
+      'Idling': {
+        [State.SUCCESS]: 'Refilling',
+        [State.FAILED]: 'Recycling',
+      },
+      'Recycling': {},
+    }
+
+    return transitions
   }
 }
 

@@ -1,12 +1,13 @@
 'use strict'
 
-global.Defending = class extends State {
+class Defending extends State {
   get icon() { return '🛡️' }
 
   findRoom() {
-    const room = _.find(World.territory, 'underAttack')
+    const rooms = World.territory
+    const room = _.find(rooms, 'underAttack')
 
-    return room ? room.name : null
+    return room
   }
 
   findTarget(room) {
@@ -19,7 +20,7 @@ global.Defending = class extends State {
   }
 
   handleAction() {
-    const actionResult = new Attack(this.actor, this.target).update()
+    const actionResult = new Attack(this.actor, this.target).execute()
 
     switch (actionResult) {
       case OK:
@@ -41,3 +42,5 @@ global.Defending = class extends State {
     }
   }
 }
+
+global.Defending = Defending

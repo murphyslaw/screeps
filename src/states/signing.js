@@ -1,12 +1,12 @@
 'use strict'
 
-global.Signing = class extends State {
+class Signing extends State {
   get icon() { return '📜' }
 
   findRoom() {
-    const room = _.find(World.myRooms, 'needsSigner')
+    const room = _.find(World.territory, 'needsSigner')
 
-    return room ? room.name : null
+    return room
   }
 
   findTarget(room) {
@@ -18,7 +18,7 @@ global.Signing = class extends State {
   }
 
   handleAction() {
-    const actionResult = new SignController(this.actor, this.target, Signing.text).update()
+    const actionResult = new SignController(this.actor, this.target, Signing.text).execute()
 
     switch (actionResult) {
       case OK:
@@ -40,3 +40,5 @@ global.Signing = class extends State {
 }
 
 Signing.text = 'Anything that can go wrong, will go wrong.'
+
+global.Signing = Signing

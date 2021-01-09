@@ -16,6 +16,7 @@ require('utility_emptyingtargetvalidator')
 require('utility_fillingtargetvalidator')
 require('utility_damagedtargetvalidator')
 require('utility_nullvalidator')
+require('utility_statemachine')
 
 // prototypes
 require('prototypes_lodash')
@@ -49,6 +50,7 @@ require('actions_transfer')
 require('actions_harvest')
 require('actions_upgradecontroller')
 require('actions_pickup')
+require('actions_reservecontroller')
 
 // states
 require('states_state')
@@ -72,6 +74,7 @@ require('states_upgrading')
 require('states_remoteharvesting')
 require('states_defenserepairing')
 require('states_extracting')
+require('states_reserving')
 
 // roles
 require('roles_role')
@@ -92,6 +95,7 @@ require('roles_dismantler')
 require('roles_defender')
 require('roles_scorer')
 require('roles_claimer')
+require('roles_reserver')
 
 // configuration
 require('config')

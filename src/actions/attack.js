@@ -8,7 +8,7 @@ global.Attack = class extends global.Action {
     this.target = target
   }
 
-  update() {
+  execute() {
     return this.actor.attack(this.target)
   }
 }

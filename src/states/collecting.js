@@ -5,10 +5,10 @@ class Collecting extends State {
   get validator() { return new FillingTargetValidator(this.role) }
 
   findRoom() {
-    const rooms = this.actor.room.prioritize(World.territory)
+    const rooms = this.actor.room.prioritize(World.knownRooms)
     const room = _.find(rooms, 'needsScoreHarvester')
 
-    return room ? room.name : null
+    return room
   }
 
   findTarget(room) {
@@ -22,7 +22,7 @@ class Collecting extends State {
     const target = actor.target
     const resource = this.role.resource
 
-    const actionResult = new Withdraw(actor, target, resource).update()
+    const actionResult = new Withdraw(actor, target, resource).execute()
 
     switch (actionResult) {
       case OK:
@@ -35,7 +35,7 @@ class Collecting extends State {
 
       case ERR_NOT_ENOUGH_RESOURCES:
       case ERR_INVALID_TARGET:
-        this.changeState(actor, null)
+        this.changeTarget(actor, null)
         return State.RUNNING
 
       case ERR_INVALID_ARGS:

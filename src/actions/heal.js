@@ -8,7 +8,7 @@ global.Heal = class extends global.Action {
     this.target = target
   }
 
-  update() {
+  execute() {
     return this.actor.heal(this.target)
   }
 }

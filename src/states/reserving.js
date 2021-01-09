@@ -1,9 +1,9 @@
 'use strict'
 
-class Claiming extends State {
+class Reserving extends State {
   findRoom() {
     const rooms = World.territory
-    const room = _.find(rooms, 'needsClaimer')
+    const room = _.find(rooms, 'needsReserver')
 
     return room
   }
@@ -11,7 +11,7 @@ class Claiming extends State {
   findTarget(room) {
     const controller = room.controller
 
-    if (controller && !controller.owner && !controller.reservation) return controller
+    if (controller && !controller.owner) return controller
 
     return null
   }
@@ -20,14 +20,11 @@ class Claiming extends State {
     const actor = this.actor
     const target = this.actor.target
 
-    const actionResult = new ClaimController(actor, target).execute()
+    const actionResult = new ReserveController(actor, target).execute()
 
     switch (actionResult) {
       case OK:
-        // remove the claim flag after successfully claiming the room
-        actor.room.claimFlag.remove()
-
-        return State.SUCCESS
+        return State.RUNNING
 
       case ERR_BUSY:
       case ERR_NOT_IN_RANGE:
@@ -37,17 +34,15 @@ class Claiming extends State {
         actor.target = null
         return State.RUNNING
 
-      case ERR_FULL:
       case ERR_NOT_OWNER:
       case ERR_NO_BODYPART:
-      case ERR_GCL_NOT_ENOUGH:
         return State.FAILED
 
       default:
-        console.log('CLAIMING', 'unhandled action result', actionResult)
+        console.log('RESERVING', 'unhandled action result', actionResult)
         return State.FAILED
     }
   }
 }
 
-global.Claiming = Claiming
+global.Reserving = Reserving

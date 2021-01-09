@@ -2,9 +2,9 @@
 
 class Hauler extends Role {
   get bodyPattern() { return [CARRY, MOVE] }
-  get maxCreepSize() { return this.bodyPattern.length * 6 }
+  get maxCreepSize() { return this.bodyPattern.length * 10 }
 
-  number(room) {
+  get number() {
     let rooms = World.myRooms
     let number = 0
 
@@ -49,52 +49,27 @@ class Hauler extends Role {
     return []
   }
 
-  nextState(context) {
-    const actor = this.actor
-    const result = context.result
-    const currentState = context.currentState
-    let nextState = context.currentState
-
-    switch (currentState) {
-      case 'Spawning':
-        if (!actor.spawning) {
-          nextState = 'Refilling'
-          break
-        }
-
-        break
-      case 'Refilling':
-        if (State.SUCCESS === result) {
-          nextState = 'Distributing'
-          break
-        }
-
-        if (State.FAILED === result) {
-          nextState = 'Recycling'
-          break
-        }
-
-        break
-      case 'Distributing':
-        if (State.SUCCESS === result) {
-          nextState = 'Refilling'
-          break
-        }
-
-        if (State.FAILED === result) {
-          nextState = 'Recycling'
-          break
-        }
-
-        break
-      case 'Recycling':
-        break
-      default:
-        console.log('HAULER', 'unhandled state', currentState, JSON.stringify(context))
-        break
+  get transitions() {
+    const transitions = {
+      'Spawning': {
+        [State.SUCCESS]: 'Refilling',
+      },
+      'Refilling': {
+        [State.SUCCESS]: 'Distributing',
+        [State.FAILED]: 'Idling',
+      },
+      'Distributing': {
+        [State.SUCCESS]: 'Refilling',
+        [State.FAILED]: 'Idling',
+      },
+      'Idling': {
+        [State.SUCCESS]: 'Refilling',
+        [State.FAILED]: 'Recycling',
+      },
+      'Recycling': {},
     }
 
-    return nextState
+    return transitions
   }
 }
 

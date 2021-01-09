@@ -6,18 +6,22 @@ class Move extends Action {
 
     this.actor = actor
     this.destination = destination
-    this.options = options
+    this.options = options || {}
 
   }
 
-  update() {
-    if (this.options.path) {
-      const path = this.findPath(this.actor.pos, this.destination)
+  execute() {
+    const actor = this.actor
+    const destination = this.destination
+    const options = this.options
 
-      return this.actor.moveByPath(path)
+    if (options.path) {
+      const path = this.findPath(actor.pos, destination)
+
+      return actor.moveByPath(path)
     }
 
-    return this.actor.moveTo(this.destination, this.options)
+    return actor.moveTo(destination, options)
   }
 
   findPath(from, to) {
@@ -32,7 +36,7 @@ class Move extends Action {
         if (undefined === allowedRooms[roomName]) return false
 
         let room = World.getRoom(roomName)
-        if (room.invisible) return true
+        if (!room.visible) return true
 
         let costMatrix = new PathFinder.CostMatrix
 

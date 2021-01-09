@@ -4,41 +4,60 @@ class Distributing extends State {
   get icon() { return '🚚' }
   get validator() { return new EmptyingTargetValidator(this.role) }
 
-  findRoom() {
+  update() {
     const actor = this.actor
-    const rooms = actor.room.prioritize(World.myRooms)
+    const target = actor.target = this.target
 
-    let room = _.find(rooms, function (room) {
-      const targets = room.findWithPriorities(
-        FIND_STRUCTURES,
-        this.structurePriorities,
-        structure => this.validator.isValid(structure)
-      )
-
-      return targets.length > 0
-    }, this)
-
-    if (!room) {
-      room = actor.room
+    if (!target) {
+      return State.FAILED
     }
 
-    return room.name
+    if (!actor.inTargetRoom) {
+      new Move(actor, target.room.center).execute()
+
+      return State.RUNNING
+    }
+
+    const resourceType = RESOURCE_ENERGY
+    const actionResult = new Transfer(actor, target, resourceType).execute()
+
+    switch(actionResult) {
+      case OK:
+        const targetFreeCapacity = target.store.getFreeCapacity(resourceType)
+        if (targetFreeCapacity >= actor.store.getUsedCapacity(resourceType)) {
+          return State.SUCCESS
+        }
+
+        break
+
+      case ERR_NOT_IN_RANGE:
+        new Move(actor, target).execute()
+
+        break
+    }
+
+    return State.RUNNING
   }
 
-  get structurePriorities() {
-    return [
-      STRUCTURE_SPAWN,
-      STRUCTURE_EXTENSION,
-      STRUCTURE_TOWER,
-      STRUCTURE_CONTAINER,
-      STRUCTURE_STORAGE,
-    ]
-  }
-
-  findTarget(room) {
-    const role = this.role
+  findRoom() {
     const actor = this.actor
-    const state = this.state
+    const targetFinder = this.targetFinder
+    const targetTypes = this.targetTypes
+
+    const rooms = actor.room.prioritize(World.myRooms)
+
+    const room = _.find(rooms, function (room) {
+      const targets = targetFinder.find(room, targetTypes)
+
+      return targets.length > 0
+    })
+
+    return room
+  }
+
+  get targetTypes() {
+    const role = this.role
+    const state = this.name
 
     let targetTypes = []
 
@@ -66,7 +85,15 @@ class Distributing extends State {
         break
     }
 
-    const targets = this.targetFinder.find(room, targetTypes)
+    return targetTypes
+  }
+
+  findTarget(room) {
+    const actor = this.actor
+    const targetFinder = this.targetFinder
+    const targetTypes = this.targetTypes
+
+    const targets = targetFinder.find(room, targetTypes)
     const target = room !== actor.room ? targets[0] : actor.pos.findClosestByRange(targets)
 
     return target
@@ -77,32 +104,28 @@ class Distributing extends State {
     const target = actor.target
     const resource = this.role.resource
 
-    const actionResult = new Transfer(actor, target, resource).update()
+    const actionResult = new Transfer(actor, target, resource).execute()
+    const targetFreeCapacity = target.store.getFreeCapacity(resource)
 
     switch (actionResult) {
       case OK:
-        // only change state if all carried resources are transferred
-        if (this.target.store.getFreeCapacity(resource) >= actor.store.getUsedCapacity(resource)) {
-          // this.actor.moveTo(13, 34)
+        // change state if all carried resources are transferred
+        if (targetFreeCapacity >= actor.store.getUsedCapacity(resource)) {
           return State.SUCCESS
         }
 
         return State.RUNNING
-
-      case ERR_NOT_ENOUGH_RESOURCES:
-        return State.SUCCESS
 
       case ERR_BUSY:
       case ERR_NOT_IN_RANGE:
         return State.RUNNING
 
       case ERR_FULL:
-        // this.actor.moveTo(13, 34)
-        // this.actor.target = null
+      case ERR_NOT_ENOUGH_RESOURCES:
         return State.SUCCESS
 
       case ERR_INVALID_TARGET:
-        actor.target = null
+        this.changeTarget(actor, null)
         return State.RUNNING
 
       case ERR_INVALID_ARGS:

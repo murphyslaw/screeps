@@ -9,8 +9,14 @@ class Withdraw extends Action {
     this.resource = resource
   }
 
-  update() {
-    return this.actor.withdraw(this.target, this.resource)
+  execute() {
+    const actor = this.actor
+    const target = this.target
+    const resource = this.resource
+
+    const actionResult = actor.withdraw(target, resource)
+
+    return actionResult
   }
 }
 

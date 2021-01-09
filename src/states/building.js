@@ -1,20 +1,11 @@
 'use strict'
 
-global.Building = class extends State {
+class Building extends State {
   findRoom() {
-    // prioritize current room
-    const rooms = World.territory
-    const currentRoom = this.actor.room
-    const index = rooms.indexOf(currentRoom)
-
-    if (index > 0) {
-      rooms.splice(index, 1)
-      rooms.unshift(currentRoom)
-    }
-
+    const rooms = this.actor.room.prioritize(World.territory)
     const room = _.find(rooms, 'needsBuilder')
 
-    return room ? room.name : null
+    return room
   }
 
   findTarget(room) {
@@ -27,7 +18,7 @@ global.Building = class extends State {
   }
 
   handleAction() {
-    const actionResult = new Build(this.actor, this.target).update()
+    const actionResult = new Build(this.actor, this.target).execute()
 
     switch (actionResult) {
       case OK:
@@ -55,3 +46,5 @@ global.Building = class extends State {
 
   get validRange() { return 3 }
 }
+
+global.Building = Building

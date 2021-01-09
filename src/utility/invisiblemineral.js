@@ -6,8 +6,8 @@ class InvisibleMineral {
     this.id = id
   }
 
-  get invisible() {
-    return true
+  get visible() {
+    return false
   }
 
   get memory() {

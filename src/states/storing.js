@@ -6,19 +6,29 @@ class Storing extends State {
 
   findRoom() {
     const rooms = this.actor.room.prioritize(World.myRooms)
-    const room = _.find(rooms, room => this.validator.isValid(room.storage))
 
-    return room ? room.name : null
+    const room = _.find(rooms, function (room) {
+      const targets = this.targetFinder.find(room, this.targetTypes)
+
+      return targets.length > 0
+    }, this)
+
+    return room
   }
 
-  findTarget(room) {
-    const actor = this.actor
-
+  get targetTypes() {
     const targetTypes = [
       FIND_STORAGE,
     ]
 
-    const targets = this.targetFinder.find(room, targetTypes)
+    return targetTypes
+  }
+
+  findTarget(room) {
+    const actor = this.actor
+    const targetFinder = this.targetFinder
+
+    const targets = targetFinder.find(room, this.targetTypes)
     const target = room !== actor.room ? targets[0] : actor.pos.findClosestByRange(targets)
 
     return target
@@ -27,12 +37,19 @@ class Storing extends State {
   handleAction() {
     const actor = this.actor
     const target = actor.target
-    const resource = this.role.resource
+    const carriedResourceTypes = actor.store.resources
+    const resourceType = this.role.resource || _.first(carriedResourceTypes)
 
-    const actionResult = new Transfer(actor, target, resource).update()
+    const actionResult = new Transfer(actor, target, resourceType).execute()
 
     switch (actionResult) {
       case OK:
+        if (carriedResourceTypes.length > 1) {
+          return State.RUNNING
+        } else {
+          return State.SUCCESS
+        }
+
       case ERR_NOT_ENOUGH_RESOURCES:
         return State.SUCCESS
 

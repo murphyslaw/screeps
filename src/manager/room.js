@@ -15,7 +15,7 @@ class RoomManager {
     room.creeps().forEach(function (creep) {
       if (creep.target) {
         visual.circle(creep.target.pos,
-          { fill: 'blue', radius: .2, opacity: 1 })
+          { fill: 'blue', radius: .1, opacity: 1 })
       }
     }, this)
 
@@ -62,7 +62,7 @@ class RoomManager {
 
       const closestWoundedFriend = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
         filter: function (creep) {
-          return (creep.hits / creep.hitsMax * 100) < 75
+          return (creep.hits / creep.hitsMax * 100) < 100
         }
       })
 

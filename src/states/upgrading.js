@@ -13,18 +13,20 @@ class Upgrading extends State {
       return count
     }, this)
 
-    return room.name
+    return room
   }
 
   findTarget(room) {
-    return room.controller
+    const target = room.controller
+
+    return target
   }
 
   handleAction() {
     const actor = this.actor
     const target = actor.target
 
-    let actionResult = new UpgradeController(actor, target).update()
+    let actionResult = new UpgradeController(actor, target).execute()
 
     switch (actionResult) {
       case OK:

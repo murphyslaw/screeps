@@ -1,6 +1,6 @@
 'use strict'
 
-global.Score = class extends global.Action {
+class Score extends Action {
   constructor(actor, scoreCollector) {
     super()
 
@@ -8,7 +8,12 @@ global.Score = class extends global.Action {
     this.scoreCollector = scoreCollector
   }
 
-  update() {
-    return this.actor.transfer(this.scoreCollector, RESOURCE_SCORE)
+  execute() {
+    const actor = this.actor
+    const scoreCollector = this.scoreCollector
+
+    return actor.transfer(scoreCollector, RESOURCE_SCORE)
   }
 }
+
+global.Score = Score

@@ -2,7 +2,9 @@
 
 class Dismantling extends State {
   findRoom() {
-    return 'W20N30'
+    const room = World.getRoom('W20N30')
+
+    return room
   }
 
   findTarget(room) {
@@ -12,7 +14,7 @@ class Dismantling extends State {
   }
 
   handleAction() {
-    const actionResult = new Dismantle(this.actor, this.target).update()
+    const actionResult = new Dismantle(this.actor, this.target).execute()
 
     switch (actionResult) {
       case OK:

@@ -2,27 +2,35 @@
 
 class RemoteHauler extends Role {
   get bodyPattern() { return [CARRY, MOVE] }
-  get maxCreepSize() { return this.bodyPattern.length * 6 }
+  get maxCreepSize() { return this.bodyPattern.length * 12 }
+  get resource() { return null }
 
-  number(room) {
+  get number() {
     let rooms = World.remoteRooms
     let number = 0
 
     number += _.sum(rooms, room => room.sourceContainers.length)
     number += _.sum(rooms, room => room.mineralContainers.length)
-    number += 1
 
     return number
+  }
+
+  get rooms() {
+    return World.remoteRooms
   }
 
   findTargetTypes(state) {
     switch(state) {
       case 'Refilling': {
         return [
-          FIND_DROPPED_RESOURCES,
-          FIND_TOMBSTONES,
-          FIND_RUINS,
-          FIND_CONTAINERS,
+          [
+            FIND_DROPPED_RESOURCES,
+            FIND_TOMBSTONES,
+            FIND_RUINS,
+          ],
+          [
+            FIND_SOURCE_CONTAINERS,
+          ],
         ]
       }
     }
@@ -32,52 +40,27 @@ class RemoteHauler extends Role {
 
   get resource() { return RESOURCE_ENERGY }
 
-  nextState(context) {
-    const actor = this.actor
-    const result = context.result
-    const currentState = context.currentState
-    let nextState = context.currentState
-
-    switch (currentState) {
-      case 'Spawning':
-        if (!actor.spawning) {
-          nextState = 'Refilling'
-          break
-        }
-
-        break
-      case 'Refilling':
-        if (State.SUCCESS === result) {
-          nextState = 'Storing'
-          break
-        }
-
-        if (State.FAILED === result) {
-          nextState = 'Recycling'
-          break
-        }
-
-        break
-      case 'Storing':
-        if (State.SUCCESS === result) {
-          nextState = 'Refilling'
-          break
-        }
-
-        if (State.FAILED === result) {
-          nextState = 'Recycling'
-          break
-        }
-
-        break
-      case 'Recycling':
-        break
-      default:
-        console.log('REMOTEHAULER', 'unhandled state', currentState, JSON.stringify(context))
-        break
+  get transitions() {
+    const transitions = {
+      'Spawning': {
+        [State.SUCCESS]: 'Refilling',
+      },
+      'Refilling': {
+        [State.SUCCESS]: 'Storing',
+        [State.FAILED]: 'Idling',
+      },
+      'Storing': {
+        [State.SUCCESS]: 'Refilling',
+        [State.FAILED]: 'Idling',
+      },
+      'Idling': {
+        [State.SUCCESS]: 'Refilling',
+        [State.FAILED]: 'Recycling',
+      },
+      'Recycling': {},
     }
 
-    return nextState
+    return transitions
   }
 }
 

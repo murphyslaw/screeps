@@ -3,20 +3,19 @@
 class Role {
   constructor(actor) {
     this.actor = actor
+    this.stateMachine = new StateMachine(this)
     this.logger = new Logger('Role')
   }
 
   get randomName() { return Date.now().toString(36) + Math.random().toString(36).substring(2) }
 
   get name() { return this.constructor.name }
-  get startState() { return 'Spawning' }
   get resource() { return RESOURCE_ENERGY }
   get bodyPattern() { return [] }
   get maxSpawnTime() { return this.maxCreepSize * CREEP_SPAWN_TIME }
   get maxCreepSize() { return this.bodyPattern.length }
-
-  number(room) { return 0 }
-  memory(room) { return {} }
+  get number() { return 0 }
+  get memory() { return this.actor.memory }
 
   cost(body) {
     const cost = _.sum(body, part => BODYPART_COST[part])
@@ -38,38 +37,15 @@ class Role {
     return body
   }
 
-  nextState(context) { throw Error('not implemented') }
-
   update() {
-    const actor = this.actor
-    let state = actor.state
-
-    if (!state) {
-      state = actor.state = this.startState
-    }
-
-    const stateClass = global[state]
-
-    if (stateClass) {
-      const stateInstance = new stateClass(state, this)
-      let nextState = stateInstance.run()
-
-      if (actor.state !== nextState) {
-        stateInstance.exit()
-        nextState = new global[nextState](nextState, this).enter()
-      }
-
-      actor.state = nextState
-    } else {
-      this.logger.debug('ROLE', 'unhandled state', state, actor.role, actor, actor.pos)
-    }
+    this.stateMachine.update()
   }
 
-  wantsToSpawn(room) {
+  wantsToSpawn() {
     const creeps = World.creeps(this.name)
 
     const count = creeps.length
-    const number = this.number(room)
+    const number = this.number
 
     if (count > number) { return false }
 
@@ -80,15 +56,15 @@ class Role {
     return (count < number) || (count == number && renew)
   }
 
-  spawn(room) {
-    const spawns = room.nonSpawningSpawns
+  spawn() {
+    const room = _.find(World.spawnRooms, room => room.nonSpawningSpawns.length)
+    const spawns = (room && room.nonSpawningSpawns) || []
     let actionResult
 
     spawns.some(function (spawn) {
       const name = this.randomName
       const bodyparts = this.bodyparts(room.energyAvailable)
-      const memory = this.memory(room)
-      memory['role'] = this.name
+      const memory = { role: this.name }
 
       actionResult = spawn.spawnCreep(bodyparts, name, { memory: memory })
 

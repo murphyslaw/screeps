@@ -1,6 +1,6 @@
 'use strict'
 
-global.ClaimController = class extends Action {
+class ClaimController extends Action {
   constructor(actor, target) {
     super()
 
@@ -8,7 +8,9 @@ global.ClaimController = class extends Action {
     this.target = target
   }
 
-  update() {
+  execute() {
     return this.actor.claimController(this.target)
   }
 }
+
+global.ClaimController = ClaimController
