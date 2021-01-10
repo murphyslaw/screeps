@@ -89,6 +89,8 @@ class Distributing extends State {
   }
 
   findTarget(room) {
+    if (!room) return null
+
     const actor = this.actor
     const targetFinder = this.targetFinder
     const targetTypes = this.targetTypes
@@ -97,46 +99,6 @@ class Distributing extends State {
     const target = room !== actor.room ? targets[0] : actor.pos.findClosestByRange(targets)
 
     return target
-  }
-
-  handleAction() {
-    const actor = this.actor
-    const target = actor.target
-    const resource = this.role.resource
-
-    const actionResult = new Transfer(actor, target, resource).execute()
-    const targetFreeCapacity = target.store.getFreeCapacity(resource)
-
-    switch (actionResult) {
-      case OK:
-        // change state if all carried resources are transferred
-        if (targetFreeCapacity >= actor.store.getUsedCapacity(resource)) {
-          return State.SUCCESS
-        }
-
-        return State.RUNNING
-
-      case ERR_BUSY:
-      case ERR_NOT_IN_RANGE:
-        return State.RUNNING
-
-      case ERR_FULL:
-      case ERR_NOT_ENOUGH_RESOURCES:
-        return State.SUCCESS
-
-      case ERR_INVALID_TARGET:
-        this.changeTarget(actor, null)
-        return State.RUNNING
-
-      case ERR_INVALID_ARGS:
-      case ERR_NO_BODYPART:
-      case ERR_NOT_OWNER:
-        return State.FAILED
-
-      default:
-        console.log('DISTRIBUTING', 'unhandled action result', actionResult)
-        return State.FAILED
-    }
   }
 }
 

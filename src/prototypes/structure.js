@@ -10,7 +10,7 @@ Object.defineProperties(Structure.prototype, {
 
   'healthy': {
     get: function () {
-      return this.hits == this.hitsMax
+      return !this.damaged
     },
     configurable: true
   },

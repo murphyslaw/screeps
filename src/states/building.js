@@ -1,6 +1,8 @@
 'use strict'
 
 class Building extends State {
+  get icon() { return '🚧' }
+
   findRoom() {
     const rooms = this.actor.room.prioritize(World.territory)
     const room = _.find(rooms, 'needsBuilder')
@@ -18,7 +20,10 @@ class Building extends State {
   }
 
   handleAction() {
-    const actionResult = new Build(this.actor, this.target).execute()
+    const actor = this.actor
+    const target = actor.target
+
+    const actionResult = new Build(actor, target).execute()
 
     switch (actionResult) {
       case OK:
@@ -30,8 +35,7 @@ class Building extends State {
         return State.SUCCESS
 
       case ERR_INVALID_TARGET:
-        this.actor.target = null
-        this.actor.destination = null
+        actor.target = null
         return State.RUNNING
 
       case ERR_NOT_OWNER:

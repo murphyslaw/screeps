@@ -6,8 +6,8 @@ module.exports = function (grunt) {
   const email = grunt.option('email') || config.email
   const password = grunt.option('password') || config.password
   const ptr = grunt.option('ptr') ? true : config.ptr
-
   const world = grunt.option('world') || config.world
+
   let worldDirectory
   switch(world) {
     case 'season':
@@ -37,9 +37,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('lodash')
 
   var currentdate = new Date()
-
-  // Output the current date.
-  grunt.log.subhead('Task Start: ' + currentdate.toLocaleString())
 
   grunt.initConfig({
     screeps: {

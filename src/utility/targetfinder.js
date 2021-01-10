@@ -6,6 +6,8 @@ class TargetFinder {
   }
 
   find(room, targetTypes) {
+    if (!room) return []
+
     let targets = []
 
     if (targetTypes[0] instanceof Array) {
@@ -35,8 +37,8 @@ class TargetFinder {
           results.push(...room.sourceContainers)
           break
 
-        case FIND_MINERAL_CONTAINERS:
-          results.push(...room.mineralContainers)
+        case FIND_MINERAL_CONTAINER:
+          results.push(room.mineralContainer)
           break
 
         case FIND_CONTROLLER_CONTAINER:

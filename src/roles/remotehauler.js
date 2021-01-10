@@ -10,7 +10,7 @@ class RemoteHauler extends Role {
     let number = 0
 
     number += _.sum(rooms, room => room.sourceContainers.length)
-    number += _.sum(rooms, room => room.mineralContainers.length)
+    number += _.sum(rooms, room => room.mineralContainer ? 1 : 0)
 
     return number
   }

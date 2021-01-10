@@ -412,71 +412,59 @@ Object.defineProperties(prototype, {
     configurable: true
   },
 
-  'extractors': {
-    get: function () {
-      if (!this._extractors) {
-        if (!this.memory.extractors) {
-          this.memory.extractors = {}
-
-          const extractors = this.find(FIND_MY_STRUCTURES, {
-            filter: (structure) => {
-              return structure.structureType == STRUCTURE_EXTRACTOR
-            }
-          })
-
-          extractors.map(extractor => this.memory.extractors[extractor.id] = {})
-        }
-
-        this._extractors = _.reduce(_.keys(this.memory.extractors), function (extractors, id) {
-          const extractor = Game.getObjectById(id)
-
-          if (extractor) {
-            extractors.push(extractor)
-          } else {
-            delete this.memory.extractors[id]
-          }
-
-          return extractors
-        }, [])
-      }
-
-      return this._extractors
-    },
-    configurable: true
-  },
-
   'minerals': {
-    get: function () {
-      if (!this._minerals) {
-        if (!this.memory.minerals) {
-          this.memory.minerals = {}
-
-          const minerals = this.find(FIND_MINERALS)
-
-          minerals.map(mineral => this.memory.minerals[mineral.id] = {})
-        }
-
-        this._minerals = _.keys(this.memory.minerals).map(id => Game.getObjectById(id))
-      }
-
-      return this._minerals
+    get: function() {
+      delete this.memory.minerals
+      return []
     },
     configurable: true
   },
 
-  'mineralContainers': {
-    get: function () {
-      const mineralContainers = _.reduce(this.minerals, function (containers, mineral) {
-        const container = mineral.container
+  'extractors': {
+    get: function() {
+      delete this.memory.extractors
+      return []
+    },
+    configurable: true
+  },
 
-        if (container) {
-          containers.push(container)
+  'mineral': {
+    get: function () {
+      if (!this._mineral) {
+        const memory = this.memory
+
+        if (!memory.mineral) {
+          memory.mineral = {}
+
+          const mineral = this.find(FIND_MINERALS)[0]
+
+          if (mineral) {
+            memory.mineral.id = mineral.id
+          }
         }
 
-        return containers
-      }, [])
+        this._mineral = Game.getObjectById(memory.mineral.id)
+      }
 
-      return mineralContainers
+      return this._mineral
+    },
+    configurable: true
+  },
+
+  'extractor': {
+    get: function () {
+      const mineral = this.mineral
+
+      return mineral.extractor
+    },
+    configurable: true
+  },
+
+  'mineralContainer': {
+    get: function () {
+      const mineral = this.mineral
+
+      return mineral.container
     },
     configurable: true
   },

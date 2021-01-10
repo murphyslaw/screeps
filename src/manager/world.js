@@ -94,6 +94,10 @@ class World {
       if (room.underAttack) {
         Game.map.visual.text('🔥', new RoomPosition(45, 5, room.name), style)
       }
+
+      if (room.needsScoreHarvester) {
+        Game.map.visual.text('🏆', new RoomPosition(5, 5, room.name), style)
+      }
     })
 
     this.myRooms.forEach(function (room) {
@@ -116,9 +120,6 @@ class World {
 
     this.visibleRooms.forEach(function (room) {
       room.needsScoreHarvester = room.scoreContainers.length > 0
-      if (room.needsScoreHarvester) {
-        Game.map.visual.text('🏆', new RoomPosition(5, 5, room.name), style)
-      }
     })
 
     return

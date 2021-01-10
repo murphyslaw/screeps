@@ -7,13 +7,19 @@ prototype.update = function() {
 
   // scout
   if (Game.time % 25) {
-    const room = this.room
-    const roomName = room.name
-
-    Memory.rooms[roomName] = Memory.rooms[roomName] || {}
-    _.map(room.sources, source => source.container)
-    _.map(room.minerals, mineral => mineral.container)
+    this.scout()
   }
+}
+
+prototype.scout = function() {
+  const room = this.room
+  const roomName = room.name
+
+  Memory.rooms[roomName] = Memory.rooms[roomName] || {}
+  _.map(room.sources, source => source.container)
+  _.get(room.mineral, 'container')
+
+  return
 }
 
 Object.defineProperties(prototype, {
@@ -117,6 +123,13 @@ Object.defineProperties(prototype, {
   'wounded': {
     get: function () {
       return Math.floor(this.hits / this.hitsMax * 100) < 75
+    },
+    configurable: true
+  },
+
+  'invader': {
+    get: function () {
+      return 'Invader' === this.owner.username
     },
     configurable: true
   },

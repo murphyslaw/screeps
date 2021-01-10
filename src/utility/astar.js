@@ -1,6 +1,6 @@
 'use strict'
 
-global.AStar = class {
+class AStar {
   search = function (start, goal) {
     if (!start) return
     if (!goal) return
@@ -97,3 +97,5 @@ global.AStar = class {
     return result
   }
 }
+
+global.AStar = AStar

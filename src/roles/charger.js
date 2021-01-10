@@ -1,41 +1,35 @@
 'use strict'
 
-class Hauler extends Role {
+class Charger extends Role {
   get bodyPattern() { return [CARRY, MOVE] }
-  get maxCreepSize() { return this.bodyPattern.length * 4 }
+  get maxCreepSize() { return this.bodyPattern.length * 6 }
 
   get number() {
-    let rooms = World.myRooms
-    let number = 0
+    const storageRoom = _.find(World.myRooms, room => room.storage)
 
-    number += _.sum(rooms, room => room.sourceContainers.length)
-    number += _.sum(rooms, room => room.extractor ? 1 : 0)
+    if (!storageRoom) return 0
 
-    return number
+    return 1
   }
 
   findTargetTypes(state) {
     switch (state) {
       case 'Refilling': {
         return [
-          [
-            FIND_DROPPED_RESOURCES,
-            FIND_TOMBSTONES,
-            FIND_RUINS,
-          ],
-          [
-            FIND_SOURCE_CONTAINERS,
-          ],
+          FIND_STORAGE,
         ]
       }
 
       case 'Distributing': {
         return [
-          FIND_MY_SPAWNS,
-          FIND_EXTENSIONS,
-          FIND_TOWERS,
-          FIND_CONTROLLER_CONTAINER,
-          FIND_STORAGE,
+          [
+            FIND_MY_SPAWNS,
+            FIND_EXTENSIONS,
+            FIND_TOWERS,
+          ],
+          [
+            FIND_CONTROLLER_CONTAINER,
+          ],
         ]
       }
     }
@@ -67,4 +61,4 @@ class Hauler extends Role {
   }
 }
 
-global.Hauler = Hauler
+global.Charger = Charger

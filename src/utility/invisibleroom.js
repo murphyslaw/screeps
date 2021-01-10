@@ -131,26 +131,24 @@ class InvisibleRoom {
     return []
   }
 
-  get minerals() {
-    return _.map(this.memory.minerals, (source, id) => new InvisibleMineral(this, id))
+  get mineral() {
+    const mineral = this.memory.mineral
+
+    if (!mineral) return null
+
+    return new InvisibleMineral(this, mineral.id)
   }
 
   find() {
     return []
   }
 
-  get mineralContainers() {
-    const mineralContainers = _.reduce(this.minerals, function (containers, mineral) {
-      const container = mineral.container
+  get mineralContainer() {
+    const mineral = this.mineral
 
-      if (container) {
-        containers.push(container)
-      }
+    if (!mineral) return null
 
-      return containers
-    }, [])
-
-    return mineralContainers
+    return mineral.container
   }
 
   get sources() {

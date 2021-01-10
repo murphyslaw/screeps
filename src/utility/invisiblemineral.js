@@ -11,13 +11,21 @@ class InvisibleMineral {
   }
 
   get memory() {
-    return this.room.memory.minerals[this.id] = this.room.memory.minerals[this.id] || {}
+    const roomMemory = this.room.memory.mineral
+
+    roomMemory.mineral = roomMemory.mineral || {}
+
+    return roomMemory.mineral
   }
 
   get container() {
     if (!this._container) {
-      if (this.memory.container) {
-        this._container = new InvisibleContainer(this.room, this.memory.container)
+      const memory = this.memory
+
+      if (memory.container) {
+        const room = this.room
+
+        this._container = new InvisibleContainer(room, memory.container)
       }
     }
 

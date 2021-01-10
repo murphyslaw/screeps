@@ -6,7 +6,7 @@ class Supplier extends Role {
   get resource() { return null }
 
   get number() {
-    const number = World.creeps('ContainerExtractor').length > 0 ? 1 : 0
+    const number = World.creeps('ContainerExtractor').length > 0 ? 0 : 0
 
     return number
   }
@@ -23,7 +23,7 @@ class Supplier extends Role {
     switch (state) {
       case 'Refilling': {
         return [
-          FIND_MINERAL_CONTAINERS,
+          FIND_MINERAL_CONTAINER,
         ]
       }
     }

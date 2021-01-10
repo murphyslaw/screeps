@@ -1,6 +1,6 @@
 'use strict'
 
-global.Logger = class {
+class Logger {
   constructor(scope) {
     this._scope = scope
   }
@@ -34,3 +34,5 @@ global.Logger = class {
     console.log(Game.time, ...arguments)
   }
 }
+
+global.Logger = Logger

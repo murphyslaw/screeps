@@ -10,11 +10,13 @@ class StateMachine {
 
   get currentState() {
     if (!this._currentState) {
-      if (!this.memory.currentState) {
-        this.memory.currentState = this.startState
+      const memory = this.memory
+
+      if (!memory.currentState) {
+        memory.currentState = this.startState
       }
 
-      this._currentState = this.state(this.memory.currentState)
+      this._currentState = this.state(memory.currentState)
     }
 
     return this._currentState
@@ -22,15 +24,18 @@ class StateMachine {
 
   set currentState(state) {
     this.memory.currentState = state.name
+    this._currentState = state
   }
 
   get previousState() {
     if (!this._previousState) {
-      if (!this.memory.previousState) {
-        this.memory.previousState = this.startState
+      const memory = this.memory
+
+      if (!memory.previousState) {
+        memory.previousState = this.startState
       }
 
-      this._previousState = this.state(this.memory.previousState)
+      this._previousState = this.state(memory.previousState)
     }
 
     return this._previousState
@@ -53,10 +58,14 @@ class StateMachine {
   }
 
   changeState(nextState) {
-    this.previousState = this.currentState
-    this.currentState.exit()
+    const currentState = this.currentState
+
+    this.previousState = currentState
+    currentState.exit()
     this.currentState = nextState
-    this.currentState.enter()
+    nextState.enter()
+
+    return
   }
 
   transition(currentState, result) {

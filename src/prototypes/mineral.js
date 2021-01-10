@@ -3,7 +3,11 @@
 Object.defineProperties(Mineral.prototype, {
   'memory': {
     get: function () {
-      return this.room.memory.minerals[this.id] = this.room.memory.minerals[this.id] || {}
+      const roomMemory = this.room.memory
+
+      roomMemory.mineral = roomMemory.mineral || {}
+
+      return roomMemory.mineral
     },
     configurable: true
   },
@@ -11,20 +15,23 @@ Object.defineProperties(Mineral.prototype, {
   'extractor': {
     get: function () {
       if (!this._extractor) {
-        if (!this.memory.extractor) {
-          const extractor = this.pos.lookFor(LOOK_STRUCTURES)[0]
+        const memory = this.memory
+
+        if (!memory.extractor) {
+          const position = this.pos
+          const extractor = position.lookFor(LOOK_STRUCTURES)[0]
 
           if (extractor) {
-            this.memory.extractor = extractor.id
+            memory.extractor = extractor.id
           }
         }
 
-        const extractor = Game.getObjectById(this.memory.extractor)
+        const extractor = Game.getObjectById(memory.extractor)
 
         if (extractor) {
           this._extractor = extractor
         } else {
-          delete this.memory.extractor
+          delete memory.extractor
         }
       }
 
@@ -36,20 +43,24 @@ Object.defineProperties(Mineral.prototype, {
   'container': {
     get: function () {
       if (!this._container) {
-        if (!this.memory.container) {
-          const container = _.find(this.room.containers, container => this.pos.isNearTo(container))
+        const memory = this.memory
+
+        if (!memory.container) {
+          const containers = this.room.containers
+          const position = this.pos
+          const container = _.find(containers, container => position.isNearTo(container))
 
           if (container) {
-            this.memory.container = container.id
+            memory.container = container.id
           }
         }
 
-        const container = Game.getObjectById(this.memory.container)
+        const container = Game.getObjectById(memory.container)
 
         if (container) {
           this._container = container
         } else {
-          delete this.memory.container
+          delete memory.container
         }
       }
 

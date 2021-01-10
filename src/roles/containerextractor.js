@@ -5,13 +5,13 @@ class ContainerExtractor extends Role {
 
   get number() {
     const number = _.sum(World.territory, function(room) {
-      const mineral = _.first(room.minerals)
+      const mineral = room.mineral
 
-      if (mineral && !mineral.ticksToRegeneration) {
-        return room.mineralContainers.length
-      } else {
-        return 0
-      }
+      if (!mineral) return 0
+      if (mineral.ticksToRegeneration) return 0
+      if (!mineral.container) return 0
+
+      return 0
     })
 
     return number

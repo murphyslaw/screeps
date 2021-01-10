@@ -7,28 +7,25 @@ class Role {
     this.logger = new Logger('Role')
   }
 
-  get randomName() { return Date.now().toString(36) + Math.random().toString(36).substring(2) }
-
   get name() { return this.constructor.name }
   get resource() { return RESOURCE_ENERGY }
-  get bodyPattern() { return [] }
-  get maxSpawnTime() { return this.maxCreepSize * CREEP_SPAWN_TIME }
-  get maxCreepSize() { return this.bodyPattern.length }
-  get number() { return 0 }
   get memory() { return this.actor.memory }
 
-  cost(body) {
-    const cost = _.sum(body, part => BODYPART_COST[part])
-
-    return cost
+  update() {
+    this.stateMachine.update()
   }
+
+  get bodyPattern() { return [] }
+  get maxCreepSize() { return this.bodyPattern.length }
+  get maxSpawnTime() { return this.maxCreepSize * CREEP_SPAWN_TIME }
+  get number() { return 0 }
 
   bodyparts(energyAvailable) {
     const pattern = this.bodyPattern
     const patternSize = pattern.length
     const maxFactor = Math.floor(this.maxCreepSize / patternSize)
 
-    const patternCost = this.cost(pattern)
+    const patternCost = _.sum(pattern, part => BODYPART_COST[part])
     const patternFactor = Math.floor(energyAvailable / patternCost)
 
     const factor = Math.min(patternFactor, maxFactor)
@@ -37,20 +34,18 @@ class Role {
     return body
   }
 
-  update() {
-    this.stateMachine.update()
-  }
-
   wantsToSpawn() {
     const creeps = World.creeps(this.name)
 
     const count = creeps.length
     const number = this.number
 
-    if (count > number) { return false }
+    if (count > number) return false
+
+    const maxSpawnTime = this.maxSpawnTime
 
     const renew = _.some(creeps, function (creep) {
-      return creep.ticksToLive <= this.maxSpawnTime
+      return creep.ticksToLive <= maxSpawnTime
     }, this)
 
     return (count < number) || (count == number && renew)
@@ -58,18 +53,24 @@ class Role {
 
   spawn() {
     const room = _.find(World.spawnRooms, room => room.nonSpawningSpawns.length)
-    const spawns = (room && room.nonSpawningSpawns) || []
+
+    if (!room) return false
+
+    const spawns = room.nonSpawningSpawns || []
+
+    if (!spawns.length) return false
+
+    const role = this.name
+    const bodyparts = this.bodyparts(room.energyAvailable)
+    const options = { memory: { role: role } }
+
     let actionResult
 
     spawns.some(function (spawn) {
-      const name = this.randomName
-      const bodyparts = this.bodyparts(room.energyAvailable)
-      const memory = { role: this.name }
-
-      actionResult = spawn.spawnCreep(bodyparts, name, { memory: memory })
+      actionResult = new SpawnCreep(spawn, bodyparts, options).execute()
 
       if (OK === actionResult) {
-        this.logger.debug('spawning ' + this.name + ': ' + name, ' at ', spawn.pos)
+        this.logger.debug('spawning', role, 'at', spawn.pos)
         return true
       }
     }, this)

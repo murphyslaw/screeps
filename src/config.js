@@ -21,6 +21,7 @@ global.config = {
     'Harvester',
     'ContainerHarvester',
     'Hauler',
+    'Charger',
     'Defender',
     'DefenseRepairer',
     'Repairer',
@@ -36,6 +37,7 @@ global.config = {
     // 'Dismantler',
     'Claimer',
     'Reserver',
+    'Scout',
   ],
 }
 
@@ -47,7 +49,7 @@ global.FIND_EXTENSIONS = 128
 global.FIND_TOWERS = 129
 global.FIND_UTILITY_STRUCTURES = 130
 global.FIND_DEFENSES = 131
-global.FIND_MINERAL_CONTAINERS = 132
+global.FIND_MINERAL_CONTAINER = 132
 
 global.DIRECTIONS = [
   TOP,

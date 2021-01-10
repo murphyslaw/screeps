@@ -1,18 +1,6 @@
 'use strict'
 
 class Spawning extends State {
-  findRoom() {
-    const room = this.actor.room
-
-    return room
-  }
-
-  findTarget(room) {
-    const actor = this.actor
-
-    return actor
-  }
-
   handleAction() {
     const actor = this.actor
 

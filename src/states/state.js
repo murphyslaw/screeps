@@ -126,7 +126,6 @@ class State {
   }
 }
 
-// return codes
 State.SUCCESS = 0
 State.RUNNING = 1
 State.FAILED = -1

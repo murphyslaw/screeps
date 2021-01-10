@@ -10,7 +10,7 @@ class Upgrader extends Role {
       return controllerContainer ? controllerContainer.store.getUsedCapacity(RESOURCE_ENERGY) : 0
     })
 
-    const number = Math.max(Math.floor(controllerContainerUsedCapacity / 500), World.myRooms.length)
+    const number = Math.max(Math.floor(controllerContainerUsedCapacity / 1000), World.myRooms.length)
 
     return number
   }

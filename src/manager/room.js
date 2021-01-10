@@ -5,44 +5,8 @@ class RoomManager {
     this.logger = new global.Logger('RoomManager')
   }
 
-  visuals(room) {
-    const visual = room.visual
-
-    if ('W20N30' === room.name && room.scoreCollector) {
-      room.scoreCollector.visualize()
-    }
-
-    room.creeps().forEach(function (creep) {
-      if (creep.target) {
-        visual.circle(creep.target.pos,
-          { fill: 'blue', radius: .1, opacity: 1 })
-      }
-    }, this)
-
-    // World.creeps('repairer').forEach(function (creep) {
-    //   const visual = new RoomVisual(creep.room.name)
-    //   visual.circle(creep.pos,
-    //     { fill: 'transparent', radius: 1, stroke: 'blue', strokeWidth: .1, opacity: 1 })
-    // })
-
-    if (global.config.visuals) {
-      const damagedStructures = room.damagedStructures
-
-      this.logger.debug('damaged structures', damagedStructures.length)
-
-      _.forEach(damagedStructures, function(structure) {
-        room.visual.circle(structure.pos,
-          { fill: 'red', radius: 0.55, stroke: 'red' })
-      })
-    }
-
-    return
-  }
-
   defense(room) {
-    const towers = room.find(FIND_MY_STRUCTURES, {
-      filter: { structureType: STRUCTURE_TOWER }
-    })
+    const towers = room.towers
 
     _.forEach(towers, function(tower) {
       const closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS, {
@@ -51,23 +15,21 @@ class RoomManager {
           return creep.getActiveBodyparts(ATTACK) > 0 ||
             creep.getActiveBodyparts(RANGED_ATTACK) > 0 ||
             creep.getActiveBodyparts(WORK) > 0 ||
-            creep.owner.username === 'Invader'
+            creep.invader
         }
       })
 
       if (closestHostile) {
-        tower.attack(closestHostile)
+        new Attack(tower, closestHostile).execute()
         return
       }
 
       const closestWoundedFriend = tower.pos.findClosestByRange(FIND_MY_CREEPS, {
-        filter: function (creep) {
-          return (creep.hits / creep.hitsMax * 100) < 100
-        }
+        filter: creep => creep.wounded
       })
 
       if (closestWoundedFriend) {
-        tower.heal(closestWoundedFriend)
+        new Heal(tower, closestWoundedFriend).execute()
         return
       }
 
@@ -79,7 +41,7 @@ class RoomManager {
       })
 
       if (closestDamagedStructure) {
-        tower.repair(closestDamagedStructure)
+        new Repair(tower, closestDamagedStructure).execute()
         return
       }
     })

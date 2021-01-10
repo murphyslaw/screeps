@@ -14,21 +14,24 @@ class Extracting extends State {
     const rooms = actor.room.prioritize(World.territory)
 
     const room = _.find(rooms, function(room) {
-      return _.some(room.minerals, function(mineral) {
-        return !mineral.ticksToRegeneration &&
-          mineral.container &&
-          !_.some(World.creeps('ContainerExtractor'), 'memory.target', mineral.id)
-      })
+      const mineral = room.mineral
+
+      if (!mineral) return false
+
+      return !mineral.ticksToRegeneration &&
+        mineral.container &&
+        !_.some(World.creeps('ContainerExtractor'), 'memory.target', mineral.id)
     })
 
     return room
   }
 
   findTarget(room) {
-    const mineral = _.find(room.minerals, function(mineral) {
-      return mineral.container &&
-        !_.some(World.creeps('ContainerHarvester'), 'memory.target', mineral.id)
-    })
+    const mineral = room.mineral
+
+    if (!mineral) return null
+    if (!mineral.container) return null
+    if (_.some(World.creeps('ContainerHarvester'), 'memory.target', mineral.id)) return null
 
     return mineral
   }
