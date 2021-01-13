@@ -3,12 +3,6 @@
 class Signer extends Role {
   get bodyPattern() { return [MOVE] }
 
-  get number() {
-    const needsSigner = _.some(World.territory, 'needsSigner')
-
-    return needsSigner ? 1 : 0
-  }
-
   get transitions() {
     const transitions = {
       'Spawning': {

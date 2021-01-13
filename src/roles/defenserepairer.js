@@ -3,7 +3,6 @@
 class DefenseRepairer extends Role {
   get bodyPattern() { return [WORK, CARRY, MOVE] }
   get maxCreepSize() { return this.bodyPattern.length * 5 }
-  get number() { return 1 }
 
   get transitions() {
     const transitions = {

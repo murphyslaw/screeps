@@ -2,7 +2,7 @@
 
 class Claiming extends State {
   findRoom() {
-    const rooms = World.territory
+    const rooms = World.knownRooms
     const room = _.find(rooms, 'needsClaimer')
 
     return room

@@ -5,16 +5,8 @@ class Supplier extends Role {
   get maxCreepSize() { return this.bodyPattern.length * 2 }
   get resource() { return null }
 
-  get number() {
-    const number = World.creeps('ContainerExtractor').length > 0 ? 0 : 0
-
-    return number
-  }
-
   get rooms() {
-    const actor = this.actor
-
-    const rooms = actor.room.prioritize(World.myRooms)
+    const rooms = [this.actor.home]
 
     return rooms
   }

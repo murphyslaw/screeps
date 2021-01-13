@@ -18,7 +18,6 @@ class Role {
   get bodyPattern() { return [] }
   get maxCreepSize() { return this.bodyPattern.length }
   get maxSpawnTime() { return this.maxCreepSize * CREEP_SPAWN_TIME }
-  get number() { return 0 }
 
   bodyparts(energyAvailable) {
     const pattern = this.bodyPattern
@@ -56,24 +55,7 @@ class Role {
 
     if (!room) return false
 
-    const spawns = room.nonSpawningSpawns || []
-
-    if (!spawns.length) return false
-
-    const role = this.name
-    const bodyparts = this.bodyparts(room.energyAvailable)
-    const options = { memory: { role: role } }
-
-    let actionResult
-
-    spawns.some(function (spawn) {
-      actionResult = new SpawnCreep(spawn, bodyparts, options).execute()
-
-      if (OK === actionResult) {
-        this.logger.debug('spawning', role, 'at', spawn.pos)
-        return true
-      }
-    }, this)
+    const actionResult = room.spawn(this)
 
     return actionResult
   }

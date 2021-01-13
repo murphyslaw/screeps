@@ -14,7 +14,7 @@ class World {
   }
 
   get neighbors() {
-    return _.flatten(_.map(this.myRooms, (room) => _.map(room.neighbors, (neighbor) => this.getRoom(neighbor))))
+    return _.flatten(_.map(this.myRooms, (room) => room.neighbors))
   }
 
   get remoteRooms() {
@@ -70,10 +70,6 @@ class World {
   getRoomData(name) { return Memory.rooms[name] }
 
   update() {
-    _.forEach(Game.creeps, function (creep, name) {
-      Game.map.visual.rect(creep.pos, 1, 1, { fill: '#00ff00', opacity: 1 })
-    })
-
     const style = {
       color: '#ffffff',
       fontSize: 5,
@@ -90,7 +86,6 @@ class World {
         Game.map.visual.text('👻', new RoomPosition(45, 45, room.name), style)
       }
 
-      room.underAttack = room.hostiles.length > 0
       if (room.underAttack) {
         Game.map.visual.text('🔥', new RoomPosition(45, 5, room.name), style)
       }
@@ -107,19 +102,13 @@ class World {
     })
 
     this.territory.forEach(function(room) {
-      room.needsBuilder = room.constructionSites.length > 0
       if (room.needsBuilder) {
         Game.map.visual.text('🚧', new RoomPosition(25, 5, room.name), style)
       }
 
-      room.needsRepairer = room.damagedStructures.length > 0
       if (room.needsRepairer) {
         Game.map.visual.text('🛠', new RoomPosition(15, 5, room.name), style)
       }
-    })
-
-    this.visibleRooms.forEach(function (room) {
-      room.needsScoreHarvester = room.scoreContainers.length > 0
     })
 
     return

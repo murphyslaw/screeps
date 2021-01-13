@@ -7,13 +7,30 @@ prototype.debug = function (...messages) {
   this.logger.debug('"' + this.name + '"', '-', ...messages)
 }
 
-prototype.creeps = function(role) {
+prototype.update = function() {
+  const nonSpawningSpawns = this.nonSpawningSpawns
+
+  _.forEach(nonSpawningSpawns, function(spawn) {
+    _.some(config.roles, function(roleName) {
+      const role = new global[roleName]()
+
+      if (this.wantsToSpawn(role)) {
+        this.spawn(spawn, role)
+        return true
+      }
+
+      return false
+    }, this)
+  }, this)
+}
+
+prototype.creeps = function(roleName) {
   let conditions = [
-    creep => creep.room.name === this.name
+    creep => creep.home.name === this.name
   ]
 
-  if (role) {
-    conditions.push(creep => creep.role.name === role)
+  if (roleName) {
+    conditions.push(creep => creep.role.name === roleName)
   }
 
   return _.filter(Game.creeps, creep => _.every(conditions, cond => cond.call(this, creep)))
@@ -45,6 +62,200 @@ prototype.prioritize = function(rooms) {
   }
 
   return rooms
+}
+
+prototype.population = function(roleName) {
+  switch(roleName) {
+    case 'Builder': {
+      const rooms = this.territory
+      const number = _.filter(rooms, 'needsBuilder').length * 2
+
+      return number
+    }
+
+    case 'Charger': {
+      if (!this.storage) return 0
+
+      return 1
+    }
+
+    case 'Claimer': {
+      return 0
+    }
+
+    case 'ContainerExtractor': {
+      const rooms = this.territory
+      const number = _.sum(rooms, function (room) {
+        const mineral = room.mineral
+
+        if (!mineral) return 0
+        if (mineral.ticksToRegeneration) return 0
+        if (!mineral.container) return 0
+
+        return 0
+      })
+
+      return number
+    }
+
+    case 'ContainerHarvester': {
+      const rooms = this.territory
+      let number = _.sum(rooms, room => room.sourceContainers.length)
+
+      // FIXME: hardcoded lower number, because of overlapping territories
+      if ('E19N34' === this.name) number -= 1
+
+      return number
+    }
+
+    case 'Defender': {
+      const rooms = this.territory
+      const underAttack = _.some(rooms, 'underAttack')
+
+      return underAttack ? 1 : 0
+    }
+
+    case 'Dismantler': {
+      return 0
+    }
+
+    case 'Harvester': {
+      const slots = _.sum(this.sources, function (source) {
+        return source.container ? 0 : Math.floor(source.freeSpaceCount / 2)
+      })
+
+      return slots
+    }
+
+    case 'Hauler': {
+      let number = 0
+
+      number += this.sourceContainers.length
+      number += this.extractor ? 1 : 0
+
+      return number
+    }
+
+    case 'RemoteHarvester': {
+      if (this.level < 4) return 0
+
+      const rooms = this.remotes
+      let number = 0
+
+      number += _.sum(rooms, function (room) {
+        return _.filter(room.sources, source => !source.container).length
+      })
+
+      return number
+    }
+
+    case 'RemoteHauler': {
+      if (this.level < 4) return 0
+
+      let rooms = this.remotes
+      let number = 0
+
+      number += _.sum(rooms, room => room.sourceContainers.length)
+      number += _.sum(rooms, room => room.mineralContainer ? 1 : 0)
+
+      return number
+    }
+
+    case 'Repairer': {
+      const rooms = this.territory
+      const number = _.filter(rooms, 'needsRepairer').length
+
+      return number
+    }
+
+    case 'Reserver': {
+      const rooms = this.territory
+      const needsReserver = _.some(rooms, 'needsReserver')
+
+      return needsReserver ? 1 : 0
+    }
+
+    case 'ScoreHarvester': {
+      if ('E19N32' === this.name) {
+        const needsScoreHarvester = _.some(World.knownRooms, 'needsScoreHarvester')
+
+        return needsScoreHarvester ? 4 : 0
+      }
+    }
+
+    case 'Scorer': {
+      if ('E19N32' === this.name) {
+        const storage = this.storage
+        const number = storage && storage.store[RESOURCE_SCORE] > 1000 ? 1 : 0
+
+        return number
+      }
+    }
+
+    case 'Scout': {
+      if ('E19N32' === this.name) {
+        return 1
+      }
+    }
+
+    case 'Signer': {
+      const rooms = this.territory
+      const needsSigner = _.some(rooms, 'needsSigner')
+
+      return needsSigner ? 1 : 0
+    }
+
+    case 'Supplier': {
+      const number = this.creeps('ContainerExtractor').length > 0 ? 0 : 0
+
+      return number
+    }
+
+    case 'Upgrader': {
+      const controllerContainer = this.controller.container
+      const controllerContainerUsedCapacity = controllerContainer ? controllerContainer.store.getUsedCapacity(RESOURCE_ENERGY) : 0
+
+      const number = Math.max(Math.floor(controllerContainerUsedCapacity / 1000), 1)
+
+      return number
+    }
+  }
+
+  return 0
+}
+
+prototype.wantsToSpawn = function(role) {
+  const roleName = role.name
+  const creeps = this.creeps(roleName)
+
+  const count = creeps.length
+  const number = this.population(roleName)
+
+  if (count > number) return false
+
+  const maxSpawnTime = role.maxSpawnTime
+
+  const renew = _.some(creeps, function (creep) {
+    return creep.ticksToLive <= maxSpawnTime
+  }, this)
+
+  return (count < number) || (count == number && renew)
+}
+
+prototype.spawn = function (spawn, role) {
+  const roleName = role.name
+  const bodyparts = role.bodyparts(this.energyAvailable)
+  const options = { memory: { role: roleName, home: this.name } }
+
+  let actionResult
+
+  actionResult = new SpawnCreep(spawn, bodyparts, options).execute()
+
+  if (OK === actionResult) {
+    this.logger.debug('spawning', roleName, 'at', spawn.pos)
+  }
+
+  return actionResult
 }
 
 Object.defineProperties(prototype, {
@@ -91,7 +302,26 @@ Object.defineProperties(prototype, {
 
   'neighbors': {
     get: function () {
-      return _.values(Game.map.describeExits(this.name))
+      const neighborRoomNames = _.values(Game.map.describeExits(this.name))
+      const neighbors = _.map(neighborRoomNames, roomName => World.getRoom(roomName))
+
+      return neighbors
+    },
+    configurable: true
+  },
+
+  'remotes': {
+    get: function() {
+      return _.filter(this.neighbors, function (room) {
+        return this.name != room.name && !room.isHighway
+      }, this)
+    },
+    configurable: true
+  },
+
+  'territory': {
+    get: function() {
+      return _.union([this], this.neighbors)
     },
     configurable: true
   },
@@ -378,7 +608,7 @@ Object.defineProperties(prototype, {
   'nonSpawningSpawns': {
     get: function() {
       if (!this._nonSpawningSpawns) {
-        const spawns = _.reject(Game.spawns, 'spawning')
+        const spawns = _.reject(this.spawns, 'spawning')
 
         this._nonSpawningSpawns = spawns
       }
@@ -516,7 +746,9 @@ Object.defineProperties(prototype, {
 
   'level': {
     get: function () {
-      return this.controller && this.controller.level
+      const controller = this.controller
+
+      return controller && controller.level
     },
     configurable: true
   }

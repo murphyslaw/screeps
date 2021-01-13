@@ -5,6 +5,24 @@ class RoomManager {
     this.logger = new global.Logger('RoomManager')
   }
 
+  update() {
+    World.knownRooms.forEach(function (room) {
+      room.underAttack = room.hostiles.length > 0
+      room.needsScoreHarvester = room.scoreContainers.length > 0
+
+      if (room.my) {
+        this.defense(room)
+
+        statsManager.exportRoomStats(room)
+      }
+    }, this)
+
+    World.territory.forEach(function (room) {
+      room.needsBuilder = room.constructionSites.length > 0
+      room.needsRepairer = room.damagedStructures.length > 0
+    })
+  }
+
   defense(room) {
     const towers = room.towers
 

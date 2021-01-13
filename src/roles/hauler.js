@@ -4,16 +4,6 @@ class Hauler extends Role {
   get bodyPattern() { return [CARRY, MOVE] }
   get maxCreepSize() { return this.bodyPattern.length * 4 }
 
-  get number() {
-    let rooms = World.myRooms
-    let number = 0
-
-    number += _.sum(rooms, room => room.sourceContainers.length)
-    number += _.sum(rooms, room => room.extractor ? 1 : 0)
-
-    return number
-  }
-
   findTargetTypes(state) {
     switch (state) {
       case 'Refilling': {

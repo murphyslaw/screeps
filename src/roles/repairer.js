@@ -4,12 +4,6 @@ class Repairer extends Role {
   get bodyPattern() { return [WORK, CARRY, MOVE] }
   get maxCreepSize() { return this.bodyPattern.length * 5 }
 
-  get number() {
-    const number = _.filter(World.territory, 'needsRepairer').length
-
-    return number
-  }
-
   get transitions() {
     const transitions = {
       'Spawning': {

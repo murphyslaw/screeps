@@ -77,10 +77,14 @@ class InvisibleRoom {
 
   set needsSigner(value) {}
 
-  get needsClaimer() {
+  get claimFlag() {
     const flag = Game.flags.claim
 
-    return (flag && this.name === flag.pos.roomName) ? true : false
+    return (flag && this.name === flag.pos.roomName) ? flag : null
+  }
+
+  get needsClaimer() {
+    return this.claimFlag ? true : false
   }
 
   get needsReserver() {

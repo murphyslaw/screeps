@@ -44,15 +44,9 @@ class Distributing extends State {
     const targetFinder = this.targetFinder
     const targetTypes = this.targetTypes
 
-    const rooms = actor.room.prioritize(World.myRooms)
+    const targets = targetFinder.find(actor.home, targetTypes)
 
-    const room = _.find(rooms, function (room) {
-      const targets = targetFinder.find(room, targetTypes)
-
-      return targets.length > 0
-    })
-
-    return room
+    return targets.length > 0 ? actor.home : null
   }
 
   get targetTypes() {

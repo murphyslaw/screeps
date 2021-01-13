@@ -5,7 +5,8 @@ class Repairing extends State {
   get validator() { return new DamagedTargetValidator(this.role) }
 
   findRoom() {
-    const room = _.sample(_.filter(World.territory, 'needsRepairer'))
+    const actor = this.actor
+    const room = _.sample(_.filter(actor.home.territory, 'needsRepairer'))
 
     return room
   }

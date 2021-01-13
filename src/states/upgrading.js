@@ -4,16 +4,7 @@ class Upgrading extends State {
   get icon() { return '➕' }
 
   findRoom() {
-    const room = _.min(World.myRooms, function (myRoom) {
-      let count = myRoom.creeps('Upgrader').length
-
-      // don't count the searching creep
-      if (this.actor.room === myRoom) count -= 1
-
-      return count
-    }, this)
-
-    return room
+    return this.actor.home
   }
 
   findTarget(room) {

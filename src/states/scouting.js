@@ -10,7 +10,7 @@ class Scouting extends State {
       actor.memory.routeIndex = 0
     }
 
-    const route = ['E19N34', 'E19N33', 'E19N32', 'E19N31', 'E19N30', 'E18N30', 'E19N30', 'E20N30', 'E20N29', 'E20N30', 'E21N30', 'E20N30', 'E20N31', 'E20N32', 'E20N33']
+    const route = ['E19N30', 'E18N30', 'E19N30', 'E19N29', 'E20N29', 'E20N28', 'E20N30', 'E21N30', 'E22N30', 'E20N30', 'E20N31', 'E20N32', 'E20N33', 'E20N34']
     let currentRouteIndex = actor.memory.routeIndex
 
     if (actor.room.name === route[currentRouteIndex]) {

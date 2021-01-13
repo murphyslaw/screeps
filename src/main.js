@@ -9,12 +9,7 @@ module.exports.loop = function() {
   World.clean()
   World.update()
 
-  _.forEach(World.myRooms, function(room) {
-    roomManager.defense(room)
-
-    statsManager.exportRoomStats(room)
-  })
-
+  roomManager.update()
   creepManager.run()
 
   statsManager.exportGlobalStats()

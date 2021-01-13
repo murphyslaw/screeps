@@ -4,7 +4,8 @@ class Building extends State {
   get icon() { return '🚧' }
 
   findRoom() {
-    const rooms = this.actor.room.prioritize(World.territory)
+    const actor = this.actor
+    const rooms = actor.room.prioritize(actor.home.territory)
     const room = _.find(rooms, 'needsBuilder')
 
     return room

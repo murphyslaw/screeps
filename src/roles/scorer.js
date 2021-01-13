@@ -5,12 +5,6 @@ class Scorer extends Role {
   get maxCreepSize() { return MAX_CREEP_SIZE }
   get resource() { return RESOURCE_SCORE }
 
-  get number() {
-    const number = _.some(World.myRooms, room => room.storage && room.storage.store[RESOURCE_SCORE] > 1000) ? 1 : 0
-
-    return number
-  }
-
   findTargetTypes(state) {
     switch (state) {
       case 'Refilling': {

@@ -3,12 +3,6 @@
 class Reserver extends Role {
   get bodyPattern() { return [CLAIM, CLAIM, MOVE, MOVE] }
 
-  get number() {
-    const needsReserver = _.some(World.territory, 'needsReserver')
-
-    return needsReserver ? 1 : 0
-  }
-
   get transitions() {
     const transitions = {
       'Spawning': {

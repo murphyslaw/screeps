@@ -86,12 +86,12 @@ class State {
 
   handleMovement() {
     const actor = this.actor
-    const destination = actor.destination
+    const target = actor.destination || this.targetBasedDestination(actor.target)
     const options = this.movementOptions
     const range = this.validRange
 
-    if (destination && !actor.pos.inRangeTo(destination, range)) {
-      const actionResult = new Move(actor, destination, options).execute()
+    if (target && !actor.pos.inRangeTo(target, range)) {
+      const actionResult = new Move(actor, target, options).execute()
 
       switch (actionResult) {
         case OK:
@@ -101,7 +101,7 @@ class State {
 
         case ERR_NO_PATH:
         case ERR_INVALID_TARGET:
-          this.changeTarget(actor, null)
+          actor.target = null
           return State.RUNNING
 
         case ERR_NO_BODYPART:
@@ -122,7 +122,8 @@ class State {
   }
 
   exit() {
-    this.changeTarget(this.actor, null)
+    this.actor.target = null
+    this.actor.destination = null
   }
 }
 

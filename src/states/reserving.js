@@ -2,7 +2,8 @@
 
 class Reserving extends State {
   findRoom() {
-    const rooms = World.territory
+    const actor = this.actor
+    const rooms = actor.home.territory
     const room = _.find(rooms, 'needsReserver')
 
     return room

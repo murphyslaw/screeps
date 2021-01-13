@@ -4,14 +4,6 @@ class Charger extends Role {
   get bodyPattern() { return [CARRY, MOVE] }
   get maxCreepSize() { return this.bodyPattern.length * 6 }
 
-  get number() {
-    const storageRoom = _.find(World.myRooms, room => room.storage)
-
-    if (!storageRoom) return 0
-
-    return 1
-  }
-
   findTargetTypes(state) {
     switch (state) {
       case 'Refilling': {

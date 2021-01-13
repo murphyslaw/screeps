@@ -5,12 +5,6 @@ class ScoreHarvester extends Role {
   get maxCreepSize() { return this.bodyPattern.length * 12 }
   get resource() { return RESOURCE_SCORE }
 
-  get number() {
-    const needsScoreHarvester = _.some(World.knownRooms, 'needsScoreHarvester')
-
-    return needsScoreHarvester ? 3 : 0
-  }
-
   get transitions() {
     const transitions = {
       'Spawning': {

@@ -3,11 +3,6 @@
 class ContainerHarvester extends Role {
   get bodyPattern() { return [WORK, WORK, WORK, WORK, WORK, MOVE] }
 
-  get number() {
-    const number = _.sum(World.territory, room => room.sourceContainers.length)
-    return number
-  }
-
   get transitions() {
     const transitions = {
       'Spawning': {

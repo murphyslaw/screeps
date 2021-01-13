@@ -5,18 +5,8 @@ class RemoteHauler extends Role {
   get maxCreepSize() { return this.bodyPattern.length * 12 }
   get resource() { return null }
 
-  get number() {
-    let rooms = World.remoteRooms
-    let number = 0
-
-    number += _.sum(rooms, room => room.sourceContainers.length)
-    number += _.sum(rooms, room => room.mineralContainer ? 1 : 0)
-
-    return number
-  }
-
   get rooms() {
-    return World.remoteRooms
+    return this.actor.home.remotes
   }
 
   findTargetTypes(state) {

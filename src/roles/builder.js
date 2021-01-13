@@ -4,12 +4,6 @@ class Builder extends Role {
   get bodyPattern() { return [WORK, CARRY, MOVE] }
   get maxCreepSize() { return this.bodyPattern.length * 6 }
 
-  get number() {
-    const number = _.filter(World.territory, 'needsBuilder').length
-
-    return number
-  }
-
   get transitions() {
     const transitions = {
       'Spawning': {

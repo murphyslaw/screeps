@@ -4,7 +4,8 @@ class Defending extends State {
   get icon() { return '🛡️' }
 
   findRoom() {
-    const rooms = World.territory
+    const actor = this.actor
+    const rooms = actor.room.prioritize(actor.home.territory)
     const room = _.find(rooms, 'underAttack')
 
     return room
@@ -20,7 +21,10 @@ class Defending extends State {
   }
 
   handleAction() {
-    const actionResult = new Attack(this.actor, this.target).execute()
+    const actor = this.actor
+    const target = actor.target
+
+    const actionResult = new Attack(actor, target).execute()
 
     switch (actionResult) {
       case OK:
@@ -29,7 +33,7 @@ class Defending extends State {
         return State.RUNNING
 
       case ERR_INVALID_TARGET:
-        this.actor.target = null
+        actor.target = null
         return State.RUNNING
 
       case ERR_NO_BODYPART:

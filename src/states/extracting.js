@@ -11,7 +11,7 @@ class Extracting extends State {
     const target = actor.target
     if (target) return target.room.name
 
-    const rooms = actor.room.prioritize(World.territory)
+    const rooms = actor.room.prioritize(actor.home.territory)
 
     const room = _.find(rooms, function(room) {
       const mineral = room.mineral

@@ -4,8 +4,7 @@ class Recycling extends State {
   get icon() { return '💀' }
 
   findRoom() {
-    const rooms = World.spawnRooms
-    const room = rooms[0]
+    const room = this.actor.home
 
     return room
   }

@@ -156,6 +156,30 @@ Object.defineProperties(prototype, {
     configurable: true
   },
 
+  'home': {
+    get: function () {
+      if (!this._home) {
+        this._home = World.getRoom(this.memory.home)
+      }
+
+      return this._home
+    },
+    set: function (value) {
+      if (_.isString(value)) {
+        this.memory.home = value
+        this._home = World.getRoom(value)
+      }
+
+      if (_.isObject(value)) {
+        this.memory.home = value.name
+        this._home = value
+      }
+
+      return this._home
+    },
+    configurable: true
+  },
+
   'targetRoom': {
     get: function () {
       return this.memory.targetRoom

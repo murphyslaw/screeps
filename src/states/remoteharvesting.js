@@ -5,10 +5,13 @@ class RemoteHarvesting extends State {
   get validator() { return new FillingTargetValidator(this.role) }
 
   findRoom() {
-    const rooms = this.actor.room.prioritize(World.remoteRooms)
+    const actor = this.actor
+    const rooms = actor.room.prioritize(actor.home.remotes)
+    const targetFinder = this.targetFinder
+    const targetTypes = this.targetTypes
 
     const room = _.find(rooms, function (room) {
-      const targets = this.targetFinder.find(room, this.targetTypes)
+      const targets = targetFinder.find(room, targetTypes)
 
       return targets.length > 0
     }, this)

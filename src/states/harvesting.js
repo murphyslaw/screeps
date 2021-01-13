@@ -11,7 +11,7 @@ class Harvesting extends State {
     const target = actor.target
     if (this.validator.isValid(target)) return target.room.name
 
-    const rooms = actor.room.prioritize(World.territory)
+    const rooms = actor.room.prioritize(actor.home.territory)
 
     if ('ContainerHarvester' === actor.role.name) {
       const room = _.find(rooms, function(room) {
@@ -26,7 +26,7 @@ class Harvesting extends State {
 
     const room = _.find(rooms, function(room) {
       return _.some(room.sources, source => this.validator.isValid(source))
-    })
+    }, this)
 
     return room
   }

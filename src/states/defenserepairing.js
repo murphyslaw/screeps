@@ -6,7 +6,7 @@ class DefenseRepairing extends State {
 
   findRoom() {
     const actor = this.actor
-    const rooms = actor.room.prioritize(World.territory)
+    const rooms = actor.room.prioritize(actor.home.territory)
 
     const room = _.find(rooms, function (room) {
       const targets = this.targetFinder.find(room, this.targetTypes)

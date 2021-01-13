@@ -4,17 +4,6 @@ class Upgrader extends Role {
   get bodyPattern() { return [WORK, WORK, CARRY, CARRY, MOVE] }
   get maxCreepSize() { return this.bodyPattern.length * 6 }
 
-  get number() {
-    const controllerContainerUsedCapacity = _.sum(World.myRooms, function(room) {
-      const controllerContainer = room.controller.container;
-      return controllerContainer ? controllerContainer.store.getUsedCapacity(RESOURCE_ENERGY) : 0
-    })
-
-    const number = Math.max(Math.floor(controllerContainerUsedCapacity / 1000), World.myRooms.length)
-
-    return number
-  }
-
   findTargetTypes(state) {
     switch (state) {
       case 'Refilling': {

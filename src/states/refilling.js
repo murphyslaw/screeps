@@ -24,7 +24,7 @@ class Refilling extends State {
 
     let rooms
     rooms = !_.isUndefined(role.rooms) && role.rooms
-    rooms = rooms || actor.room.prioritize(World.territory)
+    rooms = rooms || actor.room.prioritize(actor.home.territory)
 
     return rooms
   }

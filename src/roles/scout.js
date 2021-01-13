@@ -3,8 +3,6 @@
 class Scout extends Role {
   get bodyPattern() { return [MOVE] }
 
-  get number() { return 1 }
-
   get transitions() {
     const transitions = {
       'Spawning': {

@@ -16,8 +16,6 @@ class Dismantler extends Role {
     return (this.maxCreepSize * CREEP_SPAWN_TIME) + 215
   }
 
-  get number() { return 1 }
-
   get transitions() {
     const transitions = {
       'Spawning': {

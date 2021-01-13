@@ -4,7 +4,8 @@ class Signing extends State {
   get icon() { return '📜' }
 
   findRoom() {
-    const room = _.find(World.territory, 'needsSigner')
+    const actor = this.actor
+    const room = _.find(actor.home.territory, 'needsSigner')
 
     return room
   }
