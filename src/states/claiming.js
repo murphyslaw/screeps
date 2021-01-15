@@ -11,7 +11,7 @@ class Claiming extends State {
   findTarget(room) {
     const controller = room.controller
 
-    if (controller && !controller.owner && !controller.reservation) return controller
+    if (controller && !controller.owner && (!controller.reservation || controller.reserved)) return controller
 
     return null
   }

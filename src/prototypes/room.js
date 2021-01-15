@@ -80,6 +80,11 @@ prototype.population = function(roleName) {
     }
 
     case 'Claimer': {
+      const rooms = World.knownRooms
+      const needsClaimer = _.some(rooms, 'needsClaimer')
+
+      if (needsClaimer && this.capital) return 1
+
       return 0
     }
 
@@ -120,8 +125,16 @@ prototype.population = function(roleName) {
     }
 
     case 'Harvester': {
+      if (3 > this.level) {
+        const slots = _.sum(this.sources, function (source) {
+          return Math.floor(source.freeSpaceCount)
+        })
+
+        return slots
+      }
+
       const slots = _.sum(this.sources, function (source) {
-        return source.container ? 0 : Math.floor(source.freeSpaceCount / 2)
+        return source.container ? 0 : Math.floor(source.freeSpaceCount)
       })
 
       return slots
@@ -130,14 +143,20 @@ prototype.population = function(roleName) {
     case 'Hauler': {
       let number = 0
 
-      number += this.sourceContainers.length
+      const sourceContainers = this.sourceContainers
+      const numberSourceContainers = sourceContainers.length
+
+      if (numberSourceContainers) {
+        number += Math.floor(_.sum(sourceContainers, container => container.store.getUsedCapacity(RESOURCE_ENERGY)) / numberSourceContainers / 500)
+      }
+
       number += this.extractor ? 1 : 0
 
       return number
     }
 
     case 'RemoteHarvester': {
-      if (this.level < 4) return 0
+      if (4 > this.level) return 0
 
       const rooms = this.remotes
       let number = 0
@@ -150,7 +169,7 @@ prototype.population = function(roleName) {
     }
 
     case 'RemoteHauler': {
-      if (this.level < 4) return 0
+      if (4 > this.level) return 0
 
       let rooms = this.remotes
       let number = 0
@@ -176,7 +195,7 @@ prototype.population = function(roleName) {
     }
 
     case 'ScoreHarvester': {
-      if ('E19N32' === this.name) {
+      if (this.capital) {
         const needsScoreHarvester = _.some(World.knownRooms, 'needsScoreHarvester')
 
         return needsScoreHarvester ? 4 : 0
@@ -184,7 +203,7 @@ prototype.population = function(roleName) {
     }
 
     case 'Scorer': {
-      if ('E19N32' === this.name) {
+      if (this.capital) {
         const storage = this.storage
         const number = storage && storage.store[RESOURCE_SCORE] > 1000 ? 1 : 0
 
@@ -193,7 +212,7 @@ prototype.population = function(roleName) {
     }
 
     case 'Scout': {
-      if ('E19N32' === this.name) {
+      if (this.capital) {
         return 1
       }
     }
@@ -215,7 +234,7 @@ prototype.population = function(roleName) {
       const controllerContainer = this.controller.container
       const controllerContainerUsedCapacity = controllerContainer ? controllerContainer.store.getUsedCapacity(RESOURCE_ENERGY) : 0
 
-      const number = Math.max(Math.floor(controllerContainerUsedCapacity / 1000), 1)
+      const number = Math.max(Math.floor(controllerContainerUsedCapacity / 2000), 1)
 
       return number
     }
@@ -273,6 +292,13 @@ Object.defineProperties(prototype, {
     configurable: true
   },
 
+  'capital': {
+    get: function () {
+      return 'E19N32' === this.name
+    },
+    configurable: true
+  },
+
   'my': {
     get: function () {
       return this.controller && this.controller.my ? true : false
@@ -313,7 +339,13 @@ Object.defineProperties(prototype, {
   'remotes': {
     get: function() {
       return _.filter(this.neighbors, function (room) {
-        return this.name != room.name && !room.isHighway
+        const isRemote = true &&
+          this.name != room.name &&
+          !room.isHighway &&
+          !World.myRooms.includes(room) &&
+          !global.avoid.includes(room.name)
+
+        return isRemote
       }, this)
     },
     configurable: true
@@ -321,7 +353,7 @@ Object.defineProperties(prototype, {
 
   'territory': {
     get: function() {
-      return _.union([this], this.neighbors)
+      return _.union([this], this.remotes)
     },
     configurable: true
   },

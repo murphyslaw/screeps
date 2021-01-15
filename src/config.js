@@ -63,3 +63,7 @@ global.DIRECTIONS = [
 ]
 
 global.MY_USERNAME = 'Murphlaw'
+
+global.avoid = [
+  'E18N31',
+]

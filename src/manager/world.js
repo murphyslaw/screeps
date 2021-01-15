@@ -48,6 +48,8 @@ class World {
       routeCallback(roomName) {
         const room = global.World.getRoom(roomName)
 
+        if (global.avoid.includes(roomName)) return Infinity
+
         if (room.isHighway || room.my) {
           return 1
         } else {

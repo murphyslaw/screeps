@@ -21,7 +21,12 @@ class Harvester extends Role {
 
           return 'Upgrading'
         },
-        [State.FAILED]: 'Idling',
+        [State.FAILED]: () => {
+          const room = this.actor.room
+          if (room.sourceContainers.length) return 'Refilling'
+
+          return 'Idling'
+        },
       },
       'Distributing': {
         [State.SUCCESS]: 'Harvesting',
@@ -33,6 +38,10 @@ class Harvester extends Role {
       },
       'Building': {
         [State.SUCCESS]: 'Harvesting',
+        [State.FAILED]: 'Idling',
+      },
+      'Refilling': {
+        [State.SUCCESS]: 'Distributing',
         [State.FAILED]: 'Idling',
       },
       'Idling': {
