@@ -6,9 +6,7 @@ prototype.update = function() {
   this.role.update()
 
   // scout
-  if (Game.time % 25) {
-    this.scout()
-  }
+  if (0 === Game.time % 5) this.scout()
 }
 
 prototype.scout = function() {

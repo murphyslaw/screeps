@@ -4,16 +4,19 @@ module.exports = function (grunt) {
   const config = require('./.screeps.json')
 
   const email = grunt.option('email') || config.email
-  const password = grunt.option('password') || config.password
+  const token = grunt.option('token') || config.token
   const ptr = grunt.option('ptr') ? true : config.ptr
   const world = grunt.option('world') || config.world
 
+  let server
   let worldDirectory
   switch(world) {
     case 'season':
+      server = 'season'
       worldDirectory = 'screeps.com___season/'
       break
     case 'persistent':
+      server = 'persistent'
       worldDirectory = 'screeps.com/'
       break
     case 'localhost':
@@ -42,12 +45,13 @@ module.exports = function (grunt) {
     screeps: {
       options: {
         email: email,
-        password: password,
+        token: token,
+        server: server,
         branch: '<%= gitinfo.local.branch.current.name %>',
         ptr: ptr
       },
       dist: {
-        src: ['src/*.js']
+        src: ['dist/*.js']
       }
     },
 

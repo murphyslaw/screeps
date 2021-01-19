@@ -80,12 +80,12 @@ prototype.population = function(roleName) {
     }
 
     case 'Claimer': {
+      if (!this.capital) return 0
+
       const rooms = World.knownRooms
       const needsClaimer = _.some(rooms, 'needsClaimer')
 
-      if (needsClaimer && this.capital) return 1
-
-      return 0
+      return needsClaimer ? 1 : 0
     }
 
     case 'ContainerExtractor': {
@@ -182,12 +182,14 @@ prototype.population = function(roleName) {
 
     case 'Repairer': {
       const rooms = this.territory
-      const number = _.filter(rooms, 'needsRepairer').length
+      const number = _.some(rooms, 'needsRepairer') ? 1 : 0
 
       return number
     }
 
     case 'Reserver': {
+      if (!this.capital) return 0
+
       const rooms = this.territory
       const needsReserver = _.some(rooms, 'needsReserver')
 
@@ -195,14 +197,15 @@ prototype.population = function(roleName) {
     }
 
     case 'ScoreHarvester': {
-      if (this.capital) {
-        const needsScoreHarvester = _.some(World.knownRooms, 'needsScoreHarvester')
+      if (!this.capital) return 0
 
-        return needsScoreHarvester ? 4 : 0
-      }
+      const needsScoreHarvester = _.some(World.knownRooms, 'needsScoreHarvester')
+
+      return needsScoreHarvester ? 4 : 0
     }
 
     case 'Scorer': {
+      return 0
       if (this.capital) {
         const storage = this.storage
         const number = storage && storage.store[RESOURCE_SCORE] > 1000 ? 1 : 0
@@ -218,6 +221,8 @@ prototype.population = function(roleName) {
     }
 
     case 'Signer': {
+      if (!this.capital) return 0
+
       const rooms = this.territory
       const needsSigner = _.some(rooms, 'needsSigner')
 
@@ -231,10 +236,7 @@ prototype.population = function(roleName) {
     }
 
     case 'Upgrader': {
-      const controllerContainer = this.controller.container
-      const controllerContainerUsedCapacity = controllerContainer ? controllerContainer.store.getUsedCapacity(RESOURCE_ENERGY) : 0
-
-      const number = Math.max(Math.floor(controllerContainerUsedCapacity / 2000), 1)
+      const number = Math.min(Math.floor(this.energySurplus / 2000), 5)
 
       return number
     }
@@ -458,6 +460,44 @@ Object.defineProperties(prototype, {
     },
     set: function (value) {
       return this.memory.underAttack = value ? Game.time : 0
+    },
+    configurable: true
+  },
+
+  'energySurplus': {
+    get: function () {
+      if (!this._energySurplus) {
+        let energySurplus = -this.energyCapacityAvailable
+
+        energySurplus += _.sum(this.droppedEnergy, resource => resource.amount)
+
+        const containers = this.containers
+
+        energySurplus += _.sum(containers, container => container.store[RESOURCE_ENERGY])
+
+        const storage = this.storage
+
+        if (storage) {
+          energySurplus += _.clamp(storage.store.getUsedCapacity(RESOURCE_ENERGY) - 100000, 0, 100000)
+        }
+
+        this._energySurplus = Math.max(energySurplus, 0)
+      }
+
+      return this._energySurplus
+    },
+    configurable: true
+  },
+
+  'droppedEnergy': {
+    get: function() {
+      const droppedEnergy = this.find(FIND_DROPPED_RESOURCES, {
+        filter: {
+          resourceType: RESOURCE_ENERGY
+        }
+      })
+
+      return droppedEnergy
     },
     configurable: true
   },

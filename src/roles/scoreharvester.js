@@ -11,7 +11,7 @@ class ScoreHarvester extends Role {
         [State.SUCCESS]: 'Collecting',
       },
       'Collecting': {
-        [State.SUCCESS]: 'Scoring',
+        [State.SUCCESS]: 'Storing',
         [State.FAILED]: 'Recycling',
       },
       'Storing': {

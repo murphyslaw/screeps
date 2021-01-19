@@ -12,7 +12,7 @@ class Collecting extends State {
   }
 
   findTarget(room) {
-    const scoreContainers = room.scoreContainers
+    const scoreContainers = _.sortBy(room.scoreContainers, container => -container.ticksToDecay)
 
     return scoreContainers.length ? scoreContainers[0] : null
   }
